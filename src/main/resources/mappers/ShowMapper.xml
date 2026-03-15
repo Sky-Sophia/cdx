@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.javawebdemo.mapper.ShowMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shows (movie_id, hall_id, start_time, end_time, base_price, final_price, status)
+        VALUES (#{movieId}, #{hallId}, #{startTime}, #{endTime}, #{basePrice}, #{finalPrice}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE shows
+        SET movie_id = #{movieId},
+            hall_id = #{hallId},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            base_price = #{basePrice},
+            final_price = #{finalPrice},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultType="Show">
+        SELECT * FROM shows WHERE id = #{id}
+    </select>
+
+    <select id="findAllWithFilters" resultType="Show">
+        SELECT * FROM shows
+        <where>
+            <if test="date != null">
+                AND DATE(start_time) = #{date}
+            </if>
+            <if test="movieId != null">
+                AND movie_id = #{movieId}
+            </if>
+            <if test="hallId != null">
+                AND hall_id = #{hallId}
+            </if>
+        </where>
+        ORDER BY start_time ASC
+    </select>
+
+    <select id="countByMovieId" resultType="int">
+        SELECT COUNT(1) FROM shows WHERE movie_id = #{movieId}
+    </select>
+
+    <select id="countByHallId" resultType="int">
+        SELECT COUNT(1) FROM shows WHERE hall_id = #{hallId}
+    </select>
+
+    <select id="countConflicts" resultType="int">
+        SELECT COUNT(1) FROM shows
+        WHERE hall_id = #{hallId}
+          AND status != 'CANCELED'
+          AND start_time &lt; #{endTime}
+          AND end_time &gt; #{startTime}
+          <if test="excludeId != null">
+            AND id != #{excludeId}
+          </if>
+    </select>
+</mapper>

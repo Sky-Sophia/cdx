@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.javawebdemo.mapper.UserMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (username, password_hash, password_salt, role, status)
+        VALUES (#{username}, #{passwordHash}, #{passwordSalt}, #{role}, #{status})
+    </insert>
+
+    <select id="findByUsername" resultType="User">
+        SELECT * FROM users WHERE username = #{username}
+    </select>
+
+    <select id="findById" resultType="User">
+        SELECT * FROM users WHERE id = #{id}
+    </select>
+
+    <select id="findAll" resultType="User">
+        SELECT * FROM users ORDER BY created_at DESC
+    </select>
+
+    <select id="findAllWithFilters" resultType="User">
+        SELECT * FROM users
+        <where>
+            <if test="q != null and q != ''">
+                AND username LIKE CONCAT('%', #{q}, '%')
+            </if>
+            <if test="role != null">
+                AND role = #{role}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <update id="updateRole">
+        UPDATE users SET role = #{role} WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE users SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE users SET password_hash = #{hash}, password_salt = #{salt} WHERE id = #{id}
+    </update>
+</mapper>
