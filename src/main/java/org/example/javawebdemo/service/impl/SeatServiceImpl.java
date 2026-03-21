@@ -148,7 +148,7 @@ public class SeatServiceImpl implements SeatService {
     @Transactional
     public Order lockSeatsAndCreateOrder(Long showId, List<Long> seatIds, Long userId) {
         if (seatIds == null || seatIds.isEmpty()) {
-            throw new IllegalArgumentException("璇烽€夋嫨搴т綅");
+            throw new IllegalArgumentException("请选择座位");
         }
         LocalDateTime now = LocalDateTime.now();
         showSeatMapper.releaseExpired(now);
@@ -169,7 +169,7 @@ public class SeatServiceImpl implements SeatService {
         }
         for (ShowSeat seat : seats) {
             if (!seat.getShowId().equals(showId)) {
-                throw new IllegalArgumentException("搴т綅涓嶅睘浜庤鍦烘");
+                throw new IllegalArgumentException("座位不属于该场次");
             }
             if (seat.getStatus() == SeatStatus.AVAILABLE) {
                 continue;
@@ -229,7 +229,7 @@ public class SeatServiceImpl implements SeatService {
         List<ShowSeat> seats = showSeatMapper.findByIds(seatIds);
         for (ShowSeat seat : seats) {
             if (seat.getStatus() != SeatStatus.LOCKED) {
-                throw new IllegalArgumentException("閿佸骇宸插け鏁堬紝璇烽噸鏂伴€夊骇");
+                throw new IllegalArgumentException("锁座已失效，请重新选座");
             }
         }
         showSeatMapper.updateStatusByIds(seatIds, SeatStatus.SOLD, null, null);

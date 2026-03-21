@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>影片表单</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="stack-lg">
+    <section class="page-header">
+        <div>
+            <p class="page-kicker">Admin</p>
+            <h1 class="page-title">影片信息</h1>
+            <p class="page-subtitle">当前版本中影片资料维护已禁用，此页仅用于兼容旧路由。</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="/admin/movies">返回列表</a>
+        </div>
+    </section>
+
+    <div class="msg error">影片信息维护功能已禁用，请使用“排片管理”进行业务操作。</div>
+
+    <div class="card">
+        <form class="form-compact" method="post" action="/admin/movies/save" enctype="multipart/form-data">
+            <input type="hidden" name="id" th:value="${movie.id}" />
+            <div class="form-row">
+                <label>影片名称</label>
+                <input name="title" th:value="${movie.title}" required />
+            </div>
+            <div class="form-row">
+                <label>导演</label>
+                <input name="director" th:value="${movie.director}" />
+            </div>
+            <div class="form-row">
+                <label>主演</label>
+                <input name="actors" th:value="${movie.actors}" />
+            </div>
+            <div class="form-row">
+                <label>类型</label>
+                <input name="genre" th:value="${movie.genre}" />
+            </div>
+            <div class="form-row">
+                <label>时长（分钟）</label>
+                <input name="durationMinutes" type="number" th:value="${movie.durationMinutes}" />
+            </div>
+            <div class="form-row">
+                <label>上映日期</label>
+                <input name="releaseDate" type="date" th:value="${movie.releaseDate}" />
+            </div>
+            <div class="form-row">
+                <label>影片海报</label>
+                <input name="poster" type="file" />
+            </div>
+            <div class="form-row">
+                <label>剧情简介</label>
+                <textarea name="synopsis" rows="4" th:text="${movie.synopsis}"></textarea>
+            </div>
+            <div class="form-row">
+                <label>状态</label>
+                <select name="status" required>
+                    <option th:each="st : ${statuses}" th:value="${st}" th:text="${st.label}" th:selected="${movie.status == st}"></option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn primary" type="submit">保存</button>
+                <a class="btn" href="/admin/movies">取消</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

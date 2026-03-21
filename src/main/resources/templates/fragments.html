@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<div th:fragment="nav" th:with="user=${session.CURRENT_USER}, role=${user != null ? user.role : null}">
+    <header class="site-header">
+        <div class="nav-inner">
+            <div class="nav-left">
+                <a class="brand" href="/">
+                    <span class="brand-mark">
+                        <svg class="icon stroke" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 7h16v10H4z"></path>
+                            <path d="M8 7l2 3m4-3l2 3M8 14h8"></path>
+                        </svg>
+                    </span>
+                    <span>Cinema</span>
+                </a>
+                <a class="nav-link" href="/">首页</a>
+            </div>
+            <div class="nav-right">
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).USER}" href="/orders">我的订单</a>
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/halls">影厅管理</a>
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/shows">排片管理</a>
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/users">用户管理</a>
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/orders">订单管理</a>
+                <a class="nav-link nav-pill" th:if="${role == T(org.example.javawebdemo.model.Role).STAFF}" href="/staff">员工</a>
+                <a class="nav-link" th:if="${user != null}" href="/profile">我的</a>
+                <a class="nav-link" th:if="${user == null}" href="/login">登录</a>
+                <a class="nav-link" th:if="${user == null}" href="/register">注册</a>
+                <a class="nav-link" th:if="${user != null}" href="/logout">退出</a>
+            </div>
+        </div>
+    </header>
+</div>
+
+<div th:fragment="messages">
+    <div class="msg success" th:if="${success}" th:text="${success}"></div>
+    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+</div>
+
+<div th:fragment="footer">
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <section class="footer-brand">
+                <p class="footer-kicker">Cinema Ticketing</p>
+                <h3 class="footer-title">在线选座购票平台</h3>
+                <p class="footer-copy">提供影片浏览、排片查询、在线选座与订单管理的一站式体验。</p>
+                <p class="footer-meta">
+                    © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2026</span> Cinema. All rights reserved.
+                </p>
+            </section>
+            <section class="footer-col">
+                <h4>快速入口</h4>
+                <a href="/">首页</a>
+                <a href="/shows">排片查询</a>
+                <a href="/profile">个人中心</a>
+            </section>
+            <section class="footer-col">
+                <h4>服务信息</h4>
+                <p>客服时间：09:00 - 22:00</p>
+                <p>服务热线：400-102-8080</p>
+                <p>邮箱：service@cinema.local</p>
+            </section>
+            <section class="footer-col">
+                <h4>系统状态</h4>
+                <p>支持移动端与桌面端访问</p>
+                <p>交易与密码均采用加密传输</p>
+                <p>已启用在线选座锁定机制</p>
+            </section>
+        </div>
+    </footer>
+</div>
+</body>
+</html>
+
+

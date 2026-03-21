@@ -135,8 +135,16 @@ public class AuthController {
     }
 
     @GetMapping("/profile/password")
-    public String passwordPage() {
-        return "redirect:/profile";
+    public String passwordPage(HttpSession session,
+                               RedirectAttributes redirectAttributes,
+                               Model model) {
+        UserSession user = (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", msg("auth.login.first"));
+            return "redirect:/login";
+        }
+        model.addAttribute("user", userService.findById(user.getId()));
+        return "auth/password";
     }
 
     @PostMapping("/profile/password")
@@ -151,17 +159,18 @@ public class AuthController {
         }
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", firstError(bindingResult));
-            return "redirect:/profile";
+            return "redirect:/profile/password";
         }
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             redirectAttributes.addFlashAttribute("error", msg("auth.password.mismatch"));
-            return "redirect:/profile";
+            return "redirect:/profile/password";
         }
         try {
             userService.changePassword(user.getId(), request.getOldPassword(), request.getNewPassword());
             redirectAttributes.addFlashAttribute("success", msg("auth.password.change.success"));
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/profile/password";
         }
         return "redirect:/profile";
     }

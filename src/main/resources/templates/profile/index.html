@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>我的</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="stack-lg">
+    <section class="page-header">
+        <div>
+            <p class="page-kicker">Profile</p>
+            <h1 class="page-title">个人中心</h1>
+            <p class="page-subtitle" th:if="${user != null and user.role.name() == 'ADMIN'}">管理账号设置与后台入口，处理系统运营工作。</p>
+            <p class="page-subtitle" th:if="${user != null and user.role.name() == 'STAFF'}">查看员工工作入口与账号安全设置。</p>
+            <p class="page-subtitle" th:if="${user != null and user.role.name() == 'USER'}">查看账户信息、订单概览与安全设置。</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn primary" th:if="${user != null and user.role.name() == 'ADMIN'}" href="/admin/shows">进入管理后台</a>
+            <a class="btn primary" th:if="${user != null and user.role.name() == 'STAFF'}" href="/staff">进入员工工作台</a>
+            <a class="btn primary" th:if="${user != null and user.role.name() == 'USER'}" href="/orders">全部订单</a>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments :: messages}"></div>
+
+    <div class="card">
+        <div class="card-head">
+            <h2 class="title-with-icon">
+                <svg class="icon stroke" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M4 20c2.5-4 13.5-4 16 0"></path>
+                </svg>
+                <span>个人信息</span>
+            </h2>
+        </div>
+        <div class="detail-grid" th:if="${user != null}">
+            <div class="detail-item"><span>用户名</span><strong th:text="${user.username}"></strong></div>
+            <div class="detail-item"><span>角色</span><strong th:text="${user.role.label}"></strong></div>
+            <div class="detail-item"><span>状态</span><strong th:text="${user.status == 'ACTIVE' ? '启用' : '停用'}"></strong></div>
+            <div class="detail-item"><span>创建时间</span><strong th:text="${user.createdAt}"></strong></div>
+        </div>
+    </div>
+
+    <div class="card" th:if="${user != null and user.role.name() == 'ADMIN'}">
+        <div class="card-head">
+            <h2 class="title-with-icon">
+                <svg class="icon stroke" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 12h16"></path>
+                    <path d="M4 7h16"></path>
+                    <path d="M4 17h16"></path>
+                </svg>
+                <span>管理入口</span>
+            </h2>
+        </div>
+        <div class="settings-list">
+            <a class="settings-item" href="/admin/shows">
+                <div class="settings-meta">
+                    <p class="settings-title">排片管理</p>
+                    <p class="settings-subtitle">创建与维护场次，处理取消排片。</p>
+                </div>
+                <span class="settings-arrow">›</span>
+            </a>
+            <a class="settings-item" href="/admin/users">
+                <div class="settings-meta">
+                    <p class="settings-title">用户管理</p>
+                    <p class="settings-subtitle">维护用户角色、状态并重置密码。</p>
+                </div>
+                <span class="settings-arrow">›</span>
+            </a>
+            <a class="settings-item" href="/admin/orders">
+                <div class="settings-meta">
+                    <p class="settings-title">订单管理</p>
+                    <p class="settings-subtitle">查看全站订单状态与支付信息。</p>
+                </div>
+                <span class="settings-arrow">›</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card" th:if="${user != null and user.role.name() == 'STAFF'}">
+        <div class="card-head">
+            <h2 class="title-with-icon">
+                <svg class="icon stroke" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 12h16"></path>
+                    <path d="M4 7h16"></path>
+                    <path d="M4 17h16"></path>
+                </svg>
+                <span>工作入口</span>
+            </h2>
+        </div>
+        <div class="settings-list">
+            <a class="settings-item" href="/staff/shows">
+                <div class="settings-meta">
+                    <p class="settings-title">排片查询</p>
+                    <p class="settings-subtitle">按日期和影厅快速定位场次。</p>
+                </div>
+                <span class="settings-arrow">›</span>
+            </a>
+            <a class="settings-item" href="/staff/orders">
+                <div class="settings-meta">
+                    <p class="settings-title">订单管理</p>
+                    <p class="settings-subtitle">处理现场订单核对与状态追踪。</p>
+                </div>
+                <span class="settings-arrow">›</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card" th:if="${user != null and user.role.name() == 'USER'}">
+        <div class="card-head">
+            <h2 class="title-with-icon">
+                <svg class="icon stroke" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 4h10l2 4H5l2-4z"></path>
+                    <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"></path>
+                    <path d="M9 12h6"></path>
+                    <path d="M9 16h6"></path>
+                </svg>
+                <span>我的订单</span>
+            </h2>
+            <a class="btn" href="/orders">查看全部</a>
+        </div>
+        <div class="stat-grid">
+            <div class="stat-mini">
+                <div class="stat-label">全部订单</div>
+                <div class="stat-value" th:text="${orderTotal}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-label">待支付</div>
+                <div class="stat-value" th:text="${orderPending}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-label">已支付</div>
+                <div class="stat-value" th:text="${orderPaid}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="stat-label">已退款</div>
+                <div class="stat-value" th:text="${orderRefunded}">0</div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(recentOrders)}" class="empty-state">暂无订单</div>
+        <div class="table-wrap" th:if="${!#lists.isEmpty(recentOrders)}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>订单号</th>
+                    <th>状态</th>
+                    <th>金额</th>
+                    <th>下单时间</th>
+                    <th class="table-actions">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${recentOrders}">
+                    <td th:text="${order.orderNo}"></td>
+                    <td><span class="badge" th:text="${order.status.label}" th:attr="data-status=${order.status.name()}"></span></td>
+                    <td th:text="${order.totalPrice}"></td>
+                    <td th:text="${order.createdAt}"></td>
+                    <td class="table-actions">
+                        <a class="btn" th:href="@{'/orders/' + ${order.id}}">详情</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head">
+            <h2 class="title-with-icon">
+                <svg class="icon stroke" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                </svg>
+                <span>账号安全</span>
+            </h2>
+        </div>
+        <div class="settings-list">
+            <a class="settings-item" href="/profile/password">
+                <div class="settings-meta">
+                    <p class="settings-title">修改密码</p>
+                    <p class="settings-subtitle">验证旧密码后设置新密码。</p>
+                </div>
+                <span class="settings-arrow">›</span>
+            </a>
+        </div>
+    </div>
+</main>
+    <div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>注册</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="auth-layout">
+    <section class="card auth-card">
+        <p class="eyebrow">Create</p>
+        <h2 class="auth-title">创建账号</h2>
+        <p class="auth-subtitle muted">注册后即可在线选座与购票。</p>
+        <div th:replace="~{fragments :: messages}"></div>
+        <form method="post" action="/register">
+            <div class="form-row">
+                <label for="register-username">用户名</label>
+                <input id="register-username"
+                       name="username"
+                       autocomplete="username"
+                       placeholder="设置用户名"
+                       minlength="3"
+                       maxlength="20"
+                       th:value="${username}"
+                       required />
+            </div>
+            <div class="form-row">
+                <label for="register-password">密码</label>
+                <input id="register-password"
+                       name="password"
+                       type="password"
+                       autocomplete="new-password"
+                       placeholder="设置密码"
+                       minlength="6"
+                       maxlength="32"
+                       required />
+            </div>
+            <div class="form-row">
+                <label for="register-confirm">确认密码</label>
+                <input id="register-confirm"
+                       name="confirmPassword"
+                       type="password"
+                       autocomplete="new-password"
+                       placeholder="再次输入密码"
+                       minlength="6"
+                       maxlength="32"
+                       required />
+            </div>
+            <div class="form-actions">
+                <button class="btn primary" type="submit">注册</button>
+            </div>
+        </form>
+        <p class="auth-hint">已有账号？<a class="text-link" href="/login">去登录</a></p>
+        <p class="auth-hint">注册成功后请使用新账号登录。</p>
+    </section>
+    <aside class="card auth-aside auth-deco">
+        <p class="auth-deco-kicker">Cinema Notes</p>
+        <h3 class="auth-deco-title">观影入口</h3>
+        <p class="auth-deco-copy">保持简洁、安静、可专注的观影体验。</p>
+        <div class="auth-deco-chips">
+            <span>排片总览</span>
+            <span>快速选座</span>
+            <span>订单追踪</span>
+        </div>
+        <div class="auth-deco-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </aside>
+</main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

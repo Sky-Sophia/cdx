@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>选座购票</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="stack-lg">
+    <section class="page-header" th:if="${show != null and movie != null and hall != null}">
+        <div>
+            <p class="page-kicker">Seat Plan</p>
+            <h1 class="page-title" th:text="${movie.title}">选座购票</h1>
+            <p class="page-subtitle">
+                影厅：<span th:text="${hall.name}"></span>
+                <span> · 开始：<span th:text="${show.startTime}"></span></span>
+            </p>
+        </div>
+        <div class="page-actions">
+            <span class="badge" data-tone="accent">票价 <span th:text="${show.finalPrice}"></span></span>
+            <span class="badge" data-tone="neutral">锁座 <span th:text="${seatLockMinutes}"></span> 分钟</span>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments :: messages}"></div>
+
+    <div class="card" th:if="${show != null and movie != null and hall != null}">
+        <div class="seat-toolbar">
+            <div class="seat-legend">
+                <span class="legend-item"><span class="legend-dot available"></span>可选</span>
+                <span class="legend-item"><span class="legend-dot selected"></span>已选</span>
+                <span class="legend-item"><span class="legend-dot locked"></span>锁定</span>
+                <span class="legend-item"><span class="legend-dot sold"></span>已售</span>
+                <span class="legend-item"><span class="legend-dot disabled"></span>不可用</span>
+            </div>
+            <div class="seat-summary">
+                <span>已选 <strong id="selected-count">0</strong> 张</span>
+                <span>合计 <strong id="selected-total">0.00</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" th:if="${show != null and movie != null and hall != null}">
+        <div class="seat-screen">SCREEN</div>
+        <form id="seat-form" method="post" th:action="@{'/shows/' + ${show.id} + '/lock'}">
+            <div class="form-row" th:if="${currentUser != null and (currentUser.role.name() == 'ADMIN' or currentUser.role.name() == 'STAFF')}">
+                <label>代客购票用户名（可选）</label>
+                <input name="buyerUsername" placeholder="输入已注册用户名" />
+            </div>
+            <div class="seat-grid-wrap">
+                <div class="seat-grid" th:attr="data-price=${show.finalPrice}">
+                    <div th:each="row : ${seatRows}" class="seat-row">
+                        <div class="seat-label" th:text="${row.rowLabel}"></div>
+                        <div th:each="seat : ${row.seats}">
+                            <div th:if="${seat.status.name() == 'DISABLED'}" class="seat gap"></div>
+                            <div th:if="${seat.status.name() == 'SOLD'}" class="seat sold" th:text="${seat.label}"></div>
+                            <div th:if="${seat.status.name() == 'LOCKED'}" class="seat locked" th:text="${seat.label}"></div>
+                            <label th:if="${seat.status.name() == 'AVAILABLE'}" class="seat available">
+                                <input type="checkbox" name="seatIds" th:value="${seat.id}" />
+                                <span th:text="${seat.label}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn primary" type="submit">锁座并生成订单</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        (function () {
+            var price = 0;
+            var grid = document.querySelector('.seat-grid');
+            if (grid && grid.dataset.price) {
+                price = Number(grid.dataset.price);
+            }
+            var countEl = document.getElementById('selected-count');
+            var totalEl = document.getElementById('selected-total');
+            var inputs = document.querySelectorAll('.seat.available input');
+            function updateSummary() {
+                var selected = 0;
+                inputs.forEach(function (input) {
+                    if (input.checked) {
+                        selected += 1;
+                    }
+                });
+                if (countEl) {
+                    countEl.textContent = String(selected);
+                }
+                if (totalEl) {
+                    var total = price * selected;
+                    totalEl.textContent = total.toFixed(2);
+                }
+            }
+            inputs.forEach(function (input) {
+                input.addEventListener('change', function () {
+                    if (input.checked) {
+                        input.parentElement.classList.add('selected');
+                    } else {
+                        input.parentElement.classList.remove('selected');
+                    }
+                    updateSummary();
+                });
+            });
+            updateSummary();
+        })();
+    </script>
+</main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

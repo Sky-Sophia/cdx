@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>登录</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="auth-layout">
+    <section class="card auth-card">
+        <p class="eyebrow">Sign in</p>
+        <h2 class="auth-title">欢迎回来</h2>
+        <p class="auth-subtitle muted">使用账号继续购票与管理操作。</p>
+        <div th:replace="~{fragments :: messages}"></div>
+        <form method="post" action="/login">
+            <div class="form-row">
+                <label for="login-username">用户名</label>
+                <input id="login-username"
+                       name="username"
+                       autocomplete="username"
+                       placeholder="请输入用户名"
+                       minlength="3"
+                       maxlength="20"
+                       th:value="${username}"
+                       required />
+            </div>
+            <div class="form-row">
+                <label for="login-password">密码</label>
+                <input id="login-password"
+                       name="password"
+                       type="password"
+                       autocomplete="current-password"
+                       placeholder="请输入密码"
+                       minlength="6"
+                       maxlength="32"
+                       required />
+            </div>
+            <div class="form-actions">
+                <button class="btn primary" type="submit">登录</button>
+            </div>
+        </form>
+        <p class="auth-hint">还没有账号？<a class="text-link" href="/register">去注册</a></p>
+    </section>
+    <aside class="card auth-aside auth-deco">
+        <p class="auth-deco-kicker">Cinema Notes</p>
+        <h3 class="auth-deco-title">观影入口</h3>
+        <p class="auth-deco-copy">保持简洁、安静、可专注的观影体验。</p>
+        <div class="auth-deco-chips">
+            <span>排片总览</span>
+            <span>快速选座</span>
+            <span>订单追踪</span>
+        </div>
+        <div class="auth-deco-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </aside>
+</main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

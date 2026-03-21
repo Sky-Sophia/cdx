@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>订单详情</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="stack-lg">
+    <section class="page-header" th:if="${order != null}">
+        <div>
+            <p class="page-kicker">Order</p>
+            <h1 class="page-title">订单详情</h1>
+            <p class="page-subtitle">订单号：<span th:text="${order.orderNo}"></span></p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="/orders">返回订单列表</a>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments :: messages}"></div>
+
+    <div class="card" th:if="${order != null}">
+        <div class="card-head">
+            <h2>基础信息</h2>
+            <span class="badge" th:text="${order.status.label}" th:attr="data-status=${order.status.name()}"></span>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item"><span>影片</span><strong th:text="${movie.title}"></strong></div>
+            <div class="detail-item"><span>影厅</span><strong th:text="${hall.name}"></strong></div>
+            <div class="detail-item"><span>场次</span><strong th:text="${show.startTime}"></strong></div>
+            <div class="detail-item"><span>总金额</span><strong th:text="${order.totalPrice}"></strong></div>
+        </div>
+        <div class="form-actions">
+            <form th:if="${order.status.name() == 'PENDING'}" method="post" th:action="@{'/orders/' + ${order.id} + '/pay'}">
+                <button class="btn success" type="submit">立即支付</button>
+            </form>
+            <form th:if="${order.status.name() == 'PAID'}" method="post" th:action="@{'/orders/' + ${order.id} + '/refund'}">
+                <button class="btn danger" type="submit">申请退票</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card" th:if="${items != null}">
+        <div class="card-head">
+            <h2>座位明细</h2>
+            <span class="badge" th:text="${#lists.size(items)} + ' 张'">0 张</span>
+        </div>
+        <div class="seat-tags">
+            <span class="seat-tag" th:each="item : ${items}" th:text="${item.seatLabel}"></span>
+        </div>
+    </div>
+</main>
+    <div th:replace="~{fragments :: footer}"></div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

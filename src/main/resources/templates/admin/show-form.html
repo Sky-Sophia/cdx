@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>新增排片</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="stack-lg">
+    <section class="page-header">
+        <div>
+            <p class="page-kicker">Admin</p>
+            <h1 class="page-title">新增排片</h1>
+            <p class="page-subtitle">填写基础场次信息后系统将自动生成座位。</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="/admin/shows">返回排片</a>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments :: messages}"></div>
+
+    <div class="card">
+        <form class="form-compact" method="post" action="/admin/shows/save">
+            <div class="form-row">
+                <label>影片</label>
+                <select name="movieId" required>
+                    <option th:each="m : ${movies}" th:value="${m.id}" th:text="${m.title}"></option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>影厅</label>
+                <select name="hallId" required>
+                    <option th:each="h : ${halls}" th:value="${h.id}" th:text="${h.name}"></option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>开始时间</label>
+                <input type="datetime-local" name="startTime" required />
+            </div>
+            <div class="form-row">
+                <label>结束时间</label>
+                <input type="datetime-local" name="endTime" required />
+            </div>
+            <div class="form-row">
+                <label>基础票价</label>
+                <input type="number" step="0.01" name="basePrice" required />
+            </div>
+            <div class="form-actions">
+                <button class="btn primary" type="submit">创建排片</button>
+                <a class="btn" href="/admin/shows">取消</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

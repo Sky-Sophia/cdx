@@ -85,21 +85,21 @@ public class ShowController {
     public String showDetail(@PathVariable Long id, Model model, HttpSession session) {
         Show show = showService.getById(id);
         if (show == null) {
-            model.addAttribute("error", "锟斤拷锟轿诧拷锟斤拷锟斤拷");
+            model.addAttribute("error", "场次不存在");
             return "shows/detail";
         }
         if (show.getStatus() != null && show.getStatus() != org.example.javawebdemo.model.ShowStatus.SCHEDULED) {
-            model.addAttribute("error", "锟矫筹拷锟斤拷锟斤拷取锟斤拷锟斤拷锟斤拷锟");
+            model.addAttribute("error", "场次已取消或结束");
             return "shows/detail";
         }
         if (show.getStartTime() != null && show.getStartTime().isBefore(java.time.LocalDateTime.now())) {
-            model.addAttribute("error", "锟斤拷锟斤拷锟窖匡拷始锟斤拷锟睫凤拷选锟斤拷");
+            model.addAttribute("error", "场次已开始，无法选座");
             return "shows/detail";
         }
         Movie movie = movieService.getById(show.getMovieId());
         Hall hall = hallService.getById(show.getHallId());
         if (movie == null || hall == null) {
-            model.addAttribute("error", "锟斤拷锟轿讹拷应锟斤拷影片锟斤拷影锟斤拷锟斤拷删锟斤拷");
+            model.addAttribute("error", "场次对应的影片或影厅已删除");
             model.addAttribute("show", null);
             return "shows/detail";
         }
@@ -127,7 +127,7 @@ public class ShowController {
                             RedirectAttributes redirectAttributes) {
         UserSession currentUser = (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
         if (currentUser == null) {
-            redirectAttributes.addFlashAttribute("error", "璇峰厛鐧诲綍");
+            redirectAttributes.addFlashAttribute("error", "请先登录");
             return "redirect:/login";
         }
         Long userId = currentUser.getId();
@@ -135,7 +135,7 @@ public class ShowController {
         if (canProxy && buyerUsername != null && !buyerUsername.isBlank()) {
             User buyer = userService.findByUsername(buyerUsername.trim());
             if (buyer == null) {
-                redirectAttributes.addFlashAttribute("error", "璐エ鐢ㄦ埛涓嶅瓨鍦?");
+                redirectAttributes.addFlashAttribute("error", "购票用户不存在");
                 return "redirect:/shows/" + id;
             }
             userId = buyer.getId();

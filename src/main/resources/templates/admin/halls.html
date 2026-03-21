@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>影厅管理</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260321a" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico?v=20260321a" />
+</head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="stack-lg">
+    <section class="page-header">
+        <div>
+            <p class="page-kicker">Admin</p>
+            <h1 class="page-title">影厅管理</h1>
+            <p class="page-subtitle">维护影厅类型、容量和座位布局。</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn primary" href="/admin/halls/new">新增影厅</a>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments :: messages}"></div>
+
+    <div class="card">
+        <div class="card-head">
+            <h2>影厅列表</h2>
+            <span class="badge" th:text="${#lists.size(halls)} + ' 个影厅'">0 个影厅</span>
+        </div>
+        <div th:if="${#lists.isEmpty(halls)}" class="empty-state">暂无影厅，请先新增。</div>
+        <div class="table-wrap" th:if="${!#lists.isEmpty(halls)}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>座位数</th>
+                    <th class="table-actions">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="hall : ${halls}">
+                    <td th:text="${hall.name}"></td>
+                    <td><span class="badge" data-tone="accent" th:text="${hall.hallType.label}"></span></td>
+                    <td th:text="${hall.seatTotal}"></td>
+                    <td class="table-actions">
+                        <div class="btn-group">
+                            <a class="btn" th:href="@{'/admin/halls/edit/' + ${hall.id}}">编辑</a>
+                            <form class="inline-form" method="post" th:action="@{'/admin/halls/delete/' + ${hall.id}}">
+                                <button class="btn danger" type="submit">删除</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
