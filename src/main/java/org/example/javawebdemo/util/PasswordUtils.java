@@ -32,6 +32,9 @@ public final class PasswordUtils {
     }
 
     public static boolean matches(String rawPassword, String salt, String hash) {
+        if (rawPassword == null || salt == null || hash == null) {
+            return false;
+        }
         return hash(rawPassword, salt).equals(hash);
     }
 }

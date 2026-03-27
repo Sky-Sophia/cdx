@@ -1,73 +1,87 @@
 package org.example.javawebdemo.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.example.javawebdemo.model.Hall;
-import org.example.javawebdemo.model.Movie;
-import org.example.javawebdemo.model.Order;
-import org.example.javawebdemo.model.OrderStatus;
-import org.example.javawebdemo.model.Show;
-import org.example.javawebdemo.model.User;
-import org.example.javawebdemo.service.HallService;
-import org.example.javawebdemo.service.MovieService;
-import org.example.javawebdemo.service.OrderService;
-import org.example.javawebdemo.service.ShowService;
-import org.example.javawebdemo.service.UserService;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import org.example.javawebdemo.mapper.FeeBillMapper;
+import org.example.javawebdemo.mapper.PropertyUnitMapper;
+import org.example.javawebdemo.model.FeeBill;
+import org.example.javawebdemo.util.CodeGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
-@RequestMapping("/admin/orders")
+@RequestMapping("/admin/bills")
 public class AdminOrderController {
-    private final OrderService orderService;
-    private final UserService userService;
-    private final ShowService showService;
-    private final MovieService movieService;
-    private final HallService hallService;
+    private final FeeBillMapper feeBillMapper;
+    private final PropertyUnitMapper propertyUnitMapper;
 
-    public AdminOrderController(OrderService orderService,
-                                UserService userService,
-                                ShowService showService,
-                                MovieService movieService,
-                                HallService hallService) {
-        this.orderService = orderService;
-        this.userService = userService;
-        this.showService = showService;
-        this.movieService = movieService;
-        this.hallService = hallService;
+    public AdminOrderController(FeeBillMapper feeBillMapper, PropertyUnitMapper propertyUnitMapper) {
+        this.feeBillMapper = feeBillMapper;
+        this.propertyUnitMapper = propertyUnitMapper;
     }
 
     @GetMapping
-    public String list(@RequestParam(required = false) Long userId,
-                       @RequestParam(required = false) OrderStatus status,
+    public String list(@RequestParam(required = false) String status,
+                       @RequestParam(required = false) String billingMonth,
                        Model model) {
-        List<Order> orders = orderService.listAll(userId, status);
-        Map<Long, User> users = new HashMap<>();
-        Map<Long, Show> shows = new HashMap<>();
-        Map<Long, Movie> movies = new HashMap<>();
-        Map<Long, Hall> halls = new HashMap<>();
-        for (Order order : orders) {
-            User user = userService.findById(order.getUserId());
-            users.put(user.getId(), user);
-            Show show = showService.getById(order.getShowId());
-            shows.put(show.getId(), show);
-            Movie movie = movieService.getById(show.getMovieId());
-            movies.put(movie.getId(), movie);
-            Hall hall = hallService.getById(show.getHallId());
-            halls.put(hall.getId(), hall);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
+                .queryParam("tab", "bills");
+        if (status != null && !status.isBlank()) {
+            builder.queryParam("billStatus", status);
         }
-        model.addAttribute("orders", orders);
-        model.addAttribute("users", users);
-        model.addAttribute("shows", shows);
-        model.addAttribute("movies", movies);
-        model.addAttribute("halls", halls);
-        model.addAttribute("statuses", OrderStatus.values());
-        model.addAttribute("userId", userId);
-        model.addAttribute("status", status);
-        return "admin/orders";
+        if (billingMonth != null && !billingMonth.isBlank()) {
+            builder.queryParam("billBillingMonth", billingMonth);
+        }
+        return "redirect:" + builder.toUriString();
+    }
+
+    @GetMapping("/new")
+    public String newForm(Model model) {
+        FeeBill bill = new FeeBill();
+        bill.setStatus("UNPAID");
+        bill.setPaidAmount(BigDecimal.ZERO);
+        model.addAttribute("bill", bill);
+        model.addAttribute("units", propertyUnitMapper.findAllSimple());
+        return "admin/bill-form";
+    }
+
+    @PostMapping("/save")
+    public String save(FeeBill bill, RedirectAttributes redirectAttributes) {
+        if (bill.getUnitId() == null || bill.getAmount() == null || bill.getBillingMonth() == null || bill.getBillingMonth().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "请完整填写账单信息。");
+            return "redirect:/admin/bills/new";
+        }
+
+        bill.setBillNo(CodeGenerator.nextBillNo());
+        if (bill.getPaidAmount() == null) {
+            bill.setPaidAmount(BigDecimal.ZERO);
+        }
+        if (bill.getStatus() == null || bill.getStatus().isBlank()) {
+            bill.setStatus("UNPAID");
+        }
+        feeBillMapper.insert(bill);
+        redirectAttributes.addFlashAttribute("success", "账单已创建。");
+        return "redirect:/admin/management?tab=bills";
+    }
+
+    @PostMapping("/{id}/pay")
+    public String markPaid(@PathVariable Long id,
+                           @RequestParam BigDecimal paidAmount,
+                           RedirectAttributes redirectAttributes) {
+        if (paidAmount == null || paidAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            redirectAttributes.addFlashAttribute("error", "实收金额必须大于 0。");
+            return "redirect:/admin/management?tab=bills";
+        }
+
+        feeBillMapper.updatePayment(id, paidAmount, "PAID", LocalDateTime.now());
+        redirectAttributes.addFlashAttribute("success", "账单已登记为已缴。");
+        return "redirect:/admin/management?tab=bills";
     }
 }

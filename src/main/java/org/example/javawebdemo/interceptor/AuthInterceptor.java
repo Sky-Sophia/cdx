@@ -16,9 +16,8 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String path = request.getRequestURI();
-        String method = request.getMethod();
 
-        if (isPublic(path, method)) {
+        if (isPublic(path)) {
             return true;
         }
 
@@ -29,49 +28,23 @@ public class AuthInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        if (path.startsWith("/admin")) {
-            if (user.getRole() != Role.ADMIN) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                return false;
-            }
-        }
-
-        if (path.startsWith("/staff")) {
-            if (user.getRole() != Role.ADMIN && user.getRole() != Role.STAFF) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                return false;
-            }
-        }
-
-        if ("/orders".equals(path)) {
-            if (user.getRole() == Role.ADMIN) {
-                response.sendRedirect("/admin/orders");
-                return false;
-            }
-            if (user.getRole() == Role.STAFF) {
-                response.sendRedirect("/staff/orders");
-                return false;
-            }
+        if (path.startsWith("/admin") && user.getRole() == Role.USER) {
+            response.sendRedirect("/logout");
+            return false;
         }
 
         return true;
     }
 
-    private boolean isPublic(String path, String method) {
-        if (path.equals("/") || path.equals("/login") || path.equals("/register") || path.equals("/logout")) {
-            return true;
-        }
-        if (path.startsWith("/css") || path.startsWith("/js") || path.startsWith("/images") || path.startsWith("/uploads")) {
-            return true;
-        }
-        if (path.equals("/error")) {
-            return true;
-        }
-        if ("GET".equalsIgnoreCase(method)) {
-            if (path.startsWith("/movies") || path.startsWith("/shows")) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isPublic(String path) {
+        return "/login".equals(path)
+                || "/register".equals(path)
+                || "/logout".equals(path)
+                || "/error".equals(path)
+                || path.startsWith("/css")
+                || path.startsWith("/images")
+                || path.startsWith("/favicon")
+                || path.startsWith("/webjars")
+                || path.startsWith("/actuator");
     }
 }

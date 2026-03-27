@@ -6,8 +6,8 @@ public enum HallType {
 
     public String getLabel() {
         return switch (this) {
-            case NORMAL -> "普通厅";
-            case IMAX -> "IMAX厅";
+            case NORMAL -> "标准";
+            case IMAX -> "IMAX";
         };
     }
 }

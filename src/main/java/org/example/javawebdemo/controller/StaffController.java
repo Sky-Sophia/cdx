@@ -10,6 +10,6 @@ public class StaffController {
 
     @GetMapping
     public String dashboard() {
-        return "staff/dashboard";
+        return "redirect:/admin/dashboard";
     }
 }

@@ -33,7 +33,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             file.transferTo(target);
             return "/uploads/" + filename;
         } catch (IOException ex) {
-            throw new IllegalStateException("上传失败", ex);
+            throw new IllegalStateException("娑撳﹣绱舵径杈Е", ex);
         }
     }
 }

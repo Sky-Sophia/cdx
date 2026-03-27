@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) NOT NULL UNIQUE,
+  username VARCHAR(64) NOT NULL UNIQUE,
+  display_name VARCHAR(64),
   password_hash VARCHAR(128) NOT NULL,
   password_salt VARCHAR(64) NOT NULL,
   role VARCHAR(20) NOT NULL,
@@ -9,86 +10,73 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS movies (
+CREATE TABLE IF NOT EXISTS buildings (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(100) NOT NULL,
-  director VARCHAR(100),
-  actors VARCHAR(255),
-  genre VARCHAR(50),
-  duration_minutes INT,
-  release_date DATE,
-  poster_url VARCHAR(255),
-  synopsis TEXT,
-  status VARCHAR(20) NOT NULL DEFAULT 'ONLINE',
+  name VARCHAR(64) NOT NULL,
+  code VARCHAR(32) NOT NULL UNIQUE,
+  address VARCHAR(255),
+  floor_count INT,
+  unit_count INT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS halls (
+CREATE TABLE IF NOT EXISTS units (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(50) NOT NULL,
-  seat_total INT NOT NULL,
-  hall_type VARCHAR(20) NOT NULL DEFAULT 'NORMAL',
-  seat_layout_json TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS shows (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  movie_id BIGINT NOT NULL,
-  hall_id BIGINT NOT NULL,
-  start_time TIMESTAMP NOT NULL,
-  end_time TIMESTAMP NOT NULL,
-  base_price DECIMAL(10,2) NOT NULL,
-  final_price DECIMAL(10,2) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'SCHEDULED',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS show_seats (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  show_id BIGINT NOT NULL,
-  seat_row INT NOT NULL,
-  seat_col INT NOT NULL,
-  seat_label VARCHAR(20) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
-  locked_by_user_id BIGINT,
-  locked_until TIMESTAMP,
+  building_id BIGINT NOT NULL,
+  unit_no VARCHAR(32) NOT NULL,
+  floor_no INT,
+  area_m2 DECIMAL(10,2),
+  occupancy_status VARCHAR(20) NOT NULL DEFAULT 'VACANT',
+  owner_name VARCHAR(64),
+  owner_phone VARCHAR(32),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE (show_id, seat_row, seat_col)
+  UNIQUE (building_id, unit_no)
 );
 
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS residents (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  unit_id BIGINT NOT NULL,
+  name VARCHAR(64) NOT NULL,
+  phone VARCHAR(32),
+  identity_no VARCHAR(32),
+  resident_type VARCHAR(20) NOT NULL DEFAULT 'OWNER',
+  status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+  move_in_date DATE,
+  move_out_date DATE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS work_orders (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   order_no VARCHAR(32) NOT NULL UNIQUE,
-  user_id BIGINT NOT NULL,
-  show_id BIGINT NOT NULL,
-  total_price DECIMAL(10,2) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+  unit_id BIGINT NOT NULL,
+  resident_name VARCHAR(64) NOT NULL,
+  phone VARCHAR(32),
+  category VARCHAR(32) NOT NULL,
+  priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
+  description VARCHAR(500) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'OPEN',
+  assignee VARCHAR(64),
+  scheduled_at TIMESTAMP,
+  finished_at TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  paid_at TIMESTAMP,
-  refunded_at TIMESTAMP
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE IF NOT EXISTS fee_bills (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  order_id BIGINT NOT NULL,
-  show_seat_id BIGINT NOT NULL,
-  seat_label VARCHAR(20) NOT NULL,
-  price DECIMAL(10,2) NOT NULL
+  bill_no VARCHAR(32) NOT NULL UNIQUE,
+  unit_id BIGINT NOT NULL,
+  billing_month VARCHAR(7) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'UNPAID',
+  due_date DATE,
+  paid_at TIMESTAMP,
+  remarks VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE INDEX IF NOT EXISTS idx_shows_hall_time ON shows (hall_id, start_time, end_time);
-CREATE INDEX IF NOT EXISTS idx_shows_movie ON shows (movie_id);
-
-CREATE INDEX IF NOT EXISTS idx_show_seats_show ON show_seats (show_id);
-CREATE INDEX IF NOT EXISTS idx_show_seats_status ON show_seats (status);
-
-CREATE INDEX IF NOT EXISTS idx_orders_user ON orders (user_id);
-CREATE INDEX IF NOT EXISTS idx_orders_show ON orders (show_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders (status);
-
-CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items (order_id);

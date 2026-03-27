@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
 <div th:fragment="nav" th:with="user=${session.CURRENT_USER}, role=${user != null ? user.role : null}">
@@ -12,18 +12,15 @@
                             <path d="M8 7l2 3m4-3l2 3M8 14h8"></path>
                         </svg>
                     </span>
-                    <span>Cinema</span>
+                    <span>物业管理系统</span>
                 </a>
                 <a class="nav-link" href="/">首页</a>
             </div>
             <div class="nav-right">
                 <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).USER}" href="/orders">我的订单</a>
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/halls">影厅管理</a>
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/shows">排片管理</a>
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/users">用户管理</a>
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/orders">订单管理</a>
-                <a class="nav-link nav-pill" th:if="${role == T(org.example.javawebdemo.model.Role).STAFF}" href="/staff">员工</a>
-                <a class="nav-link" th:if="${user != null}" href="/profile">我的</a>
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/dashboard">管理后台</a>
+                <a class="nav-link nav-pill" th:if="${role == T(org.example.javawebdemo.model.Role).STAFF}" href="/staff">员工后台</a>
+                <a class="nav-link" th:if="${user != null}" href="/profile">个人中心</a>
                 <a class="nav-link" th:if="${user == null}" href="/login">登录</a>
                 <a class="nav-link" th:if="${user == null}" href="/register">注册</a>
                 <a class="nav-link" th:if="${user != null}" href="/logout">退出</a>
@@ -32,7 +29,112 @@
     </header>
 </div>
 
-<div th:fragment="messages">
+<header class="topbar" th:fragment="topbar(active)" th:with="current=${session.CURRENT_USER}">
+    <div class="topbar-left">
+        <a class="brand" href="/admin/dashboard">
+            <span class="brand-dot"></span>
+            <span>物业后台管理系统</span>
+        </a>
+        <nav class="top-nav slide-tabs">
+            <a href="/admin/dashboard" th:classappend="${active == 'dashboard'} ? ' is-active'">系统首页</a>
+            <a href="/admin/management?tab=units"
+               data-management-tab="units"
+               th:classappend="${(active == 'management' and currentTab == 'units') or active == 'units'} ? ' is-active'">房屋管理</a>
+            <a href="/admin/management?tab=residents"
+               data-management-tab="residents"
+               th:classappend="${(active == 'management' and currentTab == 'residents') or active == 'residents'} ? ' is-active'">住户档案</a>
+            <a href="/admin/management?tab=work-orders"
+               data-management-tab="work-orders"
+               th:classappend="${(active == 'management' and currentTab == 'work-orders') or active == 'work-orders'} ? ' is-active'">工单中心</a>
+            <a href="/admin/management?tab=bills"
+               data-management-tab="bills"
+               th:classappend="${(active == 'management' and currentTab == 'bills') or active == 'bills'} ? ' is-active'">费用账单</a>
+            <a href="/admin/users" th:classappend="${active == 'users'} ? ' is-active'">系统用户</a>
+            <span class="slide-underline" aria-hidden="true"></span>
+        </nav>
+    </div>
+    <div class="topbar-right" th:if="${current != null}">
+        <span class="user-chip" th:text="${current.username}">admin</span>
+        <a class="btn ghost mini" href="/logout">退出登录</a>
+    </div>
+    <script>
+        (() => {
+            function initSlideTabs(selector) {
+                document.querySelectorAll(selector).forEach((container) => {
+                    if (!container || container.dataset.slideInited === "1") {
+                        return;
+                    }
+                    const underline = container.querySelector(".slide-underline");
+                    const tabs = Array.from(container.querySelectorAll("a, button"))
+                        .filter((item) => !item.classList.contains("slide-underline"));
+                    if (!underline || tabs.length === 0) {
+                        return;
+                    }
+
+                    const setUnderline = (tab) => {
+                        if (!tab) return;
+                        underline.style.width = `${tab.offsetWidth}px`;
+                        underline.style.left = `${tab.offsetLeft}px`;
+                    };
+
+                    const activeTab = () => tabs.find((item) => item.classList.contains("is-active")) || tabs[0];
+                    requestAnimationFrame(() => setUnderline(activeTab()));
+
+                    tabs.forEach((tab) => {
+                        tab.addEventListener("mouseenter", () => setUnderline(tab));
+                        tab.addEventListener("focus", () => setUnderline(tab));
+                        tab.addEventListener("click", () => setUnderline(tab));
+                    });
+
+                    container.addEventListener("mouseleave", () => setUnderline(activeTab()));
+                    window.addEventListener("resize", () => setUnderline(activeTab()));
+                    container.dataset.slideInited = "1";
+                });
+            }
+
+            initSlideTabs(".top-nav.slide-tabs");
+        })();
+    </script>
+</header>
+
+<aside class="sidebar" th:fragment="sidebar(active)">
+    <nav class="side-nav">
+        <a href="/admin/dashboard" th:classappend="${active == 'dashboard'} ? ' is-active'">
+            <span class="ico">D</span>
+            <span>概览看板</span>
+        </a>
+        <a href="/admin/management?tab=units"
+           data-management-tab="units"
+           th:classappend="${(active == 'management' and currentTab == 'units') or active == 'units'} ? ' is-active'">
+            <span class="ico">U</span>
+            <span>房屋楼栋</span>
+        </a>
+        <a href="/admin/management?tab=residents"
+           data-management-tab="residents"
+           th:classappend="${(active == 'management' and currentTab == 'residents') or active == 'residents'} ? ' is-active'">
+            <span class="ico">R</span>
+            <span>住户信息</span>
+        </a>
+        <a href="/admin/management?tab=work-orders"
+           data-management-tab="work-orders"
+           th:classappend="${(active == 'management' and currentTab == 'work-orders') or active == 'work-orders'} ? ' is-active'">
+            <span class="ico">W</span>
+            <span>报修工单</span>
+        </a>
+        <a href="/admin/management?tab=bills"
+           data-management-tab="bills"
+           th:classappend="${(active == 'management' and currentTab == 'bills') or active == 'bills'} ? ' is-active'">
+            <span class="ico">B</span>
+            <span>收费账单</span>
+        </a>
+        <a href="/admin/users" th:classappend="${active == 'users'} ? ' is-active'">
+            <span class="ico">A</span>
+            <span>权限用户</span>
+        </a>
+    </nav>
+</aside>
+
+<div th:fragment="messages" class="messages-wrap">
     <div class="msg success" th:if="${success}" th:text="${success}"></div>
     <div class="msg error" th:if="${error}" th:text="${error}"></div>
 </div>
@@ -41,35 +143,15 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <section class="footer-brand">
-                <p class="footer-kicker">Cinema Ticketing</p>
-                <h3 class="footer-title">在线选座购票平台</h3>
-                <p class="footer-copy">提供影片浏览、排片查询、在线选座与订单管理的一站式体验。</p>
+                <p class="footer-kicker">Property Platform</p>
+                <h3 class="footer-title">物业综合管理平台</h3>
+                <p class="footer-copy">提供住户、工单、收费与运营数据的一体化管理能力。</p>
                 <p class="footer-meta">
-                    © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2026</span> Cinema. All rights reserved.
+                    © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2026</span> Property Platform.
                 </p>
-            </section>
-            <section class="footer-col">
-                <h4>快速入口</h4>
-                <a href="/">首页</a>
-                <a href="/shows">排片查询</a>
-                <a href="/profile">个人中心</a>
-            </section>
-            <section class="footer-col">
-                <h4>服务信息</h4>
-                <p>客服时间：09:00 - 22:00</p>
-                <p>服务热线：400-102-8080</p>
-                <p>邮箱：service@cinema.local</p>
-            </section>
-            <section class="footer-col">
-                <h4>系统状态</h4>
-                <p>支持移动端与桌面端访问</p>
-                <p>交易与密码均采用加密传输</p>
-                <p>已启用在线选座锁定机制</p>
             </section>
         </div>
     </footer>
 </div>
 </body>
 </html>
-
-

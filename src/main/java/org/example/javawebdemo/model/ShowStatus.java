@@ -7,7 +7,7 @@ public enum ShowStatus {
 
     public String getLabel() {
         return switch (this) {
-            case SCHEDULED -> "已排片";
+            case SCHEDULED -> "已排期";
             case CANCELED -> "已取消";
             case ENDED -> "已结束";
         };

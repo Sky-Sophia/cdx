@@ -1,21 +1,10 @@
 package org.example.javawebdemo.controller;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.example.javawebdemo.model.Hall;
-import org.example.javawebdemo.model.HallType;
-import org.example.javawebdemo.model.Movie;
-import org.example.javawebdemo.model.Show;
-import org.example.javawebdemo.model.ShowStatus;
-import org.example.javawebdemo.service.HallService;
-import org.example.javawebdemo.service.MovieService;
-import org.example.javawebdemo.service.SeatService;
-import org.example.javawebdemo.service.ShowService;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.example.javawebdemo.mapper.PropertyUnitMapper;
+import org.example.javawebdemo.mapper.WorkOrderMapper;
+import org.example.javawebdemo.model.WorkOrder;
+import org.example.javawebdemo.util.CodeGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,96 +13,88 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
-@RequestMapping("/admin/shows")
+@RequestMapping("/admin/work-orders")
 public class AdminShowController {
-    private final ShowService showService;
-    private final MovieService movieService;
-    private final HallService hallService;
-    private final SeatService seatService;
+    private final WorkOrderMapper workOrderMapper;
+    private final PropertyUnitMapper propertyUnitMapper;
 
-    public AdminShowController(ShowService showService, MovieService movieService,
-                               HallService hallService, SeatService seatService) {
-        this.showService = showService;
-        this.movieService = movieService;
-        this.hallService = hallService;
-        this.seatService = seatService;
+    public AdminShowController(WorkOrderMapper workOrderMapper, PropertyUnitMapper propertyUnitMapper) {
+        this.workOrderMapper = workOrderMapper;
+        this.propertyUnitMapper = propertyUnitMapper;
     }
 
     @GetMapping
-    public String list(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-                       @RequestParam(required = false) Long movieId,
-                       @RequestParam(required = false) Long hallId,
+    public String list(@RequestParam(required = false) String status,
+                       @RequestParam(required = false) String priority,
                        Model model) {
-        List<Show> shows = showService.listWithFilters(date, movieId, hallId);
-        List<Movie> movies = movieService.listAll();
-        List<Hall> halls = hallService.listAll();
-        Map<Long, Movie> movieMap = new HashMap<>();
-        for (Movie movie : movies) {
-            movieMap.put(movie.getId(), movie);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
+                .queryParam("tab", "work-orders");
+        if (status != null && !status.isBlank()) {
+            builder.queryParam("workOrderStatus", status);
         }
-        Map<Long, Hall> hallMap = new HashMap<>();
-        for (Hall hall : halls) {
-            hallMap.put(hall.getId(), hall);
+        if (priority != null && !priority.isBlank()) {
+            builder.queryParam("workOrderPriority", priority);
         }
-        model.addAttribute("shows", shows);
-        model.addAttribute("movies", movies);
-        model.addAttribute("halls", halls);
-        model.addAttribute("movieMap", movieMap);
-        model.addAttribute("hallMap", hallMap);
-        return "admin/shows";
+        return "redirect:" + builder.toUriString();
     }
 
     @GetMapping("/new")
-    public String createForm(Model model) {
-        model.addAttribute("movies", movieService.listAll());
-        model.addAttribute("halls", hallService.listAll());
-        return "admin/show-form";
+    public String newForm(Model model) {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setPriority("MEDIUM");
+        workOrder.setStatus("OPEN");
+        model.addAttribute("workOrder", workOrder);
+        model.addAttribute("units", propertyUnitMapper.findAllSimple());
+        return "admin/work-order-form";
     }
 
     @PostMapping("/save")
-    public String save(@RequestParam Long movieId,
-                       @RequestParam Long hallId,
-                       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime startTime,
-                       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime endTime,
-                       @RequestParam BigDecimal basePrice,
-                       RedirectAttributes redirectAttributes) {
-        if (endTime.isBefore(startTime) || endTime.isEqual(startTime)) {
-            redirectAttributes.addFlashAttribute("error", "结束时间必须晚于开始时间");
-            return "redirect:/admin/shows/new";
+    public String save(WorkOrder workOrder, RedirectAttributes redirectAttributes) {
+        if (workOrder.getUnitId() == null
+                || workOrder.getResidentName() == null
+                || workOrder.getResidentName().isBlank()
+                || workOrder.getDescription() == null
+                || workOrder.getDescription().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "请完整填写工单信息。");
+            return "redirect:/admin/work-orders/new";
         }
-        if (showService.hasConflict(hallId, startTime, endTime, null)) {
-            redirectAttributes.addFlashAttribute("error", "排片时间冲突");
-            return "redirect:/admin/shows/new";
+
+        workOrder.setOrderNo(CodeGenerator.nextWorkOrderNo());
+        if (workOrder.getPriority() == null || workOrder.getPriority().isBlank()) {
+            workOrder.setPriority("MEDIUM");
         }
-        Hall hall = hallService.getById(hallId);
-        BigDecimal finalPrice = basePrice;
-        if (hall.getHallType() == HallType.IMAX) {
-            finalPrice = basePrice.multiply(new BigDecimal("1.5"));
-        }
-        Show show = new Show();
-        show.setMovieId(movieId);
-        show.setHallId(hallId);
-        show.setStartTime(startTime);
-        show.setEndTime(endTime);
-        show.setBasePrice(basePrice);
-        show.setFinalPrice(finalPrice);
-        show.setStatus(ShowStatus.SCHEDULED);
-        showService.create(show);
-        seatService.generateSeatsForShow(show);
-        redirectAttributes.addFlashAttribute("success", "排片创建成功");
-        return "redirect:/admin/shows";
+        workOrder.setStatus("OPEN");
+        workOrderMapper.insert(workOrder);
+        redirectAttributes.addFlashAttribute("success", "工单已创建。");
+        return "redirect:/admin/management?tab=work-orders";
     }
 
-    @PostMapping("/cancel/{id}")
-    public String cancel(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        Show show = showService.getById(id);
-        if (show != null) {
-            show.setStatus(ShowStatus.CANCELED);
-            showService.update(show);
+    @PostMapping("/{id}/status")
+    public String updateStatus(@PathVariable Long id,
+                               @RequestParam String status,
+                               @RequestParam(required = false) String assignee,
+                               RedirectAttributes redirectAttributes) {
+        WorkOrder existing = workOrderMapper.findById(id);
+        if (existing == null) {
+            redirectAttributes.addFlashAttribute("error", "工单不存在。");
+            return "redirect:/admin/management?tab=work-orders";
         }
-        redirectAttributes.addFlashAttribute("success", "已取消排片");
-        return "redirect:/admin/shows";
+
+        LocalDateTime finishedAt = existing.getFinishedAt();
+        LocalDateTime scheduledAt = existing.getScheduledAt();
+        if ("IN_PROGRESS".equals(status) && scheduledAt == null) {
+            scheduledAt = LocalDateTime.now();
+        }
+        if ("DONE".equals(status) || "CLOSED".equals(status)) {
+            finishedAt = LocalDateTime.now();
+        }
+
+        String finalAssignee = (assignee == null || assignee.isBlank()) ? existing.getAssignee() : assignee;
+        workOrderMapper.updateStatus(id, status, finalAssignee, scheduledAt, finishedAt);
+        redirectAttributes.addFlashAttribute("success", "工单状态已更新。");
+        return "redirect:/admin/management?tab=work-orders";
     }
 }

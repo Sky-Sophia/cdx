@@ -1,9 +1,11 @@
 package org.example.javawebdemo.controller;
 
-import java.util.List;
+import jakarta.servlet.http.HttpSession;
+import org.example.javawebdemo.dto.UserSession;
 import org.example.javawebdemo.model.Role;
 import org.example.javawebdemo.model.User;
 import org.example.javawebdemo.service.UserService;
+import org.example.javawebdemo.util.SessionKeys;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,49 +28,91 @@ public class AdminUserController {
     public String list(@RequestParam(required = false) String q,
                        @RequestParam(required = false) Role role,
                        @RequestParam(required = false) String status,
-                       Model model) {
-        List<User> users = userService.listByFilters(q, role, status);
-        long total = users.size();
-        long active = users.stream()
-                .filter(user -> "ACTIVE".equalsIgnoreCase(user.getStatus()))
-                .count();
-        long disabled = total - active;
-        model.addAttribute("users", users);
+                       HttpSession session,
+                       Model model,
+                       RedirectAttributes redirectAttributes) {
+        if (!isAdmin(session)) {
+            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            return "redirect:/admin/dashboard";
+        }
+
+        model.addAttribute("users", userService.listByFilters(q, role, status));
         model.addAttribute("roles", Role.values());
         model.addAttribute("q", q);
         model.addAttribute("role", role);
         model.addAttribute("status", status);
-        model.addAttribute("totalUsers", total);
-        model.addAttribute("activeUsers", active);
-        model.addAttribute("disabledUsers", disabled);
         return "admin/users";
     }
 
-    @PostMapping("/{id}/update")
-    public String update(@PathVariable Long id,
-                         @RequestParam Role role,
-                         @RequestParam String status,
-                         RedirectAttributes redirectAttributes) {
-        userService.updateRole(id, role);
+    @GetMapping("/new")
+    public String newForm(HttpSession session,
+                          Model model,
+                          RedirectAttributes redirectAttributes) {
+        if (!isAdmin(session)) {
+            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            return "redirect:/admin/dashboard";
+        }
+
+        model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
+        return "admin/user-form";
+    }
+
+    @PostMapping("/save")
+    public String save(@RequestParam String username,
+                       @RequestParam String password,
+                       @RequestParam Role role,
+                       HttpSession session,
+                       RedirectAttributes redirectAttributes) {
+        if (!isAdmin(session)) {
+            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            return "redirect:/admin/dashboard";
+        }
+
+        try {
+            User user = userService.register(username.trim(), password);
+            userService.updateRole(user.getId(), role);
+            userService.updateStatus(user.getId(), "ACTIVE");
+            redirectAttributes.addFlashAttribute("success", "用户已创建。");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/admin/users/new";
+        }
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/{id}/status")
+    public String updateStatus(@PathVariable Long id,
+                               @RequestParam String status,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
+        if (!isAdmin(session)) {
+            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            return "redirect:/admin/dashboard";
+        }
+
         userService.updateStatus(id, status);
-        redirectAttributes.addFlashAttribute("success", "用户信息已更新");
+        redirectAttributes.addFlashAttribute("success", "用户状态已更新。");
         return "redirect:/admin/users";
     }
 
     @PostMapping("/{id}/reset-password")
     public String resetPassword(@PathVariable Long id,
                                 @RequestParam(required = false) String newPassword,
+                                HttpSession session,
                                 RedirectAttributes redirectAttributes) {
-        String finalPassword = newPassword;
-        if (finalPassword == null || finalPassword.isBlank()) {
-            finalPassword = "123456";
+        if (!isAdmin(session)) {
+            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            return "redirect:/admin/dashboard";
         }
-        if (finalPassword.length() < 6 || finalPassword.length() > 32) {
-            redirectAttributes.addFlashAttribute("error", "密码长度需要在 6-32 之间");
-            return "redirect:/admin/users";
-        }
-        userService.resetPassword(id, finalPassword);
-        redirectAttributes.addFlashAttribute("success", "密码已重置");
+
+        String password = (newPassword == null || newPassword.isBlank()) ? "Property@123" : newPassword;
+        userService.resetPassword(id, password);
+        redirectAttributes.addFlashAttribute("success", "密码重置完成。");
         return "redirect:/admin/users";
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        UserSession currentUser = (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
+        return currentUser != null && currentUser.getRole() == Role.ADMIN;
     }
 }

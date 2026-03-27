@@ -6,8 +6,8 @@ public enum MovieStatus {
 
     public String getLabel() {
         return switch (this) {
-            case ONLINE -> "上映中";
-            case OFFLINE -> "已下线";
+            case ONLINE -> "上架";
+            case OFFLINE -> "下架";
         };
     }
 }

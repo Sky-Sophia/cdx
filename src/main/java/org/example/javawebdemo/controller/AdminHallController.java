@@ -1,13 +1,10 @@
 package org.example.javawebdemo.controller;
 
 import java.util.List;
-import org.example.javawebdemo.model.Hall;
-import org.example.javawebdemo.model.HallType;
-import org.example.javawebdemo.model.SeatLayout;
-import org.example.javawebdemo.service.HallService;
-import org.example.javawebdemo.util.SeatLayoutUtils;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.example.javawebdemo.mapper.BuildingMapper;
+import org.example.javawebdemo.mapper.PropertyUnitMapper;
+import org.example.javawebdemo.model.Building;
+import org.example.javawebdemo.model.PropertyUnit;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,104 +13,84 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
-@RequestMapping("/admin/halls")
+@RequestMapping("/admin/units")
 public class AdminHallController {
-    private final HallService hallService;
-    private final org.example.javawebdemo.service.ShowService showService;
-    private final MessageSource messageSource;
+    private final PropertyUnitMapper propertyUnitMapper;
+    private final BuildingMapper buildingMapper;
 
-    public AdminHallController(HallService hallService,
-                               org.example.javawebdemo.service.ShowService showService,
-                               MessageSource messageSource) {
-        this.hallService = hallService;
-        this.showService = showService;
-        this.messageSource = messageSource;
+    public AdminHallController(PropertyUnitMapper propertyUnitMapper, BuildingMapper buildingMapper) {
+        this.propertyUnitMapper = propertyUnitMapper;
+        this.buildingMapper = buildingMapper;
     }
 
     @GetMapping
-    public String list(Model model) {
-        List<Hall> halls = hallService.listAll();
-        model.addAttribute("halls", halls);
-        return "admin/halls";
+    public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) Long buildingId,
+                       @RequestParam(required = false) String status,
+                       Model model) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
+                .queryParam("tab", "units");
+        if (keyword != null && !keyword.isBlank()) {
+            builder.queryParam("unitKeyword", keyword);
+        }
+        if (buildingId != null) {
+            builder.queryParam("unitBuildingId", buildingId);
+        }
+        if (status != null && !status.isBlank()) {
+            builder.queryParam("unitStatus", status);
+        }
+        return "redirect:" + builder.toUriString();
     }
 
     @GetMapping("/new")
-    public String createForm(Model model) {
-        Hall hall = new Hall();
-        SeatLayout layout = SeatLayoutUtils.parse(hall.getSeatLayoutJson());
-        int rows = layout != null && layout.getRows() != null ? layout.getRows() : 8;
-        int cols = layout != null && layout.getCols() != null ? layout.getCols() : 12;
-        String disabledSeats = layout != null && layout.getDisabled() != null
-                ? String.join(",", layout.getDisabled())
-                : "";
-        model.addAttribute("hall", hall);
-        model.addAttribute("types", HallType.values());
-        model.addAttribute("rows", rows);
-        model.addAttribute("cols", cols);
-        model.addAttribute("disabledSeats", disabledSeats);
-        return "admin/hall-form";
+    public String newForm(Model model) {
+        model.addAttribute("unit", new PropertyUnit());
+        model.addAttribute("buildings", buildingMapper.findAll());
+        model.addAttribute("editing", false);
+        return "admin/unit-form";
     }
 
     @GetMapping("/edit/{id}")
-    public String editForm(@PathVariable Long id, Model model) {
-        Hall hall = hallService.getById(id);
-        SeatLayout layout = SeatLayoutUtils.parse(hall == null ? null : hall.getSeatLayoutJson());
-        int rows = layout != null && layout.getRows() != null ? layout.getRows() : 8;
-        int cols = layout != null && layout.getCols() != null ? layout.getCols() : 12;
-        String disabledSeats = layout != null && layout.getDisabled() != null
-                ? String.join(",", layout.getDisabled())
-                : "";
-        model.addAttribute("hall", hall);
-        model.addAttribute("types", HallType.values());
-        model.addAttribute("rows", rows);
-        model.addAttribute("cols", cols);
-        model.addAttribute("disabledSeats", disabledSeats);
-        return "admin/hall-form";
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        PropertyUnit unit = propertyUnitMapper.findById(id);
+        if (unit == null) {
+            redirectAttributes.addFlashAttribute("error", "房屋不存在。");
+            return "redirect:/admin/management?tab=units";
+        }
+        model.addAttribute("unit", unit);
+        model.addAttribute("buildings", buildingMapper.findAll());
+        model.addAttribute("editing", true);
+        return "admin/unit-form";
     }
 
     @PostMapping("/save")
-    public String save(@RequestParam(required = false) Long id,
-                       @RequestParam String name,
-                       @RequestParam HallType hallType,
-                       @RequestParam int rows,
-                       @RequestParam int cols,
-                       @RequestParam(required = false) String disabledSeats,
-                       RedirectAttributes redirectAttributes) {
-        String layoutJson = SeatLayoutUtils.buildJson(rows, cols, disabledSeats);
-        int disabledCount = 0;
-        if (disabledSeats != null && !disabledSeats.isBlank()) {
-            disabledCount = disabledSeats.split(",").length;
+    public String save(PropertyUnit unit, RedirectAttributes redirectAttributes) {
+        if (unit.getBuildingId() == null || unit.getUnitNo() == null || unit.getUnitNo().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "请填写楼栋和房号。");
+            return unit.getId() == null ? "redirect:/admin/units/new" : "redirect:/admin/units/edit/" + unit.getId();
         }
-        int seatTotal = rows * cols - disabledCount;
-        Hall hall = id == null ? new Hall() : hallService.getById(id);
-        hall.setName(name);
-        hall.setHallType(hallType);
-        hall.setSeatTotal(seatTotal);
-        hall.setSeatLayoutJson(layoutJson);
-        if (id == null) {
-            hallService.create(hall);
+
+        if (unit.getOccupancyStatus() == null || unit.getOccupancyStatus().isBlank()) {
+            unit.setOccupancyStatus("VACANT");
+        }
+
+        if (unit.getId() == null) {
+            propertyUnitMapper.insert(unit);
+            redirectAttributes.addFlashAttribute("success", "房屋已新增。");
         } else {
-            hallService.update(hall);
+            propertyUnitMapper.update(unit);
+            redirectAttributes.addFlashAttribute("success", "房屋已更新。");
         }
-        redirectAttributes.addFlashAttribute("success", msg("admin.hall.save.success"));
-        return "redirect:/admin/halls";
+        return "redirect:/admin/management?tab=units";
     }
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        if (showService.hasShowsForHall(id)) {
-            redirectAttributes.addFlashAttribute("error", msg("admin.hall.delete.blocked"));
-            return "redirect:/admin/halls";
-        }
-        hallService.delete(id);
-        redirectAttributes.addFlashAttribute("success", msg("admin.hall.delete.success"));
-        return "redirect:/admin/halls";
-    }
-
-    private String msg(String code, Object... args) {
-        return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
+        propertyUnitMapper.deleteById(id);
+        redirectAttributes.addFlashAttribute("success", "房屋已删除。");
+        return "redirect:/admin/management?tab=units";
     }
 }
-

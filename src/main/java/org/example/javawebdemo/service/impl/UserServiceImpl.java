@@ -37,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User authenticate(String username, String password) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            return null;
+        }
         User user = userMapper.findByUsername(username);
         if (user == null) {
             return null;
@@ -68,8 +71,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void ensureDefaultUsers() {
-        createIfMissing("admin", "admin123", Role.ADMIN);
-        createIfMissing("staff", "staff123", Role.STAFF);
+        createIfMissing("admin", "Property@123", Role.ADMIN);
+        createIfMissing("manager", "Staff@123", Role.STAFF);
+        createIfMissing("finance", "Finance@123", Role.FINANCE);
     }
 
     private void createIfMissing(String username, String password, Role role) {
