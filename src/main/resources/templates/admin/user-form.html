@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>新增用户 - 物业后台管理系统</title>
+    <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments :: topbar('users')}"></div>
+    <div th:replace="~{fragments :: sidebar('users')}"></div>
+
+    <main class="app-main">
+        <section class="page-head compact">
+            <h1>新增系统用户</h1>
+            <a class="btn ghost" href="/admin/users">返回列表</a>
+        </section>
+
+        <section class="panel form-panel">
+            <form method="post" action="/admin/users/save" class="form-grid">
+                <label>
+                    用户名
+                    <input name="username" required />
+                </label>
+
+                <label>
+                    初始密码
+                    <input name="password" type="password" required />
+                </label>
+
+                <label>
+                    角色
+                    <select name="role">
+                        <option th:each="role : ${roles}" th:value="${role}" th:text="${role.label}"></option>
+                    </select>
+                </label>
+
+                <div class="form-actions">
+                    <button class="btn primary" type="submit">创建用户</button>
+                    <a class="btn ghost" href="/admin/users">取消</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

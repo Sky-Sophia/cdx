@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${editing} ? '编辑房屋' : '新增房屋'">房屋表单</title>
+    <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments :: topbar('units')}"></div>
+    <div th:replace="~{fragments :: sidebar('units')}"></div>
+
+    <main class="app-main">
+        <section class="page-head compact">
+            <h1 th:text="${editing} ? '编辑房屋档案' : '新增房屋档案'"></h1>
+            <a class="btn ghost" href="/admin/units">返回列表</a>
+        </section>
+
+        <section class="panel form-panel">
+            <form method="post" action="/admin/units/save" class="form-grid">
+                <input type="hidden" name="id" th:value="${unit.id}" />
+
+                <label>
+                    楼栋
+                    <select name="buildingId" required>
+                        <option value="">请选择楼栋</option>
+                        <option th:each="building : ${buildings}" th:value="${building.id}" th:text="${building.name}" th:selected="${unit.buildingId == building.id}"></option>
+                    </select>
+                </label>
+
+                <label>
+                    房号
+                    <input name="unitNo" th:value="${unit.unitNo}" required />
+                </label>
+
+                <label>
+                    楼层
+                    <input type="number" name="floorNo" th:value="${unit.floorNo}" min="1" />
+                </label>
+
+                <label>
+                    建筑面积(m2)
+                    <input type="number" name="areaM2" th:value="${unit.areaM2}" step="0.01" min="0" />
+                </label>
+
+                <label>
+                    业主姓名
+                    <input name="ownerName" th:value="${unit.ownerName}" />
+                </label>
+
+                <label>
+                    联系电话
+                    <input name="ownerPhone" th:value="${unit.ownerPhone}" />
+                </label>
+
+                <label>
+                    使用状态
+                    <select name="occupancyStatus">
+                        <option value="OCCUPIED" th:selected="${unit.occupancyStatus == 'OCCUPIED'}">自住</option>
+                        <option value="RENTED" th:selected="${unit.occupancyStatus == 'RENTED'}">出租</option>
+                        <option value="VACANT" th:selected="${unit.occupancyStatus == 'VACANT'}">空置</option>
+                    </select>
+                </label>
+
+                <div class="form-actions">
+                    <button class="btn primary" type="submit">保存</button>
+                    <a class="btn ghost" href="/admin/units">取消</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

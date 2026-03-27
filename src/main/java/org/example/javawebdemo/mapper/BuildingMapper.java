@@ -1,0 +1,16 @@
+package org.example.javawebdemo.mapper;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import org.example.javawebdemo.model.Building;
+
+@Mapper
+public interface BuildingMapper {
+
+    @Select("SELECT * FROM buildings ORDER BY code ASC")
+    List<Building> findAll();
+
+    @Select("SELECT COUNT(*) FROM buildings")
+    long countAll();
+}

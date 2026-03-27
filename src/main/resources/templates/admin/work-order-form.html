@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>新建工单 - 物业后台管理系统</title>
+    <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments :: topbar('work-orders')}"></div>
+    <div th:replace="~{fragments :: sidebar('work-orders')}"></div>
+
+    <main class="app-main">
+        <section class="page-head compact">
+            <h1>新建报修工单</h1>
+            <a class="btn ghost" href="/admin/work-orders">返回列表</a>
+        </section>
+
+        <section class="panel form-panel">
+            <form method="post" action="/admin/work-orders/save" class="form-grid">
+                <label>
+                    报修房屋
+                    <select name="unitId" required>
+                        <option value="">请选择房屋</option>
+                        <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${workOrder.unitId == unit.id}"></option>
+                    </select>
+                </label>
+
+                <label>
+                    报修人
+                    <input name="residentName" th:value="${workOrder.residentName}" required />
+                </label>
+
+                <label>
+                    联系电话
+                    <input name="phone" th:value="${workOrder.phone}" />
+                </label>
+
+                <label>
+                    工单类别
+                    <select name="category">
+                        <option value="水电维修">水电维修</option>
+                        <option value="门禁设备">门禁设备</option>
+                        <option value="公区环境">公区环境</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </label>
+
+                <label>
+                    优先级
+                    <select name="priority">
+                        <option value="HIGH" th:selected="${workOrder.priority == 'HIGH'}">高</option>
+                        <option value="MEDIUM" th:selected="${workOrder.priority == 'MEDIUM'}">中</option>
+                        <option value="LOW" th:selected="${workOrder.priority == 'LOW'}">低</option>
+                    </select>
+                </label>
+
+                <label>
+                    指派人员
+                    <input name="assignee" th:value="${workOrder.assignee}" placeholder="如：刘师傅" />
+                </label>
+
+                <label class="span-2">
+                    问题描述
+                    <textarea name="description" rows="4" th:text="${workOrder.description}" required></textarea>
+                </label>
+
+                <div class="form-actions">
+                    <button class="btn primary" type="submit">创建工单</button>
+                    <a class="btn ghost" href="/admin/work-orders">取消</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

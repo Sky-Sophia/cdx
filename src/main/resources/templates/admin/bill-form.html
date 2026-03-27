@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>新增账单 - 物业后台管理系统</title>
+    <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments :: topbar('bills')}"></div>
+    <div th:replace="~{fragments :: sidebar('bills')}"></div>
+
+    <main class="app-main">
+        <section class="page-head compact">
+            <h1>新增费用账单</h1>
+            <a class="btn ghost" href="/admin/bills">返回列表</a>
+        </section>
+
+        <section class="panel form-panel">
+            <form method="post" action="/admin/bills/save" class="form-grid">
+                <label>
+                    房屋
+                    <select name="unitId" required>
+                        <option value="">请选择房屋</option>
+                        <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${bill.unitId == unit.id}"></option>
+                    </select>
+                </label>
+
+                <label>
+                    账期
+                    <input type="month" name="billingMonth" th:value="${bill.billingMonth}" required />
+                </label>
+
+                <label>
+                    应收金额
+                    <input type="number" name="amount" th:value="${bill.amount}" step="0.01" min="0" required />
+                </label>
+
+                <label>
+                    状态
+                    <select name="status">
+                        <option value="UNPAID" th:selected="${bill.status == 'UNPAID'}">未缴</option>
+                        <option value="PARTIAL" th:selected="${bill.status == 'PARTIAL'}">部分已缴</option>
+                        <option value="OVERDUE" th:selected="${bill.status == 'OVERDUE'}">逾期</option>
+                        <option value="PAID" th:selected="${bill.status == 'PAID'}">已缴清</option>
+                    </select>
+                </label>
+
+                <label>
+                    实收金额
+                    <input type="number" name="paidAmount" th:value="${bill.paidAmount}" step="0.01" min="0" />
+                </label>
+
+                <label>
+                    到期日期
+                    <input type="date" name="dueDate" th:value="${bill.dueDate}" />
+                </label>
+
+                <label class="span-2">
+                    备注
+                    <textarea name="remarks" rows="3" th:text="${bill.remarks}"></textarea>
+                </label>
+
+                <div class="form-actions">
+                    <button class="btn primary" type="submit">保存</button>
+                    <a class="btn ghost" href="/admin/bills">取消</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>
