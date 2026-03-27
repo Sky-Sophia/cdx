@@ -24,12 +24,26 @@ public class AuthInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
         UserSession user = session == null ? null : (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
         if (user == null) {
+            if (path.startsWith("/actuator")) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return false;
+            }
             response.sendRedirect("/login");
             return false;
         }
 
+        if (path.startsWith("/actuator") && user.getRole() != Role.ADMIN) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return false;
+        }
+
+        if (path.startsWith("/admin/users") && user.getRole() != Role.ADMIN) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return false;
+        }
+
         if (path.startsWith("/admin") && user.getRole() == Role.USER) {
-            response.sendRedirect("/logout");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
 
@@ -44,7 +58,6 @@ public class AuthInterceptor implements HandlerInterceptor {
                 || path.startsWith("/css")
                 || path.startsWith("/images")
                 || path.startsWith("/favicon")
-                || path.startsWith("/webjars")
-                || path.startsWith("/actuator");
+                || path.startsWith("/webjars");
     }
 }

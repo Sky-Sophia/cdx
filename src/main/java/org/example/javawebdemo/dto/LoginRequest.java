@@ -11,7 +11,7 @@ public class LoginRequest {
     private String username;
 
     @NotBlank(message = "{auth.password.required}")
-    @Size(min = 6, max = 32, message = "{auth.password.length}")
+    @Size(min = 8, max = 64, message = "{auth.password.length}")
     private String password;
 
     public String getUsername() {

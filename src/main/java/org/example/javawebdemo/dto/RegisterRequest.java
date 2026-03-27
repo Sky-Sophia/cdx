@@ -11,11 +11,12 @@ public class RegisterRequest {
     private String username;
 
     @NotBlank(message = "{auth.password.required}")
-    @Size(min = 6, max = 32, message = "{auth.password.length}")
+    @Size(min = 8, max = 64, message = "{auth.password.length}")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z\\d]).+$", message = "{auth.password.complexity}")
     private String password;
 
     @NotBlank(message = "{auth.password.required}")
-    @Size(min = 6, max = 32, message = "{auth.password.length}")
+    @Size(min = 8, max = 64, message = "{auth.password.length}")
     private String confirmPassword;
 
     public String getUsername() {

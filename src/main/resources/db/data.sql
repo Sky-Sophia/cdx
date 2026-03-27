@@ -1,15 +1,3 @@
-INSERT INTO users (username, display_name, password_hash, password_salt, role, status)
-SELECT 'admin', '系统管理员', '4faf5873249d9a93b240f6f7b1e06b2fc6ea9caea1af17502d4e498dfd6821bc', 'pms_default_salt', 'ADMIN', 'ACTIVE'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
-
-INSERT INTO users (username, display_name, password_hash, password_salt, role, status)
-SELECT 'manager', '物业管家', '0f4b81e69839ada7b8d21a899f4b8fb241c65cdac0267d589f6af0d67dc21d48', 'pms_default_salt', 'STAFF', 'ACTIVE'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'manager');
-
-INSERT INTO users (username, display_name, password_hash, password_salt, role, status)
-SELECT 'finance', '财务专员', 'e947e1917b5e0399489acac3b87416b1eeed61ebe58c15ff010c743743a3d44e', 'pms_default_salt', 'FINANCE', 'ACTIVE'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'finance');
-
 INSERT INTO buildings (name, code, address, floor_count, unit_count)
 SELECT '云栖花园 1 栋', 'B1', '长宁路 188 号', 18, 72
 WHERE NOT EXISTS (SELECT 1 FROM buildings WHERE code = 'B1');

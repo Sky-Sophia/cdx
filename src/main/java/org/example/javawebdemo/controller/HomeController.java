@@ -15,6 +15,6 @@ public class HomeController {
         if (currentUser == null) {
             return "redirect:/login";
         }
-        return "redirect:/admin/dashboard";
+        return "redirect:/admin/management?tab=dashboard";
     }
 }

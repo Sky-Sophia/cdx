@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -29,19 +30,24 @@ public class AdminUserController {
                        @RequestParam(required = false) Role role,
                        @RequestParam(required = false) String status,
                        HttpSession session,
-                       Model model,
                        RedirectAttributes redirectAttributes) {
         if (!isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/dashboard";
+            return "redirect:/admin/management?tab=dashboard";
         }
 
-        model.addAttribute("users", userService.listByFilters(q, role, status));
-        model.addAttribute("roles", Role.values());
-        model.addAttribute("q", q);
-        model.addAttribute("role", role);
-        model.addAttribute("status", status);
-        return "admin/users";
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
+                .queryParam("tab", "users");
+        if (q != null && !q.isBlank()) {
+            builder.queryParam("userQ", q);
+        }
+        if (role != null) {
+            builder.queryParam("userRole", role.name());
+        }
+        if (status != null && !status.isBlank()) {
+            builder.queryParam("userStatus", status);
+        }
+        return "redirect:" + builder.toUriString();
     }
 
     @GetMapping("/new")
@@ -50,7 +56,7 @@ public class AdminUserController {
                           RedirectAttributes redirectAttributes) {
         if (!isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/dashboard";
+            return "redirect:/admin/management?tab=dashboard";
         }
 
         model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
@@ -65,7 +71,7 @@ public class AdminUserController {
                        RedirectAttributes redirectAttributes) {
         if (!isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/dashboard";
+            return "redirect:/admin/management?tab=dashboard";
         }
 
         try {
@@ -77,7 +83,7 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/admin/users/new";
         }
-        return "redirect:/admin/users";
+        return "redirect:/admin/management?tab=users";
     }
 
     @PostMapping("/{id}/status")
@@ -87,12 +93,12 @@ public class AdminUserController {
                                RedirectAttributes redirectAttributes) {
         if (!isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/dashboard";
+            return "redirect:/admin/management?tab=dashboard";
         }
 
         userService.updateStatus(id, status);
         redirectAttributes.addFlashAttribute("success", "用户状态已更新。");
-        return "redirect:/admin/users";
+        return "redirect:/admin/management?tab=users";
     }
 
     @PostMapping("/{id}/reset-password")
@@ -102,13 +108,13 @@ public class AdminUserController {
                                 RedirectAttributes redirectAttributes) {
         if (!isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/dashboard";
+            return "redirect:/admin/management?tab=dashboard";
         }
 
         String password = (newPassword == null || newPassword.isBlank()) ? "Property@123" : newPassword;
         userService.resetPassword(id, password);
         redirectAttributes.addFlashAttribute("success", "密码重置完成。");
-        return "redirect:/admin/users";
+        return "redirect:/admin/management?tab=users";
     }
 
     private boolean isAdmin(HttpSession session) {

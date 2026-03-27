@@ -37,15 +37,18 @@
 
     <section class="auth-portal-section auth-portal-section-login"
              th:classappend="${tab == 'register'} ? ' is-hidden'">
-        <form method="post" action="/login" class="auth-portal-form" id="loginForm">
+        <form method="post" action="/login" class="auth-portal-form" id="loginForm" autocomplete="off">
             <label class="auth-portal-label" for="login-username">用户名</label>
             <div class="auth-portal-input-wrap">
                 <span class="auth-portal-icon">👤</span>
                 <input id="login-username"
                        name="username"
-                       th:value="${loginUsername}"
                        placeholder="请输入用户名"
-                       autocomplete="username"
+                       data-secure-input="true"
+                       autocomplete="off"
+                       autocapitalize="off"
+                       autocorrect="off"
+                       spellcheck="false"
                        minlength="3"
                        maxlength="20"
                        required />
@@ -58,9 +61,10 @@
                        name="password"
                        type="password"
                        placeholder="请输入密码"
-                       autocomplete="current-password"
-                       minlength="6"
-                       maxlength="32"
+                       data-secure-input="true"
+                       autocomplete="new-password"
+                       minlength="8"
+                       maxlength="64"
                        required />
                 <button class="auth-portal-eye"
                         type="button"
@@ -69,10 +73,6 @@
             </div>
 
             <div class="auth-portal-meta">
-                <label class="auth-portal-remember">
-                    <input type="checkbox" name="rememberMe" />
-                    <span>记住我</span>
-                </label>
                 <button type="button" class="auth-portal-link-btn" data-switch-tab="register">去注册</button>
             </div>
 
@@ -82,15 +82,18 @@
 
     <section class="auth-portal-section auth-portal-section-register"
              th:classappend="${tab != 'register'} ? ' is-hidden'">
-        <form method="post" action="/register" class="auth-portal-form" id="registerForm">
+        <form method="post" action="/register" class="auth-portal-form" id="registerForm" autocomplete="off">
             <label class="auth-portal-label" for="register-username">用户名</label>
             <div class="auth-portal-input-wrap">
                 <span class="auth-portal-icon">👤</span>
                 <input id="register-username"
                        name="username"
-                       th:value="${registerUsername}"
                        placeholder="请输入3-20位用户名"
-                       autocomplete="username"
+                       data-secure-input="true"
+                       autocomplete="off"
+                       autocapitalize="off"
+                       autocorrect="off"
+                       spellcheck="false"
                        minlength="3"
                        maxlength="20"
                        required />
@@ -102,10 +105,11 @@
                 <input id="register-password"
                        name="password"
                        type="password"
-                       placeholder="请输入6-32位密码"
+                       placeholder="请输入8-64位密码"
+                       data-secure-input="true"
                        autocomplete="new-password"
-                       minlength="6"
-                       maxlength="32"
+                       minlength="8"
+                       maxlength="64"
                        required />
                 <button class="auth-portal-eye"
                         type="button"
@@ -120,9 +124,10 @@
                        name="confirmPassword"
                        type="password"
                        placeholder="请再次输入密码"
+                       data-secure-input="true"
                        autocomplete="new-password"
-                       minlength="6"
-                       maxlength="32"
+                       minlength="8"
+                       maxlength="64"
                        required />
                 <button class="auth-portal-eye"
                         type="button"
@@ -192,10 +197,23 @@
         const username = document.getElementById("login-username");
         const password = document.getElementById("login-password");
         const submit = document.getElementById("loginSubmit");
+        const secureInputs = document.querySelectorAll("[data-secure-input='true']");
+
+        secureInputs.forEach((input) => {
+            input.setAttribute("readonly", "readonly");
+            const unlock = () => input.removeAttribute("readonly");
+            input.addEventListener("focus", unlock, { once: true });
+            input.addEventListener("pointerdown", unlock, { once: true });
+        });
+
+        document.querySelectorAll("input[name='username'], input[name='password'], input[name='confirmPassword']")
+            .forEach((input) => {
+                input.value = "";
+            });
 
         function updateLoginState() {
             if (!submit || !username || !password) return;
-            const valid = username.value.trim().length >= 3 && password.value.length >= 6;
+            const valid = username.value.trim().length >= 3 && password.value.length >= 8;
             submit.disabled = !valid;
         }
 

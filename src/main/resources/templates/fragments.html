@@ -17,9 +17,9 @@
                 <a class="nav-link" href="/">首页</a>
             </div>
             <div class="nav-right">
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).USER}" href="/orders">我的订单</a>
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/dashboard">管理后台</a>
-                <a class="nav-link nav-pill" th:if="${role == T(org.example.javawebdemo.model.Role).STAFF}" href="/staff">员工后台</a>
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).USER}" href="/admin/management?tab=work-orders">我的工单</a>
+                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/management?tab=dashboard">管理后台</a>
+                <a class="nav-link nav-pill" th:if="${role == T(org.example.javawebdemo.model.Role).STAFF}" href="/admin/management?tab=work-orders">员工后台</a>
                 <a class="nav-link" th:if="${user != null}" href="/profile">个人中心</a>
                 <a class="nav-link" th:if="${user == null}" href="/login">登录</a>
                 <a class="nav-link" th:if="${user == null}" href="/register">注册</a>
@@ -31,12 +31,14 @@
 
 <header class="topbar" th:fragment="topbar(active)" th:with="current=${session.CURRENT_USER}">
     <div class="topbar-left">
-        <a class="brand" href="/admin/dashboard">
+        <a class="brand" href="/admin/management?tab=dashboard">
             <span class="brand-dot"></span>
             <span>物业后台管理系统</span>
         </a>
         <nav class="top-nav slide-tabs">
-            <a href="/admin/dashboard" th:classappend="${active == 'dashboard'} ? ' is-active'">系统首页</a>
+            <a href="/admin/management?tab=dashboard"
+               data-management-tab="dashboard"
+               th:classappend="${(active == 'management' and currentTab == 'dashboard') or active == 'dashboard'} ? ' is-active'">系统首页</a>
             <a href="/admin/management?tab=units"
                data-management-tab="units"
                th:classappend="${(active == 'management' and currentTab == 'units') or active == 'units'} ? ' is-active'">房屋管理</a>
@@ -49,7 +51,9 @@
             <a href="/admin/management?tab=bills"
                data-management-tab="bills"
                th:classappend="${(active == 'management' and currentTab == 'bills') or active == 'bills'} ? ' is-active'">费用账单</a>
-            <a href="/admin/users" th:classappend="${active == 'users'} ? ' is-active'">系统用户</a>
+            <a href="/admin/management?tab=users"
+               data-management-tab="users"
+               th:classappend="${(active == 'management' and currentTab == 'users') or active == 'users'} ? ' is-active'">系统用户</a>
             <span class="slide-underline" aria-hidden="true"></span>
         </nav>
     </div>
@@ -78,19 +82,25 @@
                     };
 
                     const activeTab = () => tabs.find((item) => item.classList.contains("is-active")) || tabs[0];
-                    requestAnimationFrame(() => setUnderline(activeTab()));
+                    const refreshUnderline = () => setUnderline(activeTab());
+                    requestAnimationFrame(refreshUnderline);
 
+                    const observer = new MutationObserver(refreshUnderline);
                     tabs.forEach((tab) => {
-                        tab.addEventListener("mouseenter", () => setUnderline(tab));
-                        tab.addEventListener("focus", () => setUnderline(tab));
-                        tab.addEventListener("click", () => setUnderline(tab));
+                        observer.observe(tab, { attributes: true, attributeFilter: ["class"] });
                     });
 
-                    container.addEventListener("mouseleave", () => setUnderline(activeTab()));
-                    window.addEventListener("resize", () => setUnderline(activeTab()));
+                    container.addEventListener("management-tab-changed", refreshUnderline);
+                    window.addEventListener("resize", refreshUnderline);
                     container.dataset.slideInited = "1";
                 });
             }
+
+            window.refreshTopNavUnderline = () => {
+                document.querySelectorAll(".top-nav.slide-tabs").forEach((container) => {
+                    container.dispatchEvent(new Event("management-tab-changed"));
+                });
+            };
 
             initSlideTabs(".top-nav.slide-tabs");
         })();
@@ -99,7 +109,9 @@
 
 <aside class="sidebar" th:fragment="sidebar(active)">
     <nav class="side-nav">
-        <a href="/admin/dashboard" th:classappend="${active == 'dashboard'} ? ' is-active'">
+        <a href="/admin/management?tab=dashboard"
+           data-management-tab="dashboard"
+           th:classappend="${(active == 'management' and currentTab == 'dashboard') or active == 'dashboard'} ? ' is-active'">
             <span class="ico">D</span>
             <span>概览看板</span>
         </a>
@@ -127,7 +139,9 @@
             <span class="ico">B</span>
             <span>收费账单</span>
         </a>
-        <a href="/admin/users" th:classappend="${active == 'users'} ? ' is-active'">
+        <a href="/admin/management?tab=users"
+           data-management-tab="users"
+           th:classappend="${(active == 'management' and currentTab == 'users') or active == 'users'} ? ' is-active'">
             <span class="ico">A</span>
             <span>权限用户</span>
         </a>
