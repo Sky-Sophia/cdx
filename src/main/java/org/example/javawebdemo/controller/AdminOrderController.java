@@ -29,8 +29,7 @@ public class AdminOrderController {
 
     @GetMapping
     public String list(@RequestParam(required = false) String status,
-                       @RequestParam(required = false) String billingMonth,
-                       Model model) {
+                       @RequestParam(required = false) String billingMonth) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
                 .queryParam("tab", "bills");
         if (status != null && !status.isBlank()) {

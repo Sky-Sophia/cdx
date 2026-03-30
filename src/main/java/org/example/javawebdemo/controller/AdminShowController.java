@@ -28,8 +28,7 @@ public class AdminShowController {
 
     @GetMapping
     public String list(@RequestParam(required = false) String status,
-                       @RequestParam(required = false) String priority,
-                       Model model) {
+                       @RequestParam(required = false) String priority) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
                 .queryParam("tab", "work-orders");
         if (status != null && !status.isBlank()) {

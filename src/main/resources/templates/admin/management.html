@@ -177,20 +177,26 @@
 
             <form method="get" action="/admin/management" class="filter-row">
                 <input type="hidden" name="tab" value="units" />
-                <input name="unitKeyword" placeholder="房号 / 业主 / 手机号" th:value="${unitKeyword}" />
-                <select name="unitBuildingId">
-                    <option value="">全部楼栋</option>
-                    <option th:each="building : ${buildings}"
-                            th:value="${building.id}"
-                            th:text="${building.name}"
-                            th:selected="${unitBuildingId == building.id}"></option>
-                </select>
-                <select name="unitStatus">
-                    <option value="">全部状态</option>
-                    <option value="OCCUPIED" th:selected="${unitStatus == 'OCCUPIED'}">自住</option>
-                    <option value="RENTED" th:selected="${unitStatus == 'RENTED'}">出租</option>
-                    <option value="VACANT" th:selected="${unitStatus == 'VACANT'}">空置</option>
-                </select>
+                <label>
+                    <input name="unitKeyword" placeholder="房号 / 业主 / 手机号" th:value="${unitKeyword}" />
+                </label>
+                <label>
+                    <select name="unitBuildingId">
+                        <option value="">全部楼栋</option>
+                        <option th:each="building : ${buildings}"
+                                th:value="${building.id}"
+                                th:text="${building.name}"
+                                th:selected="${unitBuildingId == building.id}"></option>
+                    </select>
+                </label>
+                <label>
+                    <select name="unitStatus">
+                        <option value="">全部状态</option>
+                        <option value="OCCUPIED" th:selected="${unitStatus == 'OCCUPIED'}">自住</option>
+                        <option value="RENTED" th:selected="${unitStatus == 'RENTED'}">出租</option>
+                        <option value="VACANT" th:selected="${unitStatus == 'VACANT'}">空置</option>
+                    </select>
+                </label>
                 <button class="btn" type="submit">筛选</button>
             </form>
 
@@ -245,12 +251,16 @@
 
             <form method="get" action="/admin/management" class="filter-row">
                 <input type="hidden" name="tab" value="residents" />
-                <input name="residentKeyword" placeholder="姓名 / 手机号 / 房号" th:value="${residentKeyword}" />
-                <select name="residentStatus">
-                    <option value="">全部状态</option>
-                    <option value="ACTIVE" th:selected="${residentStatus == 'ACTIVE'}">在住</option>
-                    <option value="MOVED_OUT" th:selected="${residentStatus == 'MOVED_OUT'}">已迁出</option>
-                </select>
+                <label>
+                    <input name="residentKeyword" placeholder="姓名 / 手机号 / 房号" th:value="${residentKeyword}" />
+                </label>
+                <label>
+                    <select name="residentStatus">
+                        <option value="">全部状态</option>
+                        <option value="ACTIVE" th:selected="${residentStatus == 'ACTIVE'}">在住</option>
+                        <option value="MOVED_OUT" th:selected="${residentStatus == 'MOVED_OUT'}">已迁出</option>
+                    </select>
+                </label>
                 <button class="btn" type="submit">筛选</button>
             </form>
 
@@ -303,19 +313,23 @@
 
             <form method="get" action="/admin/management" class="filter-row">
                 <input type="hidden" name="tab" value="work-orders" />
-                <select name="workOrderStatus">
-                    <option value="">全部状态</option>
-                    <option value="OPEN" th:selected="${workOrderStatus == 'OPEN'}">待受理</option>
-                    <option value="IN_PROGRESS" th:selected="${workOrderStatus == 'IN_PROGRESS'}">处理中</option>
-                    <option value="DONE" th:selected="${workOrderStatus == 'DONE'}">已完成</option>
-                    <option value="CLOSED" th:selected="${workOrderStatus == 'CLOSED'}">已关闭</option>
-                </select>
-                <select name="workOrderPriority">
-                    <option value="">全部优先级</option>
-                    <option value="HIGH" th:selected="${workOrderPriority == 'HIGH'}">高</option>
-                    <option value="MEDIUM" th:selected="${workOrderPriority == 'MEDIUM'}">中</option>
-                    <option value="LOW" th:selected="${workOrderPriority == 'LOW'}">低</option>
-                </select>
+                <label>
+                    <select name="workOrderStatus">
+                        <option value="">全部状态</option>
+                        <option value="OPEN" th:selected="${workOrderStatus == 'OPEN'}">待受理</option>
+                        <option value="IN_PROGRESS" th:selected="${workOrderStatus == 'IN_PROGRESS'}">处理中</option>
+                        <option value="DONE" th:selected="${workOrderStatus == 'DONE'}">已完成</option>
+                        <option value="CLOSED" th:selected="${workOrderStatus == 'CLOSED'}">已关闭</option>
+                    </select>
+                </label>
+                <label>
+                    <select name="workOrderPriority">
+                        <option value="">全部优先级</option>
+                        <option value="HIGH" th:selected="${workOrderPriority == 'HIGH'}">高</option>
+                        <option value="MEDIUM" th:selected="${workOrderPriority == 'MEDIUM'}">中</option>
+                        <option value="LOW" th:selected="${workOrderPriority == 'LOW'}">低</option>
+                    </select>
+                </label>
                 <button class="btn" type="submit">筛选</button>
             </form>
 
@@ -384,14 +398,18 @@
 
             <form method="get" action="/admin/management" class="filter-row">
                 <input type="hidden" name="tab" value="bills" />
-                <select name="billStatus">
-                    <option value="">全部状态</option>
-                    <option value="UNPAID" th:selected="${billStatus == 'UNPAID'}">未缴</option>
-                    <option value="PARTIAL" th:selected="${billStatus == 'PARTIAL'}">部分已缴</option>
-                    <option value="OVERDUE" th:selected="${billStatus == 'OVERDUE'}">逾期</option>
-                    <option value="PAID" th:selected="${billStatus == 'PAID'}">已缴清</option>
-                </select>
-                <input type="month" name="billBillingMonth" th:value="${billBillingMonth}" />
+                <label>
+                    <select name="billStatus">
+                        <option value="">全部状态</option>
+                        <option value="UNPAID" th:selected="${billStatus == 'UNPAID'}">未缴</option>
+                        <option value="PARTIAL" th:selected="${billStatus == 'PARTIAL'}">部分已缴</option>
+                        <option value="OVERDUE" th:selected="${billStatus == 'OVERDUE'}">逾期</option>
+                        <option value="PAID" th:selected="${billStatus == 'PAID'}">已缴清</option>
+                    </select>
+                </label>
+                <label>
+                    <input type="month" name="billBillingMonth" th:value="${billBillingMonth}" />
+                </label>
                 <button class="btn" type="submit">筛选</button>
             </form>
 
@@ -427,7 +445,9 @@
                         </td>
                         <td class="align-right actions">
                             <form th:if="${bill.status != 'PAID'}" th:action="@{'/admin/bills/' + ${bill.id} + '/pay'}" method="post" class="inline-pay">
-                                <input type="number" name="paidAmount" step="0.01" min="0.01" th:value="${bill.amount}" />
+                                <label>
+                                    <input type="number" name="paidAmount" step="0.01" min="0.01" th:value="${bill.amount}" />
+                                </label>
                                 <button class="btn mini" type="submit">登记缴费</button>
                             </form>
                         </td>
@@ -446,16 +466,22 @@
 
             <form method="get" action="/admin/management" class="filter-row">
                 <input type="hidden" name="tab" value="users" />
-                <input name="userQ" placeholder="用户名" th:value="${userQ}" />
-                <select name="userRole">
-                    <option value="">全部角色</option>
-                    <option th:each="item : ${roles}" th:value="${item}" th:text="${item.label}" th:selected="${userRole == item}"></option>
-                </select>
-                <select name="userStatus">
-                    <option value="">全部状态</option>
-                    <option value="ACTIVE" th:selected="${userStatus == 'ACTIVE'}">启用</option>
-                    <option value="DISABLED" th:selected="${userStatus == 'DISABLED'}">禁用</option>
-                </select>
+                <label>
+                    <input name="userQ" placeholder="用户名" th:value="${userQ}" />
+                </label>
+                <label>
+                    <select name="userRole">
+                        <option value="">全部角色</option>
+                        <option th:each="item : ${roles}" th:value="${item}" th:text="${item.label}" th:selected="${userRole == item}"></option>
+                    </select>
+                </label>
+                <label>
+                    <select name="userStatus">
+                        <option value="">全部状态</option>
+                        <option value="ACTIVE" th:selected="${userStatus == 'ACTIVE'}">启用</option>
+                        <option value="DISABLED" th:selected="${userStatus == 'DISABLED'}">禁用</option>
+                    </select>
+                </label>
                 <button class="btn" type="submit">筛选</button>
             </form>
 
@@ -485,7 +511,9 @@
                                 <button class="btn ghost mini" type="submit" th:text="${user.status == 'ACTIVE' ? '禁用' : '启用'}"></button>
                             </form>
                             <form th:action="@{'/admin/users/' + ${user.id} + '/reset-password'}" method="post">
-                                <input name="newPassword" placeholder="可选：输入新密码" />
+                                <label>
+                                    <input name="newPassword" placeholder="可选：输入新密码" />
+                                </label>
                                 <button class="btn mini" type="submit">重置密码</button>
                             </form>
                         </td>

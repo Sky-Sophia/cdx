@@ -1,9 +1,7 @@
 package org.example.javawebdemo.controller;
 
-import java.util.List;
 import org.example.javawebdemo.mapper.BuildingMapper;
 import org.example.javawebdemo.mapper.PropertyUnitMapper;
-import org.example.javawebdemo.model.Building;
 import org.example.javawebdemo.model.PropertyUnit;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,8 +27,7 @@ public class AdminHallController {
     @GetMapping
     public String list(@RequestParam(required = false) String keyword,
                        @RequestParam(required = false) Long buildingId,
-                       @RequestParam(required = false) String status,
-                       Model model) {
+                       @RequestParam(required = false) String status) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
                 .queryParam("tab", "units");
         if (keyword != null && !keyword.isBlank()) {

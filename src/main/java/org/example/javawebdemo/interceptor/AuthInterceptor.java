@@ -3,6 +3,7 @@ package org.example.javawebdemo.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.NonNull;
 import org.example.javawebdemo.dto.UserSession;
 import org.example.javawebdemo.model.Role;
 import org.example.javawebdemo.util.SessionKeys;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+    public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler)
             throws Exception {
         String path = request.getRequestURI();
 

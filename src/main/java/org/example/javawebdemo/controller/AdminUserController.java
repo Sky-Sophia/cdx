@@ -31,7 +31,7 @@ public class AdminUserController {
                        @RequestParam(required = false) String status,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) {
+        if (isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
             return "redirect:/admin/management?tab=dashboard";
         }
@@ -54,7 +54,7 @@ public class AdminUserController {
     public String newForm(HttpSession session,
                           Model model,
                           RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) {
+        if (isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
             return "redirect:/admin/management?tab=dashboard";
         }
@@ -69,7 +69,7 @@ public class AdminUserController {
                        @RequestParam Role role,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) {
+        if (isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
             return "redirect:/admin/management?tab=dashboard";
         }
@@ -91,7 +91,7 @@ public class AdminUserController {
                                @RequestParam String status,
                                HttpSession session,
                                RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) {
+        if (isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
             return "redirect:/admin/management?tab=dashboard";
         }
@@ -106,7 +106,7 @@ public class AdminUserController {
                                 @RequestParam(required = false) String newPassword,
                                 HttpSession session,
                                 RedirectAttributes redirectAttributes) {
-        if (!isAdmin(session)) {
+        if (isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
             return "redirect:/admin/management?tab=dashboard";
         }
@@ -119,6 +119,6 @@ public class AdminUserController {
 
     private boolean isAdmin(HttpSession session) {
         UserSession currentUser = (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
-        return currentUser != null && currentUser.getRole() == Role.ADMIN;
+        return currentUser == null || currentUser.getRole() != Role.ADMIN;
     }
 }

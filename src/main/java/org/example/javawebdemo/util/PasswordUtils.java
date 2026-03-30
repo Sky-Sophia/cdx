@@ -15,7 +15,7 @@ public final class PasswordUtils {
         return "";
     }
 
-    public static String hash(String rawPassword, String salt) {
+    public static String hash(String rawPassword) {
         if (rawPassword == null || rawPassword.isBlank()) {
             throw new IllegalArgumentException("密码不能为空");
         }

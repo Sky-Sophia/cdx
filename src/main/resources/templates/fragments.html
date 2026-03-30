@@ -36,6 +36,7 @@
             <span>物业后台管理系统</span>
         </a>
         <nav class="top-nav slide-tabs">
+            <!--/*@thymesVar id="currentTab" type=" "*/-->
             <a href="/admin/management?tab=dashboard"
                data-management-tab="dashboard"
                th:classappend="${(active == 'management' and currentTab == 'dashboard') or active == 'dashboard'} ? ' is-active'">系统首页</a>
@@ -115,6 +116,7 @@
             <span class="ico">D</span>
             <span>概览看板</span>
         </a>
+        <!--/*@thymesVar id="currentTab" type="java.lang.String"*/-->
         <a href="/admin/management?tab=units"
            data-management-tab="units"
            th:classappend="${(active == 'management' and currentTab == 'units') or active == 'units'} ? ' is-active'">
@@ -149,7 +151,9 @@
 </aside>
 
 <div th:fragment="messages" class="messages-wrap">
+    <!--/*@thymesVar id="success" type="java.lang.String"*/-->
     <div class="msg success" th:if="${success}" th:text="${success}"></div>
+    <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <div class="msg error" th:if="${error}" th:text="${error}"></div>
 </div>
 

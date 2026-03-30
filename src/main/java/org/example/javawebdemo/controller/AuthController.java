@@ -171,13 +171,6 @@ public class AuthController {
         LOGIN_ATTEMPTS.remove(key);
     }
 
-    private static final class LoginAttempt {
-        private final int failedCount;
-        private final Instant lockedUntil;
-
-        private LoginAttempt(int failedCount, Instant lockedUntil) {
-            this.failedCount = failedCount;
-            this.lockedUntil = lockedUntil;
-        }
+    private record LoginAttempt(int failedCount, Instant lockedUntil) {
     }
 }

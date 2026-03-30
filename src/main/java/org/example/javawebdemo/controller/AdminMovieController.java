@@ -26,8 +26,7 @@ public class AdminMovieController {
 
     @GetMapping
     public String list(@RequestParam(required = false) String keyword,
-                       @RequestParam(required = false) String status,
-                       Model model) {
+                       @RequestParam(required = false) String status) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
                 .queryParam("tab", "residents");
         if (keyword != null && !keyword.isBlank()) {

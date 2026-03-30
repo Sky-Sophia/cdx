@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(normalizedUsername);
         String salt = PasswordUtils.generateSalt();
         user.setPasswordSalt(salt);
-        user.setPasswordHash(PasswordUtils.hash(password, salt));
+        user.setPasswordHash(PasswordUtils.hash(password));
         user.setRole(Role.USER);
         user.setStatus("ACTIVE");
         userMapper.insert(user);
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
             if (PasswordUtils.isLegacyHash(user.getPasswordHash())) {
                 // Upgrade legacy SHA-256 hash to bcrypt after successful authentication.
                 String newSalt = PasswordUtils.generateSalt();
-                String newHash = PasswordUtils.hash(password, newSalt);
+                String newHash = PasswordUtils.hash(password);
                 userMapper.updatePassword(user.getId(), newHash, newSalt);
                 user.setPasswordHash(newHash);
                 user.setPasswordSalt(newSalt);
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
         }
         validatePasswordStrength(newPassword);
         String salt = PasswordUtils.generateSalt();
-        String hash = PasswordUtils.hash(newPassword, salt);
+        String hash = PasswordUtils.hash(newPassword);
         userMapper.updatePassword(userId, hash, salt);
     }
 
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         String salt = PasswordUtils.generateSalt();
         user.setPasswordSalt(salt);
-        user.setPasswordHash(PasswordUtils.hash(password, salt));
+        user.setPasswordHash(PasswordUtils.hash(password));
         user.setRole(role);
         user.setStatus("ACTIVE");
         userMapper.insert(user);
@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService {
         }
         validatePasswordStrength(newPassword);
         String salt = PasswordUtils.generateSalt();
-        String hash = PasswordUtils.hash(newPassword, salt);
+        String hash = PasswordUtils.hash(newPassword);
         userMapper.updatePassword(userId, hash, salt);
     }
 

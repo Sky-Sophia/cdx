@@ -8,7 +8,7 @@ import org.example.javawebdemo.model.Building;
 @Mapper
 public interface BuildingMapper {
 
-    @Select("SELECT * FROM buildings ORDER BY code ASC")
+    @Select("SELECT * FROM buildings ORDER BY code ")
     List<Building> findAll();
 
     @Select("SELECT COUNT(*) FROM buildings")
