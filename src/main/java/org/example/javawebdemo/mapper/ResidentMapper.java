@@ -7,30 +7,15 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
+import org.example.javawebdemo.mapper.provider.ResidentSqlProvider;
 import org.example.javawebdemo.model.Resident;
 
 @Mapper
 public interface ResidentMapper {
 
-    @Select({
-            "<script>",
-            "SELECT r.*, u.unit_no",
-            "FROM residents r",
-            "LEFT JOIN units u ON u.id = r.unit_id",
-            "<where>",
-            "  <if test='keyword != null and keyword != \"\"'>",
-            "    AND (r.name LIKE CONCAT('%', #{keyword}, '%')",
-            "      OR r.phone LIKE CONCAT('%', #{keyword}, '%')",
-            "      OR u.unit_no LIKE CONCAT('%', #{keyword}, '%'))",
-            "  </if>",
-            "  <if test='status != null and status != \"\"'>",
-            "    AND r.status = #{status}",
-            "  </if>",
-            "</where>",
-            "ORDER BY r.updated_at DESC, r.id DESC",
-            "</script>"
-    })
+    @SelectProvider(type = ResidentSqlProvider.class, method = "findAllSql")
     List<Resident> findAll(@Param("keyword") String keyword,
                            @Param("status") String status);
 
@@ -57,10 +42,10 @@ public interface ResidentMapper {
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = #{id}
             """)
-    int update(Resident resident);
+    void update(Resident resident);
 
     @Delete("DELETE FROM residents WHERE id = #{id}")
-    int deleteById(@Param("id") Long id);
+    void deleteById(@Param("id") Long id);
 
     @Select("SELECT COUNT(*) FROM residents WHERE status = 'ACTIVE'")
     long countActive();

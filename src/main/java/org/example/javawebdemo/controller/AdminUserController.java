@@ -1,6 +1,7 @@
 package org.example.javawebdemo.controller;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.Set;
 import org.example.javawebdemo.dto.UserSession;
 import org.example.javawebdemo.model.Role;
 import org.example.javawebdemo.model.User;
@@ -19,6 +20,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Controller
 @RequestMapping("/admin/users")
 public class AdminUserController {
+    private static final Set<String> VALID_STATUS = Set.of("ACTIVE", "DISABLED");
+    private static final String MANAGEMENT_DASHBOARD = "redirect:/admin/management?tab=dashboard";
+
     private final UserService userService;
 
     public AdminUserController(UserService userService) {
@@ -31,9 +35,9 @@ public class AdminUserController {
                        @RequestParam(required = false) String status,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
-        if (isAdmin(session)) {
+        if (hasAdminPermission(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/management?tab=dashboard";
+            return MANAGEMENT_DASHBOARD;
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
@@ -51,12 +55,10 @@ public class AdminUserController {
     }
 
     @GetMapping("/new")
-    public String newForm(HttpSession session,
-                          Model model,
-                          RedirectAttributes redirectAttributes) {
-        if (isAdmin(session)) {
+    public String newForm(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        if (hasAdminPermission(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/management?tab=dashboard";
+            return MANAGEMENT_DASHBOARD;
         }
 
         model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
@@ -69,9 +71,13 @@ public class AdminUserController {
                        @RequestParam Role role,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
-        if (isAdmin(session)) {
+        if (hasAdminPermission(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/management?tab=dashboard";
+            return MANAGEMENT_DASHBOARD;
+        }
+        if (role == Role.USER) {
+            redirectAttributes.addFlashAttribute("error", "后台只允许创建管理员/员工/财务账号。");
+            return "redirect:/admin/users/new";
         }
 
         try {
@@ -91,12 +97,22 @@ public class AdminUserController {
                                @RequestParam String status,
                                HttpSession session,
                                RedirectAttributes redirectAttributes) {
-        if (isAdmin(session)) {
+        if (hasAdminPermission(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/management?tab=dashboard";
+            return MANAGEMENT_DASHBOARD;
+        }
+        if (status == null || !VALID_STATUS.contains(status.toUpperCase())) {
+            redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
+            return "redirect:/admin/management?tab=users";
         }
 
-        userService.updateStatus(id, status);
+        UserSession currentUser = currentUser(session);
+        if (currentUser != null && currentUser.getId().equals(id) && "DISABLED".equalsIgnoreCase(status)) {
+            redirectAttributes.addFlashAttribute("error", "不能禁用当前登录账号。");
+            return "redirect:/admin/management?tab=users";
+        }
+
+        userService.updateStatus(id, status.toUpperCase());
         redirectAttributes.addFlashAttribute("success", "用户状态已更新。");
         return "redirect:/admin/management?tab=users";
     }
@@ -106,19 +122,30 @@ public class AdminUserController {
                                 @RequestParam(required = false) String newPassword,
                                 HttpSession session,
                                 RedirectAttributes redirectAttributes) {
-        if (isAdmin(session)) {
+        if (hasAdminPermission(session)) {
             redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
-            return "redirect:/admin/management?tab=dashboard";
+            return MANAGEMENT_DASHBOARD;
         }
 
         String password = (newPassword == null || newPassword.isBlank()) ? "Property@123" : newPassword;
-        userService.resetPassword(id, password);
-        redirectAttributes.addFlashAttribute("success", "密码重置完成。");
+        try {
+            userService.resetPassword(id, password);
+            redirectAttributes.addFlashAttribute("success", "密码重置完成。");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
         return "redirect:/admin/management?tab=users";
     }
 
-    private boolean isAdmin(HttpSession session) {
-        UserSession currentUser = (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
+    private boolean hasAdminPermission(HttpSession session) {
+        UserSession currentUser = currentUser(session);
         return currentUser == null || currentUser.getRole() != Role.ADMIN;
+    }
+
+    private UserSession currentUser(HttpSession session) {
+        if (session == null) {
+            return null;
+        }
+        return (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
     }
 }

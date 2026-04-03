@@ -9,12 +9,6 @@ public interface UserService {
 
     User authenticate(String username, String password);
 
-    void changePassword(Long userId, String oldPassword, String newPassword);
-
-    void ensureDefaultUsers();
-
-    List<User> listAll();
-
     List<User> listByFilters(String q, Role role, String status);
 
     void updateRole(Long userId, Role role);
@@ -25,5 +19,4 @@ public interface UserService {
 
     User findById(Long userId);
 
-    User findByUsername(String username);
 }

@@ -7,33 +7,15 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
+import org.example.javawebdemo.mapper.provider.PropertyUnitSqlProvider;
 import org.example.javawebdemo.model.PropertyUnit;
 
 @Mapper
 public interface PropertyUnitMapper {
 
-    @Select({
-            "<script>",
-            "SELECT u.*, b.name AS building_name",
-            "FROM units u",
-            "LEFT JOIN buildings b ON b.id = u.building_id",
-            "<where>",
-            "  <if test='keyword != null and keyword != \"\"'>",
-            "    AND (u.unit_no LIKE CONCAT('%', #{keyword}, '%')",
-            "      OR u.owner_name LIKE CONCAT('%', #{keyword}, '%')",
-            "      OR u.owner_phone LIKE CONCAT('%', #{keyword}, '%'))",
-            "  </if>",
-            "  <if test='buildingId != null'>",
-            "    AND u.building_id = #{buildingId}",
-            "  </if>",
-            "  <if test='status != null and status != \"\"'>",
-            "    AND u.occupancy_status = #{status}",
-            "  </if>",
-            "</where>",
-            "ORDER BY u.updated_at DESC, u.id DESC",
-            "</script>"
-    })
+    @SelectProvider(type = PropertyUnitSqlProvider.class, method = "findAllSql")
     List<PropertyUnit> findAll(@Param("keyword") String keyword,
                                @Param("buildingId") Long buildingId,
                                @Param("status") String status);
@@ -63,10 +45,10 @@ public interface PropertyUnitMapper {
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = #{id}
             """)
-    int update(PropertyUnit unit);
+    void update(PropertyUnit unit);
 
     @Delete("DELETE FROM units WHERE id = #{id}")
-    int deleteById(@Param("id") Long id);
+    void deleteById(@Param("id") Long id);
 
     @Select("SELECT COUNT(*) FROM units")
     long countAll();

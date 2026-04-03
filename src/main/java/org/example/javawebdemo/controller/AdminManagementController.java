@@ -1,13 +1,13 @@
 package org.example.javawebdemo.controller;
 
-import org.example.javawebdemo.mapper.BuildingMapper;
-import org.example.javawebdemo.mapper.FeeBillMapper;
-import org.example.javawebdemo.mapper.PropertyUnitMapper;
-import org.example.javawebdemo.mapper.ResidentMapper;
-import org.example.javawebdemo.mapper.WorkOrderMapper;
 import org.example.javawebdemo.model.Role;
+import org.example.javawebdemo.service.BuildingService;
+import org.example.javawebdemo.service.FeeBillService;
 import org.example.javawebdemo.service.PropertyDashboardService;
+import org.example.javawebdemo.service.PropertyUnitService;
+import org.example.javawebdemo.service.ResidentService;
 import org.example.javawebdemo.service.UserService;
+import org.example.javawebdemo.service.WorkOrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,26 +17,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/admin")
 public class AdminManagementController {
-    private final PropertyUnitMapper propertyUnitMapper;
-    private final BuildingMapper buildingMapper;
-    private final ResidentMapper residentMapper;
-    private final WorkOrderMapper workOrderMapper;
-    private final FeeBillMapper feeBillMapper;
+    private final PropertyUnitService propertyUnitService;
+    private final BuildingService buildingService;
+    private final ResidentService residentService;
+    private final WorkOrderService workOrderService;
+    private final FeeBillService feeBillService;
     private final PropertyDashboardService propertyDashboardService;
     private final UserService userService;
 
-    public AdminManagementController(PropertyUnitMapper propertyUnitMapper,
-                                     BuildingMapper buildingMapper,
-                                     ResidentMapper residentMapper,
-                                     WorkOrderMapper workOrderMapper,
-                                     FeeBillMapper feeBillMapper,
+    public AdminManagementController(PropertyUnitService propertyUnitService,
+                                     BuildingService buildingService,
+                                     ResidentService residentService,
+                                     WorkOrderService workOrderService,
+                                     FeeBillService feeBillService,
                                      PropertyDashboardService propertyDashboardService,
                                      UserService userService) {
-        this.propertyUnitMapper = propertyUnitMapper;
-        this.buildingMapper = buildingMapper;
-        this.residentMapper = residentMapper;
-        this.workOrderMapper = workOrderMapper;
-        this.feeBillMapper = feeBillMapper;
+        this.propertyUnitService = propertyUnitService;
+        this.buildingService = buildingService;
+        this.residentService = residentService;
+        this.workOrderService = workOrderService;
+        this.feeBillService = feeBillService;
         this.propertyDashboardService = propertyDashboardService;
         this.userService = userService;
     }
@@ -58,27 +58,26 @@ public class AdminManagementController {
                              Model model) {
         String currentTab = normalizeTab(tab);
         model.addAttribute("currentTab", currentTab);
-        model.addAttribute("responseTip", "已切换到统一管理页面，减少跨页面跳转。");
 
         model.addAttribute("stats", propertyDashboardService.stats());
         model.addAttribute("recentOrders", propertyDashboardService.recentOrders(6));
         model.addAttribute("dueBills", propertyDashboardService.dueBills(6));
 
-        model.addAttribute("units", propertyUnitMapper.findAll(unitKeyword, unitBuildingId, unitStatus));
-        model.addAttribute("buildings", buildingMapper.findAll());
+        model.addAttribute("units", propertyUnitService.list(unitKeyword, unitBuildingId, unitStatus));
+        model.addAttribute("buildings", buildingService.listAll());
         model.addAttribute("unitKeyword", unitKeyword);
         model.addAttribute("unitBuildingId", unitBuildingId);
         model.addAttribute("unitStatus", unitStatus);
 
-        model.addAttribute("residents", residentMapper.findAll(residentKeyword, residentStatus));
+        model.addAttribute("residents", residentService.list(residentKeyword, residentStatus));
         model.addAttribute("residentKeyword", residentKeyword);
         model.addAttribute("residentStatus", residentStatus);
 
-        model.addAttribute("orders", workOrderMapper.findAll(workOrderStatus, workOrderPriority));
+        model.addAttribute("orders", workOrderService.list(workOrderStatus, workOrderPriority));
         model.addAttribute("workOrderStatus", workOrderStatus);
         model.addAttribute("workOrderPriority", workOrderPriority);
 
-        model.addAttribute("bills", feeBillMapper.findAll(billStatus, billBillingMonth));
+        model.addAttribute("bills", feeBillService.list(billStatus, billBillingMonth));
         model.addAttribute("billStatus", billStatus);
         model.addAttribute("billBillingMonth", billBillingMonth);
 

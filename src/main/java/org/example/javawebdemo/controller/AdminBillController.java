@@ -1,11 +1,9 @@
 package org.example.javawebdemo.controller;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import org.example.javawebdemo.mapper.FeeBillMapper;
-import org.example.javawebdemo.mapper.PropertyUnitMapper;
 import org.example.javawebdemo.model.FeeBill;
-import org.example.javawebdemo.util.CodeGenerator;
+import org.example.javawebdemo.service.FeeBillService;
+import org.example.javawebdemo.service.PropertyUnitService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +16,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/admin/bills")
-public class AdminOrderController {
-    private final FeeBillMapper feeBillMapper;
-    private final PropertyUnitMapper propertyUnitMapper;
+public class AdminBillController {
+    private final FeeBillService feeBillService;
+    private final PropertyUnitService propertyUnitService;
 
-    public AdminOrderController(FeeBillMapper feeBillMapper, PropertyUnitMapper propertyUnitMapper) {
-        this.feeBillMapper = feeBillMapper;
-        this.propertyUnitMapper = propertyUnitMapper;
+    public AdminBillController(FeeBillService feeBillService, PropertyUnitService propertyUnitService) {
+        this.feeBillService = feeBillService;
+        this.propertyUnitService = propertyUnitService;
     }
 
     @GetMapping
@@ -47,40 +45,32 @@ public class AdminOrderController {
         bill.setStatus("UNPAID");
         bill.setPaidAmount(BigDecimal.ZERO);
         model.addAttribute("bill", bill);
-        model.addAttribute("units", propertyUnitMapper.findAllSimple());
+        model.addAttribute("units", propertyUnitService.listSimple());
         return "admin/bill-form";
     }
 
     @PostMapping("/save")
     public String save(FeeBill bill, RedirectAttributes redirectAttributes) {
-        if (bill.getUnitId() == null || bill.getAmount() == null || bill.getBillingMonth() == null || bill.getBillingMonth().isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "请完整填写账单信息。");
+        try {
+            feeBillService.create(bill);
+            redirectAttributes.addFlashAttribute("success", "账单已创建。");
+            return "redirect:/admin/management?tab=bills";
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/admin/bills/new";
         }
-
-        bill.setBillNo(CodeGenerator.nextBillNo());
-        if (bill.getPaidAmount() == null) {
-            bill.setPaidAmount(BigDecimal.ZERO);
-        }
-        if (bill.getStatus() == null || bill.getStatus().isBlank()) {
-            bill.setStatus("UNPAID");
-        }
-        feeBillMapper.insert(bill);
-        redirectAttributes.addFlashAttribute("success", "账单已创建。");
-        return "redirect:/admin/management?tab=bills";
     }
 
     @PostMapping("/{id}/pay")
     public String markPaid(@PathVariable Long id,
                            @RequestParam BigDecimal paidAmount,
                            RedirectAttributes redirectAttributes) {
-        if (paidAmount == null || paidAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            redirectAttributes.addFlashAttribute("error", "实收金额必须大于 0。");
-            return "redirect:/admin/management?tab=bills";
+        try {
+            feeBillService.recordPayment(id, paidAmount);
+            redirectAttributes.addFlashAttribute("success", "账单收款已登记。");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
-
-        feeBillMapper.updatePayment(id, paidAmount, "PAID", LocalDateTime.now());
-        redirectAttributes.addFlashAttribute("success", "账单已登记为已缴。");
         return "redirect:/admin/management?tab=bills";
     }
 }

@@ -8,7 +8,8 @@ public final class PasswordUtils {
     private static final String BCRYPT_PREFIX = "{bcrypt}";
     private static final BCryptPasswordEncoder BCRYPT = new BCryptPasswordEncoder(12);
 
-    private PasswordUtils() {}
+    private PasswordUtils() {
+    }
 
     public static String generateSalt() {
         // New passwords use bcrypt and do not require an external salt value.
@@ -17,7 +18,7 @@ public final class PasswordUtils {
 
     public static String hash(String rawPassword) {
         if (rawPassword == null || rawPassword.isBlank()) {
-            throw new IllegalArgumentException("密码不能为空");
+            throw new IllegalArgumentException("密码不能为空。");
         }
         return BCRYPT_PREFIX + BCRYPT.encode(rawPassword);
     }

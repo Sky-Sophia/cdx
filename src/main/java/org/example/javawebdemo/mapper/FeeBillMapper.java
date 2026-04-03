@@ -8,32 +8,22 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
+import org.example.javawebdemo.mapper.provider.FeeBillSqlProvider;
 import org.example.javawebdemo.model.FeeBill;
 
 @Mapper
 public interface FeeBillMapper {
 
-    @Select({
-            "<script>",
-            "SELECT f.*, u.unit_no",
-            "FROM fee_bills f",
-            "LEFT JOIN units u ON u.id = f.unit_id",
-            "<where>",
-            "  <if test='status != null and status != \"\"'>",
-            "    AND f.status = #{status}",
-            "  </if>",
-            "  <if test='billingMonth != null and billingMonth != \"\"'>",
-            "    AND f.billing_month = #{billingMonth}",
-            "  </if>",
-            "</where>",
-            "ORDER BY f.due_date ASC, f.id DESC",
-            "</script>"
-    })
+    @SelectProvider(type = FeeBillSqlProvider.class, method = "findAllSql")
     List<FeeBill> findAll(@Param("status") String status,
                           @Param("billingMonth") String billingMonth);
 
-    @Select("SELECT f.*, u.unit_no FROM fee_bills f LEFT JOIN units u ON u.id = f.unit_id WHERE f.status <> 'PAID' ORDER BY f.due_date ASC LIMIT #{limit}")
+    @Select("SELECT f.*, u.unit_no FROM fee_bills f LEFT JOIN units u ON u.id = f.unit_id WHERE f.id = #{id}")
+    FeeBill findById(@Param("id") Long id);
+
+    @Select("SELECT f.*, u.unit_no FROM fee_bills f LEFT JOIN units u ON u.id = f.unit_id WHERE f.status <> 'PAID' ORDER BY f.due_date LIMIT #{limit}")
     List<FeeBill> findDueSoon(@Param("limit") int limit);
 
     @Insert("""
@@ -51,10 +41,10 @@ public interface FeeBillMapper {
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = #{id}
             """)
-    int updatePayment(@Param("id") Long id,
-                      @Param("paidAmount") BigDecimal paidAmount,
-                      @Param("status") String status,
-                      @Param("paidAt") LocalDateTime paidAt);
+    void updatePayment(@Param("id") Long id,
+                       @Param("paidAmount") BigDecimal paidAmount,
+                       @Param("status") String status,
+                       @Param("paidAt") LocalDateTime paidAt);
 
     @Select("SELECT COUNT(*) FROM fee_bills WHERE status IN ('UNPAID', 'PARTIAL', 'OVERDUE')")
     long countDue();

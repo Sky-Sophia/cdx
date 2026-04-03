@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.example</groupId>
-    <artifactId>java-web-demo</artifactId>
+    <artifactId>spring-boot-management-system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>java-web-demo</name>
     <description>java-web-demo</description>
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
@@ -96,6 +96,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>3.3.5</version>
         </dependency>
     </dependencies>
 

@@ -8,9 +8,6 @@ import org.example.javawebdemo.model.Role;
 import org.example.javawebdemo.model.User;
 import org.example.javawebdemo.service.UserService;
 import org.example.javawebdemo.util.PasswordUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,18 +16,8 @@ public class UserServiceImpl implements UserService {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,64}$");
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserMapper userMapper;
-
-    @Value("${app.bootstrap.admin-password:Property@123}")
-    private String bootstrapAdminPassword;
-
-    @Value("${app.bootstrap.staff-password:Staff@123}")
-    private String bootstrapStaffPassword;
-
-    @Value("${app.bootstrap.finance-password:Finance@123}")
-    private String bootstrapFinancePassword;
 
     public UserServiceImpl(UserMapper userMapper) {
         this.userMapper = userMapper;
@@ -45,8 +32,9 @@ public class UserServiceImpl implements UserService {
 
         User existing = userMapper.findByUsername(normalizedUsername);
         if (existing != null) {
-            throw new IllegalArgumentException("用户名已存在");
+            throw new IllegalArgumentException("用户名已存在。");
         }
+
         User user = new User();
         user.setUsername(normalizedUsername);
         String salt = PasswordUtils.generateSalt();
@@ -65,73 +53,23 @@ public class UserServiceImpl implements UserService {
             return null;
         }
         User user = userMapper.findByUsername(normalizedUsername);
-        if (user == null) {
+        if (user == null || !"ACTIVE".equalsIgnoreCase(user.getStatus())) {
             return null;
         }
-        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+
+        if (!PasswordUtils.matches(password, user.getPasswordSalt(), user.getPasswordHash())) {
             return null;
         }
-        if (PasswordUtils.matches(password, user.getPasswordSalt(), user.getPasswordHash())) {
-            if (PasswordUtils.isLegacyHash(user.getPasswordHash())) {
-                // Upgrade legacy SHA-256 hash to bcrypt after successful authentication.
-                String newSalt = PasswordUtils.generateSalt();
-                String newHash = PasswordUtils.hash(password);
-                userMapper.updatePassword(user.getId(), newHash, newSalt);
-                user.setPasswordHash(newHash);
-                user.setPasswordSalt(newSalt);
-            }
-            return user;
-        }
-        return null;
-    }
 
-    @Override
-    @Transactional
-    public void changePassword(Long userId, String oldPassword, String newPassword) {
-        User user = userMapper.findById(userId);
-        if (user == null) {
-            throw new IllegalArgumentException("用户不存在");
+        if (PasswordUtils.isLegacyHash(user.getPasswordHash())) {
+            // Upgrade legacy SHA-256 hash to bcrypt after successful authentication.
+            String newSalt = PasswordUtils.generateSalt();
+            String newHash = PasswordUtils.hash(password);
+            userMapper.updatePassword(user.getId(), newHash, newSalt);
+            user.setPasswordHash(newHash);
+            user.setPasswordSalt(newSalt);
         }
-        if (!PasswordUtils.matches(oldPassword, user.getPasswordSalt(), user.getPasswordHash())) {
-            throw new IllegalArgumentException("旧密码不正确");
-        }
-        validatePasswordStrength(newPassword);
-        String salt = PasswordUtils.generateSalt();
-        String hash = PasswordUtils.hash(newPassword);
-        userMapper.updatePassword(userId, hash, salt);
-    }
-
-    @Override
-    @Transactional
-    public void ensureDefaultUsers() {
-        createIfMissing("admin", bootstrapAdminPassword, Role.ADMIN);
-        createIfMissing("manager", bootstrapStaffPassword, Role.STAFF);
-        createIfMissing("finance", bootstrapFinancePassword, Role.FINANCE);
-        if ("Property@123".equals(bootstrapAdminPassword)
-                || "Staff@123".equals(bootstrapStaffPassword)
-                || "Finance@123".equals(bootstrapFinancePassword)) {
-            log.warn("系统正在使用默认初始化密码，请在生产环境通过 app.bootstrap.*-password 配置替换。");
-        }
-    }
-
-    private void createIfMissing(String username, String password, Role role) {
-        User existing = userMapper.findByUsername(username);
-        if (existing != null) {
-            return;
-        }
-        User user = new User();
-        user.setUsername(username);
-        String salt = PasswordUtils.generateSalt();
-        user.setPasswordSalt(salt);
-        user.setPasswordHash(PasswordUtils.hash(password));
-        user.setRole(role);
-        user.setStatus("ACTIVE");
-        userMapper.insert(user);
-    }
-
-    @Override
-    public List<User> listAll() {
-        return userMapper.findAll();
+        return user;
     }
 
     @Override
@@ -140,11 +78,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateRole(Long userId, Role role) {
         userMapper.updateRole(userId, role);
     }
 
     @Override
+    @Transactional
     public void updateStatus(Long userId, String status) {
         userMapper.updateStatus(userId, status);
     }
@@ -154,7 +94,7 @@ public class UserServiceImpl implements UserService {
     public void resetPassword(Long userId, String newPassword) {
         User user = userMapper.findById(userId);
         if (user == null) {
-            throw new IllegalArgumentException("用户不存在");
+            throw new IllegalArgumentException("用户不存在。");
         }
         validatePasswordStrength(newPassword);
         String salt = PasswordUtils.generateSalt();
@@ -165,11 +105,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long userId) {
         return userMapper.findById(userId);
-    }
-
-    @Override
-    public User findByUsername(String username) {
-        return userMapper.findByUsername(username);
     }
 
     private String normalizeUsername(String username) {

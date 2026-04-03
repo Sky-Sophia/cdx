@@ -14,42 +14,6 @@
     <main class="app-main" th:attr="data-current-tab=${currentTab}">
         <div th:replace="~{fragments :: messages}"></div>
 
-        <section class="page-head compact">
-            <div>
-                <h1>统一管理中心</h1>
-                <p th:text="${responseTip}">已切换到统一管理页面，减少跨页面跳转。</p>
-            </div>
-        </section>
-
-        <section class="panel panel-dense">
-            <div class="mgmt-tabs">
-                <button type="button"
-                        class="mgmt-tab-btn"
-                        data-tab="dashboard"
-                        th:classappend="${currentTab == 'dashboard'} ? ' is-active'">概览看板</button>
-                <button type="button"
-                        class="mgmt-tab-btn"
-                        data-tab="units"
-                        th:classappend="${currentTab == 'units'} ? ' is-active'">房屋楼栋</button>
-                <button type="button"
-                        class="mgmt-tab-btn"
-                        data-tab="residents"
-                        th:classappend="${currentTab == 'residents'} ? ' is-active'">住户信息</button>
-                <button type="button"
-                        class="mgmt-tab-btn"
-                        data-tab="work-orders"
-                        th:classappend="${currentTab == 'work-orders'} ? ' is-active'">报修工单</button>
-                <button type="button"
-                        class="mgmt-tab-btn"
-                        data-tab="bills"
-                        th:classappend="${currentTab == 'bills'} ? ' is-active'">收费账单</button>
-                <button type="button"
-                        class="mgmt-tab-btn"
-                        data-tab="users"
-                        th:classappend="${currentTab == 'users'} ? ' is-active'">权限用户</button>
-            </div>
-        </section>
-
         <section class="mgmt-pane mgmt-pane-dashboard"
                  th:classappend="${currentTab != 'dashboard'} ? ' is-hidden'">
             <section class="page-head">
@@ -531,7 +495,7 @@
         const buttons = document.querySelectorAll(".mgmt-tab-btn");
         const panes = document.querySelectorAll(".mgmt-pane");
         const navTabLinks = document.querySelectorAll("[data-management-tab]");
-        if (!main || !buttons.length || !panes.length) return;
+        if (!main || !panes.length) return;
 
         function updateNavHighlight(tab) {
             navTabLinks.forEach((link) => {

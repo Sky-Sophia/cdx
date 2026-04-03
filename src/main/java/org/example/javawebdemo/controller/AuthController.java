@@ -70,7 +70,7 @@ public class AuthController {
 
         User user = userService.authenticate(username, password);
         if (user == null) {
-            model.addAttribute("error", "账号或密码错误，或账户已被禁用。");
+            model.addAttribute("error", "账号或密码错误，或账号已被禁用。");
             registerFailedAttempt(attemptKey);
             return "auth/login";
         }
@@ -141,14 +141,14 @@ public class AuthController {
 
     private boolean isLoginBlocked(String key, Model model) {
         LoginAttempt attempt = LOGIN_ATTEMPTS.get(key);
-        if (attempt == null || attempt.lockedUntil == null) {
+        if (attempt == null || attempt.lockedUntil() == null) {
             return false;
         }
-        if (Instant.now().isAfter(attempt.lockedUntil)) {
+        if (Instant.now().isAfter(attempt.lockedUntil())) {
             LOGIN_ATTEMPTS.remove(key);
             return false;
         }
-        long seconds = Duration.between(Instant.now(), attempt.lockedUntil).toSeconds();
+        long seconds = Duration.between(Instant.now(), attempt.lockedUntil()).toSeconds();
         long remainSeconds = Math.max(seconds, 1);
         model.addAttribute("error", "登录失败次数过多，请 " + remainSeconds + " 秒后再试。");
         return true;
@@ -156,14 +156,14 @@ public class AuthController {
 
     private void registerFailedAttempt(String key) {
         LOGIN_ATTEMPTS.compute(key, (k, oldValue) -> {
-            if (oldValue == null || (oldValue.lockedUntil != null && Instant.now().isAfter(oldValue.lockedUntil))) {
+            if (oldValue == null || (oldValue.lockedUntil() != null && Instant.now().isAfter(oldValue.lockedUntil()))) {
                 return new LoginAttempt(1, null);
             }
-            int failed = oldValue.failedCount + 1;
+            int failed = oldValue.failedCount() + 1;
             if (failed >= MAX_FAILED_ATTEMPTS) {
                 return new LoginAttempt(failed, Instant.now().plus(LOGIN_LOCK_DURATION));
             }
-            return new LoginAttempt(failed, oldValue.lockedUntil);
+            return new LoginAttempt(failed, oldValue.lockedUntil());
         });
     }
 

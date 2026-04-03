@@ -7,28 +7,15 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
+import org.example.javawebdemo.mapper.provider.WorkOrderSqlProvider;
 import org.example.javawebdemo.model.WorkOrder;
 
 @Mapper
 public interface WorkOrderMapper {
 
-    @Select({
-            "<script>",
-            "SELECT w.*, u.unit_no",
-            "FROM work_orders w",
-            "LEFT JOIN units u ON u.id = w.unit_id",
-            "<where>",
-            "  <if test='status != null and status != \"\"'>",
-            "    AND w.status = #{status}",
-            "  </if>",
-            "  <if test='priority != null and priority != \"\"'>",
-            "    AND w.priority = #{priority}",
-            "  </if>",
-            "</where>",
-            "ORDER BY w.created_at DESC, w.id DESC",
-            "</script>"
-    })
+    @SelectProvider(type = WorkOrderSqlProvider.class, method = "findAllSql")
     List<WorkOrder> findAll(@Param("status") String status,
                             @Param("priority") String priority);
 

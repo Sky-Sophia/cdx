@@ -669,7 +669,7 @@ textarea:focus {
     min-height: 100vh;
     display: grid;
     place-items: center;
-    background: #dfe6ee url("/images/background.jpg") center center / cover no-repeat fixed;
+    background: #dfe6ee url("/static/images/background.jpg") center center / cover no-repeat fixed;
 }
 
 .auth-portal-body::before {
