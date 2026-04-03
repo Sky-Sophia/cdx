@@ -23,7 +23,7 @@ public interface PropertyUnitMapper {
     @Select("SELECT u.*, b.name AS building_name FROM units u LEFT JOIN buildings b ON b.id = u.building_id WHERE u.id = #{id}")
     PropertyUnit findById(@Param("id") Long id);
 
-    @Select("SELECT id, unit_no FROM units ORDER BY unit_no ASC")
+    @Select("SELECT id, unit_no FROM units ORDER BY unit_no ")
     List<PropertyUnit> findAllSimple();
 
     @Insert("""
