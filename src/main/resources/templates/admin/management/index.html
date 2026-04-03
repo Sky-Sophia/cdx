@@ -4,17 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>统一管理 - 物业后台管理系统</title>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
 <div class="app-shell">
-    <div th:replace="~{fragments :: topbar('management')}"></div>
-    <div th:replace="~{fragments :: sidebar('management')}"></div>
+    <div th:replace="~{fragments/layout :: topbar('management')}"></div>
+    <div th:replace="~{fragments/layout :: sidebar('management')}"></div>
 
     <main class="app-main" th:attr="data-current-tab=${currentTab}">
-        <div th:replace="~{fragments :: messages}"></div>
+        <div th:replace="~{fragments/layout :: messages}"></div>
 
         <section class="mgmt-pane mgmt-pane-dashboard"
+                 data-pane-tab="dashboard"
                  th:classappend="${currentTab != 'dashboard'} ? ' is-hidden'">
             <section class="page-head">
                 <div>
@@ -133,6 +135,7 @@
         </section>
 
         <section class="panel panel-dense mgmt-pane mgmt-pane-units"
+                 data-pane-tab="units"
                  th:classappend="${currentTab != 'units'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>房屋档案</h1>
@@ -207,6 +210,7 @@
         </section>
 
         <section class="panel panel-dense mgmt-pane mgmt-pane-residents"
+                 data-pane-tab="residents"
                  th:classappend="${currentTab != 'residents'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>住户档案</h1>
@@ -269,6 +273,7 @@
         </section>
 
         <section class="panel panel-dense mgmt-pane mgmt-pane-work-orders"
+                 data-pane-tab="work-orders"
                  th:classappend="${currentTab != 'work-orders'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>报修工单</h1>
@@ -354,6 +359,7 @@
         </section>
 
         <section class="panel panel-dense mgmt-pane mgmt-pane-bills"
+                 data-pane-tab="bills"
                  th:classappend="${currentTab != 'bills'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>费用账单</h1>
@@ -422,6 +428,7 @@
         </section>
 
         <section class="panel panel-dense mgmt-pane mgmt-pane-users"
+                 data-pane-tab="users"
                  th:classappend="${currentTab != 'users'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>系统用户与权限</h1>
@@ -489,76 +496,6 @@
     </main>
 </div>
 
-<script>
-    (() => {
-        const main = document.querySelector(".app-main");
-        const buttons = document.querySelectorAll(".mgmt-tab-btn");
-        const panes = document.querySelectorAll(".mgmt-pane");
-        const navTabLinks = document.querySelectorAll("[data-management-tab]");
-        if (!main || !panes.length) return;
-
-        function updateNavHighlight(tab) {
-            navTabLinks.forEach((link) => {
-                link.classList.toggle("is-active", link.dataset.managementTab === tab);
-            });
-        }
-
-        function isManagementPath() {
-            const pathname = (window.location.pathname || "").replace(/\/+$/, "");
-            return pathname === "/admin/management" || pathname.startsWith("/admin/management/");
-        }
-
-        function patchManagementLinks() {
-            if (!isManagementPath()) return;
-            navTabLinks.forEach((link) => {
-                if (!link.dataset.savedHref) {
-                    link.dataset.savedHref = link.getAttribute("href") || "";
-                }
-                link.setAttribute("href", "#");
-            });
-        }
-
-        let activeTab = "";
-
-        function switchTab(tab) {
-            const validTabs = ["dashboard", "units", "residents", "work-orders", "bills", "users"];
-            const target = validTabs.includes(tab) ? tab : "dashboard";
-            if (target === activeTab) {
-                return;
-            }
-            activeTab = target;
-            buttons.forEach((btn) => {
-                btn.classList.toggle("is-active", btn.dataset.tab === target);
-            });
-            panes.forEach((pane) => {
-                pane.classList.toggle("is-hidden", !pane.classList.contains(`mgmt-pane-${target}`));
-            });
-            const nextUrl = new URL(window.location.href);
-            nextUrl.searchParams.set("tab", target);
-            window.history.replaceState(null, "", nextUrl.toString());
-            main.dataset.currentTab = target;
-            updateNavHighlight(target);
-            if (typeof window.refreshTopNavUnderline === "function") {
-                window.refreshTopNavUnderline();
-            }
-        }
-
-        buttons.forEach((btn) => {
-            btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-        });
-
-        document.addEventListener("click", (event) => {
-            const link = event.target.closest("[data-management-tab]");
-            if (!link) return;
-            if (!isManagementPath()) return;
-            event.preventDefault();
-            event.stopPropagation();
-            switchTab(link.dataset.managementTab);
-        }, true);
-
-        patchManagementLinks();
-        switchTab(main.dataset.currentTab || "dashboard");
-    })();
-</script>
+<script src="/js/admin/management.js" defer></script>
 </body>
 </html>

@@ -59,53 +59,10 @@
         </nav>
     </div>
     <div class="topbar-right" th:if="${current != null}">
-        <span class="user-chip" th:text="${current.username}">admin</span>
+        <a class="user-chip" href="/profile">个人中心</a>
         <a class="btn ghost mini" href="/logout">退出登录</a>
     </div>
-    <script>
-        (() => {
-            function initSlideTabs(selector) {
-                document.querySelectorAll(selector).forEach((container) => {
-                    if (!container || container.dataset.slideInited === "1") {
-                        return;
-                    }
-                    const underline = container.querySelector(".slide-underline");
-                    const tabs = Array.from(container.querySelectorAll("a, button"))
-                        .filter((item) => !item.classList.contains("slide-underline"));
-                    if (!underline || tabs.length === 0) {
-                        return;
-                    }
-
-                    const setUnderline = (tab) => {
-                        if (!tab) return;
-                        underline.style.width = `${tab.offsetWidth}px`;
-                        underline.style.left = `${tab.offsetLeft}px`;
-                    };
-
-                    const activeTab = () => tabs.find((item) => item.classList.contains("is-active")) || tabs[0];
-                    const refreshUnderline = () => setUnderline(activeTab());
-                    requestAnimationFrame(refreshUnderline);
-
-                    const observer = new MutationObserver(refreshUnderline);
-                    tabs.forEach((tab) => {
-                        observer.observe(tab, { attributes: true, attributeFilter: ["class"] });
-                    });
-
-                    container.addEventListener("management-tab-changed", refreshUnderline);
-                    window.addEventListener("resize", refreshUnderline);
-                    container.dataset.slideInited = "1";
-                });
-            }
-
-            window.refreshTopNavUnderline = () => {
-                document.querySelectorAll(".top-nav.slide-tabs").forEach((container) => {
-                    container.dispatchEvent(new Event("management-tab-changed"));
-                });
-            };
-
-            initSlideTabs(".top-nav.slide-tabs");
-        })();
-    </script>
+    <script src="/js/common/tabs.js" defer></script>
 </header>
 
 <aside class="sidebar" th:fragment="sidebar(active)">

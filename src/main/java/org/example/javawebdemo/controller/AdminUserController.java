@@ -62,7 +62,7 @@ public class AdminUserController {
         }
 
         model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
-        return "admin/user-form";
+        return "admin/users/form";
     }
 
     @PostMapping("/save")

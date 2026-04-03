@@ -4,12 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title th:text="${editing} ? '编辑住户' : '新增住户'">住户表单</title>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
 <div class="app-shell">
-    <div th:replace="~{fragments :: topbar('residents')}"></div>
-    <div th:replace="~{fragments :: sidebar('residents')}"></div>
+    <div th:replace="~{fragments/layout :: topbar('residents')}"></div>
+    <div th:replace="~{fragments/layout :: sidebar('residents')}"></div>
 
     <main class="app-main">
         <section class="page-head compact">

@@ -46,7 +46,7 @@ public class AdminBillController {
         bill.setPaidAmount(BigDecimal.ZERO);
         model.addAttribute("bill", bill);
         model.addAttribute("units", propertyUnitService.listSimple());
-        return "admin/bill-form";
+        return "admin/bills/form";
     }
 
     @PostMapping("/save")

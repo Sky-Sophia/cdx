@@ -4,12 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>新增用户 - 物业后台管理系统</title>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body>
 <div class="app-shell">
-    <div th:replace="~{fragments :: topbar('users')}"></div>
-    <div th:replace="~{fragments :: sidebar('users')}"></div>
+    <div th:replace="~{fragments/layout :: topbar('users')}"></div>
+    <div th:replace="~{fragments/layout :: sidebar('users')}"></div>
 
     <main class="app-main">
         <section class="page-head compact">

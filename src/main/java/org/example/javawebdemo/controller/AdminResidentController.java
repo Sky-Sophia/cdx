@@ -43,7 +43,7 @@ public class AdminResidentController {
         model.addAttribute("resident", new Resident());
         model.addAttribute("units", propertyUnitService.listSimple());
         model.addAttribute("editing", false);
-        return "admin/resident-form";
+        return "admin/residents/form";
     }
 
     @GetMapping("/edit/{id}")
@@ -56,7 +56,7 @@ public class AdminResidentController {
         model.addAttribute("resident", resident);
         model.addAttribute("units", propertyUnitService.listSimple());
         model.addAttribute("editing", true);
-        return "admin/resident-form";
+            return "admin/residents/form";
     }
 
     @PostMapping("/save")

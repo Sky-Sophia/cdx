@@ -47,7 +47,7 @@ public class AdminUnitController {
         model.addAttribute("unit", new PropertyUnit());
         model.addAttribute("buildings", buildingService.listAll());
         model.addAttribute("editing", false);
-        return "admin/unit-form";
+        return "admin/units/form";
     }
 
     @GetMapping("/edit/{id}")
@@ -60,7 +60,7 @@ public class AdminUnitController {
         model.addAttribute("unit", unit);
         model.addAttribute("buildings", buildingService.listAll());
         model.addAttribute("editing", true);
-        return "admin/unit-form";
+            return "admin/units/form";
     }
 
     @PostMapping("/save")

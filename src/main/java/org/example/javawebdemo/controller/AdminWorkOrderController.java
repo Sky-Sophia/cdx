@@ -45,7 +45,7 @@ public class AdminWorkOrderController {
         workOrder.setStatus("OPEN");
         model.addAttribute("workOrder", workOrder);
         model.addAttribute("units", propertyUnitService.listSimple());
-        return "admin/work-order-form";
+        return "admin/work-orders/form";
     }
 
     @PostMapping("/save")

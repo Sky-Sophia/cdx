@@ -1,0 +1,7 @@
+/* Auth page specific polish and browser autofill consistency. */
+.auth-portal-input-wrap input:-webkit-autofill,
+.auth-portal-input-wrap input:-webkit-autofill:hover,
+.auth-portal-input-wrap input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #1b2a3a;
+    transition: background-color 600000s 0s, color 600000s 0s;
+}

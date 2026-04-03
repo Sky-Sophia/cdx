@@ -87,7 +87,7 @@ public class AdminManagementController {
         model.addAttribute("userRole", userRole);
         model.addAttribute("userStatus", userStatus);
 
-        return "admin/management";
+        return "admin/management/index";
     }
 
     private String normalizeTab(String tab) {

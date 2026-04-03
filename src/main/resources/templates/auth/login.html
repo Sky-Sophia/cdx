@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>登录 - 物业运营平台管理系统</title>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link rel="stylesheet" href="/css/app.css" />
 </head>
 <body class="auth-portal-body">
@@ -32,23 +33,24 @@
     </nav>
 
     <div class="auth-portal-msg">
-        <div th:replace="~{fragments :: messages}"></div>
+        <div th:replace="~{fragments/layout :: messages}"></div>
     </div>
 
     <section class="auth-portal-section auth-portal-section-login"
              th:classappend="${tab == 'register'} ? ' is-hidden'">
-        <form method="post" action="/login" class="auth-portal-form" id="loginForm" autocomplete="off">
+        <form method="post" action="/login" class="auth-portal-form" id="loginForm" autocomplete="on">
             <label class="auth-portal-label" for="login-username">用户名</label>
             <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon">👤</span>
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"></path>
+                    </svg>
+                </span>
                 <input id="login-username"
                        name="username"
                        placeholder="请输入用户名"
-                       data-secure-input="true"
-                       autocomplete="off"
-                       autocapitalize="off"
-                       autocorrect="off"
-                       spellcheck="false"
+                       autocomplete="username"
                        minlength="3"
                        maxlength="20"
                        required />
@@ -56,44 +58,57 @@
 
             <label class="auth-portal-label" for="login-password">密码</label>
             <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon">🔒</span>
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+                        <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
+                        <path d="M12 15v2"></path>
+                    </svg>
+                </span>
                 <input id="login-password"
                        name="password"
                        type="password"
                        placeholder="请输入密码"
-                       data-secure-input="true"
-                       autocomplete="new-password"
+                       autocomplete="current-password"
                        minlength="8"
                        maxlength="64"
                        required />
                 <button class="auth-portal-eye"
                         type="button"
                         data-target="login-password"
-                        aria-label="显示或隐藏密码">👁</button>
+                        aria-label="显示或隐藏密码"
+                        aria-pressed="false">
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M2.2 12s3.5-6 9.8-6 9.8 6 9.8 6-3.5 6-9.8 6-9.8-6-9.8-6z"></path>
+                        <circle cx="12" cy="12" r="2.6"></circle>
+                        <path class="eye-slash" d="M4 4l16 16"></path>
+                    </svg>
+                </button>
             </div>
 
             <div class="auth-portal-meta">
                 <button type="button" class="auth-portal-link-btn" data-switch-tab="register">去注册</button>
             </div>
 
-            <button class="auth-portal-submit" id="loginSubmit" type="submit" disabled>登录系统</button>
+            <button class="auth-portal-submit" id="loginSubmit" type="submit">登录系统</button>
         </form>
     </section>
 
     <section class="auth-portal-section auth-portal-section-register"
              th:classappend="${tab != 'register'} ? ' is-hidden'">
-        <form method="post" action="/register" class="auth-portal-form" id="registerForm" autocomplete="off">
+        <form method="post" action="/register" class="auth-portal-form" id="registerForm" autocomplete="on">
             <label class="auth-portal-label" for="register-username">用户名</label>
             <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon">👤</span>
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"></path>
+                    </svg>
+                </span>
                 <input id="register-username"
                        name="username"
-                       placeholder="请输入3-20位用户名"
-                       data-secure-input="true"
-                       autocomplete="off"
-                       autocapitalize="off"
-                       autocorrect="off"
-                       spellcheck="false"
+                       placeholder="请输入 3-20 位用户名"
+                       autocomplete="username"
                        minlength="3"
                        maxlength="20"
                        required />
@@ -101,12 +116,17 @@
 
             <label class="auth-portal-label" for="register-password">密码</label>
             <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon">🔒</span>
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+                        <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
+                        <path d="M12 15v2"></path>
+                    </svg>
+                </span>
                 <input id="register-password"
                        name="password"
                        type="password"
-                       placeholder="请输入8-64位密码"
-                       data-secure-input="true"
+                       placeholder="请输入 8-64 位密码"
                        autocomplete="new-password"
                        minlength="8"
                        maxlength="64"
@@ -114,17 +134,29 @@
                 <button class="auth-portal-eye"
                         type="button"
                         data-target="register-password"
-                        aria-label="显示或隐藏密码">👁</button>
+                        aria-label="显示或隐藏密码"
+                        aria-pressed="false">
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M2.2 12s3.5-6 9.8-6 9.8 6 9.8 6-3.5 6-9.8 6-9.8-6-9.8-6z"></path>
+                        <circle cx="12" cy="12" r="2.6"></circle>
+                        <path class="eye-slash" d="M4 4l16 16"></path>
+                    </svg>
+                </button>
             </div>
 
             <label class="auth-portal-label" for="register-confirm-password">确认密码</label>
             <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon">🔒</span>
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+                        <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
+                        <path d="M12 15v2"></path>
+                    </svg>
+                </span>
                 <input id="register-confirm-password"
                        name="confirmPassword"
                        type="password"
                        placeholder="请再次输入密码"
-                       data-secure-input="true"
                        autocomplete="new-password"
                        minlength="8"
                        maxlength="64"
@@ -132,7 +164,14 @@
                 <button class="auth-portal-eye"
                         type="button"
                         data-target="register-confirm-password"
-                        aria-label="显示或隐藏密码">👁</button>
+                        aria-label="显示或隐藏密码"
+                        aria-pressed="false">
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M2.2 12s3.5-6 9.8-6 9.8 6 9.8 6-3.5 6-9.8 6-9.8-6-9.8-6z"></path>
+                        <circle cx="12" cy="12" r="2.6"></circle>
+                        <path class="eye-slash" d="M4 4l16 16"></path>
+                    </svg>
+                </button>
             </div>
 
             <button class="auth-portal-submit" type="submit">立即注册</button>
@@ -140,107 +179,6 @@
     </section>
 </main>
 
-<script>
-    (() => {
-        const card = document.querySelector(".auth-portal-card");
-        const initialTab = card ? card.getAttribute("data-initial-tab") : "login";
-        const tabButtons = document.querySelectorAll(".auth-tab-btn");
-        const tabNav = document.querySelector(".auth-portal-tabs");
-        const tabUnderline = tabNav ? tabNav.querySelector(".slide-underline") : null;
-        const loginSection = document.querySelector(".auth-portal-section-login");
-        const registerSection = document.querySelector(".auth-portal-section-register");
-        const quickSwitch = document.querySelectorAll("[data-switch-tab]");
-
-        function setUnderline(targetBtn) {
-            if (!tabUnderline || !targetBtn) return;
-            tabUnderline.style.width = `${targetBtn.offsetWidth}px`;
-            tabUnderline.style.left = `${targetBtn.offsetLeft}px`;
-        }
-
-        function switchTab(tab) {
-            const target = tab === "register" ? "register" : "login";
-            if (loginSection) {
-                loginSection.classList.toggle("is-hidden", target !== "login");
-            }
-            if (registerSection) {
-                registerSection.classList.toggle("is-hidden", target !== "register");
-            }
-            tabButtons.forEach((btn) => {
-                const isActive = btn.getAttribute("data-tab-target") === target;
-                btn.classList.toggle("is-active", isActive);
-            });
-            setUnderline(Array.from(tabButtons).find((btn) => btn.classList.contains("is-active")));
-        }
-
-        tabButtons.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                switchTab(btn.getAttribute("data-tab-target"));
-            });
-        });
-
-        quickSwitch.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                switchTab(btn.getAttribute("data-switch-tab"));
-            });
-        });
-
-        document.querySelectorAll(".auth-portal-eye").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const targetId = btn.getAttribute("data-target");
-                const input = document.getElementById(targetId);
-                if (!input) return;
-                input.type = input.type === "password" ? "text" : "password";
-            });
-        });
-
-        const form = document.getElementById("loginForm");
-        const username = document.getElementById("login-username");
-        const password = document.getElementById("login-password");
-        const submit = document.getElementById("loginSubmit");
-        const secureInputs = document.querySelectorAll("[data-secure-input='true']");
-
-        secureInputs.forEach((input) => {
-            input.setAttribute("readonly", "readonly");
-            const unlock = () => input.removeAttribute("readonly");
-            input.addEventListener("focus", unlock, { once: true });
-            input.addEventListener("pointerdown", unlock, { once: true });
-        });
-
-        document.querySelectorAll("input[name='username'], input[name='password'], input[name='confirmPassword']")
-            .forEach((input) => {
-                input.value = "";
-            });
-
-        function updateLoginState() {
-            if (!submit || !username || !password) return;
-            const valid = username.value.trim().length >= 3 && password.value.length >= 8;
-            submit.disabled = !valid;
-        }
-
-        if (username) {
-            username.addEventListener("input", updateLoginState);
-            username.addEventListener("change", updateLoginState);
-        }
-        if (password) {
-            password.addEventListener("input", updateLoginState);
-            password.addEventListener("change", updateLoginState);
-        }
-        if (form) {
-            form.addEventListener("submit", (event) => {
-                updateLoginState();
-                if (submit && submit.disabled) {
-                    event.preventDefault();
-                }
-            });
-        }
-
-        updateLoginState();
-        setTimeout(updateLoginState, 120);
-        switchTab(initialTab);
-        window.addEventListener("resize", () => {
-            setUnderline(Array.from(tabButtons).find((btn) => btn.classList.contains("is-active")));
-        });
-    })();
-</script>
+<script src="/js/auth/login.js" defer></script>
 </body>
 </html>

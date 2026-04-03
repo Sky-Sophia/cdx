@@ -34,6 +34,7 @@ public class SecurityHeadersFilter extends OncePerRequestFilter {
         // Dynamic pages should not be cached by browsers or proxy caches.
         String path = request.getRequestURI();
         if (!path.startsWith("/css")
+                && !path.startsWith("/js")
                 && !path.startsWith("/images")
                 && !path.startsWith("/webjars")
                 && !path.startsWith("/favicon")) {
