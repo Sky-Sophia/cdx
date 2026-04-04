@@ -173,7 +173,7 @@
 
     <div class="user-header">
         <div class="avatar">
-            <img th:src="@{/images/img.png}" alt="头像">
+            <img th:src="@{/images/default_avatar.png}" alt="头像">
         </div>
         <div class="user-info">
             <h1>管理员 您好</h1>
@@ -214,39 +214,39 @@
     <div class="func-list">
         <div class="func-item">
             <div class="func-left">
-                <span class="ico"><img src="/images/lock.svg" alt="lock"></span>
+                <span class="ico"><img src="/icons/lock.svg" alt="lock"></span>
                 <div class="func-name">修改密码</div>
             </div>
             <div class="func-arrow">›</div>
         </div>
         <div class="func-item">
             <div class="func-left">
-                <span class="ico"><img src="/images/speaker.svg" alt="lock"></span>
-                <div class="func-name">消息通知设置</div>
+                <span class="ico"><img src="/icons/speaker.svg" alt="lock"></span>
+                <div class="func-name">消息通知</div>
             </div>
             <div class="func-arrow">›</div>
         </div>
         <div class="func-item">
             <div class="func-left">
-                <span class="ico"><img src="/images/shield-fill.svg" alt="lock"></span>
+                <span class="ico"><img src="/icons/shield-fill.svg" alt="lock"></span>
                 <div class="func-name">安全中心</div>
             </div>
             <div class="func-arrow">›</div>
         </div>
         <div class="func-item">
             <div class="func-left">
-                <span class="ico"><img src="/images/phone-one.svg" alt="lock"></span>
-                <div class="func-name">登录设备管理</div>
+                <span class="ico"><img src="/icons/phone-one.svg" alt="lock"></span>
+                <div class="func-name">绑定/修改邮箱</div>
             </div>
             <div class="func-arrow">›</div>
         </div>
         <!-- 退出登录 无下划线 整行可点 -->
-        <a href="javascript:;" class="func-item confirm-action" style="text-decoration:none !important;"
+        <a href="javascript:" class="func-item confirm-action" style="text-decoration:none !important;"
            data-message="确定要退出登录吗？"
            data-action="/logout">
             <div class="func-left">
     <span class="ico">
-      <img src="/images/door-exit.svg" alt="退出登录">
+      <img src="/icons/door-exit.svg" alt="退出登录">
     </span>
                 <div class="func-name">退出登录</div>
             </div>
