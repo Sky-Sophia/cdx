@@ -32,7 +32,9 @@
 <header class="topbar" th:fragment="topbar(active)" th:with="current=${session.CURRENT_USER}">
     <div class="topbar-left">
         <a class="brand" href="/admin/management?tab=dashboard">
-            <span class="brand-dot"></span>
+           <span class="ico">
+    <img src="/images/logo-e.svg" alt="dashboard" style="width: 60px; height: 60px;">
+</span>
             <span>物业后台管理系统</span>
         </a>
         <nav class="top-nav slide-tabs">
