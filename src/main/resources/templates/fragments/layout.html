@@ -108,11 +108,12 @@
     </nav>
 </aside>
 
-<div th:fragment="messages" class="messages-wrap">
+<div th:fragment="messages" class="messages-wrap" data-auto-dismiss="true" data-dismiss-delay="2200" data-dismiss-duration="280">
     <!--/*@thymesVar id="success" type="java.lang.String"*/-->
     <div class="msg success" th:if="${success}" th:text="${success}"></div>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <div class="msg error" th:if="${error}" th:text="${error}"></div>
+    <script src="/js/common/flash-messages.js" defer></script>
 </div>
 
 <div th:fragment="confirmModal">

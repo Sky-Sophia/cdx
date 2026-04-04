@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>新增用户 - 物业后台管理系统</title>
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
 </head>
 <body>
@@ -13,13 +14,18 @@
     <div th:replace="~{fragments/layout :: sidebar('users')}"></div>
 
     <main class="app-main">
-        <section class="page-head compact">
-            <h1>新增系统用户</h1>
+        <section class="page-head compact form-page-head">
+            <div class="page-head-copy">
+                <h1>新增系统用户</h1>
+                <p>统一创建后台账号并分配角色权限，确保用户的功能入口、状态控制和后续密码重置都可集中管理。</p>
+            </div>
             <a class="btn ghost" href="/admin/users">返回列表</a>
         </section>
 
-        <section class="panel form-panel">
-            <form method="post" action="/admin/users/save" class="form-grid">
+        <section class="form-layout">
+            <div class="form-main">
+                <section class="panel form-panel">
+                    <form method="post" action="/admin/users/save" class="form-grid">
                 <label>
                     用户名
                     <input name="username" required />
@@ -30,18 +36,36 @@
                     <input name="password" type="password" required />
                 </label>
 
-                <label>
+                <label class="span-2">
                     角色
                     <select name="role">
                         <option th:each="role : ${roles}" th:value="${role}" th:text="${role.label}"></option>
                     </select>
                 </label>
 
-                <div class="form-actions">
-                    <button class="btn primary" type="submit">创建用户</button>
-                    <a class="btn ghost" href="/admin/users">取消</a>
-                </div>
-            </form>
+                        <div class="form-actions">
+                            <button class="btn primary" type="submit">创建用户</button>
+                            <a class="btn ghost" href="/admin/users">取消</a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <aside class="form-aside">
+                <section class="form-note-card">
+                    <span class="note-kicker">权限分配</span>
+                    <h3>创建后可直接进入统一管理</h3>
+                    <p>建议根据实际岗位分配管理员、员工或财务角色，后续也可以在用户列表中继续调整状态与密码。</p>
+                </section>
+                <section class="form-note-card">
+                    <h3>角色建议</h3>
+                    <ul>
+                        <li><strong>管理员</strong>：可进入全部后台模块。</li>
+                        <li><strong>员工</strong>：适合处理工单等日常事务。</li>
+                        <li><strong>财务</strong>：更适合账单与收费管理。</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </div>

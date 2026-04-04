@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>新增账单 - 物业后台管理系统</title>
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
 </head>
 <body>
@@ -13,13 +14,18 @@
     <div th:replace="~{fragments/layout :: sidebar('bills')}"></div>
 
     <main class="app-main">
-        <section class="page-head compact">
-            <h1>新增费用账单</h1>
+        <section class="page-head compact form-page-head">
+            <div class="page-head-copy">
+                <h1>新增费用账单</h1>
+                <p>统一登记房屋账期、应收金额、实收金额与到期日期，让收费进度、催缴与收款记录保持一致展示。</p>
+            </div>
             <a class="btn ghost" href="/admin/bills">返回列表</a>
         </section>
 
-        <section class="panel form-panel">
-            <form method="post" action="/admin/bills/save" class="form-grid">
+        <section class="form-layout">
+            <div class="form-main">
+                <section class="panel form-panel">
+                    <form method="post" action="/admin/bills/save" class="form-grid">
                 <label>
                     房屋
                     <select name="unitId" required>
@@ -63,11 +69,30 @@
                     <textarea name="remarks" rows="3" th:text="${bill.remarks}"></textarea>
                 </label>
 
-                <div class="form-actions">
-                    <button class="btn primary" type="submit">保存</button>
-                    <a class="btn ghost" href="/admin/bills">取消</a>
-                </div>
-            </form>
+                        <div class="form-actions">
+                            <button class="btn primary" type="submit">保存</button>
+                            <a class="btn ghost" href="/admin/bills">取消</a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <aside class="form-aside">
+                <section class="form-note-card">
+                    <span class="note-kicker">计费提醒</span>
+                    <h3>建议先录应收，再录实收</h3>
+                    <p>账单创建阶段优先维护账期、应收金额和到期时间；若已收款，可补充实收金额并同步调整状态。</p>
+                </section>
+                <section class="form-note-card">
+                    <h3>状态参考</h3>
+                    <ul>
+                        <li><strong>未缴</strong>：尚未收到费用。</li>
+                        <li><strong>部分已缴</strong>：只完成部分收款。</li>
+                        <li><strong>逾期</strong>：超过到期日仍未缴清。</li>
+                        <li><strong>已缴清</strong>：实收金额已达到应收金额。</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </div>

@@ -146,7 +146,7 @@ public class AuthController {
         if (currentUser == null) {
             return "redirect:/login";
         }
-        return "profile";
+        return "account/profile";
     }
     @GetMapping("/profile/password")
     public String passwordRedirect() {

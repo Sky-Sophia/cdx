@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title th:text="${editing} ? '编辑住户' : '新增住户'">住户表单</title>
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
 </head>
 <body>
@@ -13,13 +14,18 @@
     <div th:replace="~{fragments/layout :: sidebar('residents')}"></div>
 
     <main class="app-main">
-        <section class="page-head compact">
-            <h1 th:text="${editing} ? '编辑住户档案' : '新增住户档案'"></h1>
+        <section class="page-head compact form-page-head">
+            <div class="page-head-copy">
+                <h1 th:text="${editing} ? '编辑住户档案' : '新增住户档案'"></h1>
+                <p>统一记录住户身份、联系方式与入住状态，让住户信息与房屋档案、工单和费用模块保持关联一致。</p>
+            </div>
             <a class="btn ghost" href="/admin/residents">返回列表</a>
         </section>
 
-        <section class="panel form-panel">
-            <form method="post" action="/admin/residents/save" class="form-grid">
+        <section class="form-layout">
+            <div class="form-main">
+                <section class="panel form-panel">
+                    <form method="post" action="/admin/residents/save" class="form-grid">
                 <input type="hidden" name="id" th:value="${resident.id}" />
 
                 <label>
@@ -72,11 +78,29 @@
                     <input type="date" name="moveOutDate" th:value="${resident.moveOutDate}" />
                 </label>
 
-                <div class="form-actions">
-                    <button class="btn primary" type="submit">保存</button>
-                    <a class="btn ghost" href="/admin/residents">取消</a>
-                </div>
-            </form>
+                        <div class="form-actions">
+                            <button class="btn primary" type="submit">保存</button>
+                            <a class="btn ghost" href="/admin/residents">取消</a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <aside class="form-aside">
+                <section class="form-note-card">
+                    <span class="note-kicker">档案联动</span>
+                    <h3>住户资料将同步影响多个模块</h3>
+                    <p>住户姓名、手机号与所属房屋会在工单中心和住户查询中直接展示，建议优先保证基础资料准确。</p>
+                </section>
+                <section class="form-note-card">
+                    <h3>录入提醒</h3>
+                    <ul>
+                        <li>入住日期建议与实际交付时间保持一致。</li>
+                        <li>若已迁出，请补充迁出日期并更新状态。</li>
+                        <li>证件号与手机号建议完整录入，便于后续核验。</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </div>

@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title th:text="${editing} ? '编辑房屋' : '新增房屋'">房屋表单</title>
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
 </head>
 <body>
@@ -13,13 +14,18 @@
     <div th:replace="~{fragments/layout :: sidebar('units')}"></div>
 
     <main class="app-main">
-        <section class="page-head compact">
-            <h1 th:text="${editing} ? '编辑房屋档案' : '新增房屋档案'"></h1>
+        <section class="page-head compact form-page-head">
+            <div class="page-head-copy">
+                <h1 th:text="${editing} ? '编辑房屋档案' : '新增房屋档案'"></h1>
+                <p>统一维护楼栋、房号、业主与使用状态信息，保持房屋资料与住户档案的基础数据一致。</p>
+            </div>
             <a class="btn ghost" href="/admin/units">返回列表</a>
         </section>
 
-        <section class="panel form-panel">
-            <form method="post" action="/admin/units/save" class="form-grid">
+        <section class="form-layout">
+            <div class="form-main">
+                <section class="panel form-panel">
+                    <form method="post" action="/admin/units/save" class="form-grid">
                 <input type="hidden" name="id" th:value="${unit.id}" />
 
                 <label>
@@ -64,11 +70,29 @@
                     </select>
                 </label>
 
-                <div class="form-actions">
-                    <button class="btn primary" type="submit">保存</button>
-                    <a class="btn ghost" href="/admin/units">取消</a>
-                </div>
-            </form>
+                        <div class="form-actions">
+                            <button class="btn primary" type="submit">保存</button>
+                            <a class="btn ghost" href="/admin/units">取消</a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <aside class="form-aside">
+                <section class="form-note-card">
+                    <span class="note-kicker">填写建议</span>
+                    <h3>先维护基础信息</h3>
+                    <p>建议先确认楼栋、房号与面积，再补充业主和联系方式，避免后续账单与住户关联错误。</p>
+                </section>
+                <section class="form-note-card">
+                    <h3>状态说明</h3>
+                    <ul>
+                        <li><strong>自住</strong>：业主本人入住。</li>
+                        <li><strong>出租</strong>：房屋已对外出租。</li>
+                        <li><strong>空置</strong>：暂无住户，可用于后续入驻分配。</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </div>

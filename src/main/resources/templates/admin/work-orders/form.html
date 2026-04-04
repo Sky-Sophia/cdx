@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>新建工单 - 物业后台管理系统</title>
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
 </head>
 <body>
@@ -13,13 +14,18 @@
     <div th:replace="~{fragments/layout :: sidebar('work-orders')}"></div>
 
     <main class="app-main">
-        <section class="page-head compact">
-            <h1>新建报修工单</h1>
+        <section class="page-head compact form-page-head">
+            <div class="page-head-copy">
+                <h1>新建报修工单</h1>
+                <p>按房屋、报修人、优先级与描述统一创建工单，保证处理流程、指派记录和状态更新都能清晰追踪。</p>
+            </div>
             <a class="btn ghost" href="/admin/work-orders">返回列表</a>
         </section>
 
-        <section class="panel form-panel">
-            <form method="post" action="/admin/work-orders/save" class="form-grid">
+        <section class="form-layout">
+            <div class="form-main">
+                <section class="panel form-panel">
+                    <form method="post" action="/admin/work-orders/save" class="form-grid">
                 <label>
                     报修房屋
                     <select name="unitId" required>
@@ -67,11 +73,29 @@
                     <textarea name="description" rows="4" th:text="${workOrder.description}" required></textarea>
                 </label>
 
-                <div class="form-actions">
-                    <button class="btn primary" type="submit">创建工单</button>
-                    <a class="btn ghost" href="/admin/work-orders">取消</a>
-                </div>
-            </form>
+                        <div class="form-actions">
+                            <button class="btn primary" type="submit">创建工单</button>
+                            <a class="btn ghost" href="/admin/work-orders">取消</a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <aside class="form-aside">
+                <section class="form-note-card">
+                    <span class="note-kicker">工单说明</span>
+                    <h3>优先级决定处理时效</h3>
+                    <p>高优先级适用于停水停电、门禁失效等紧急问题；中低优先级更适合常规维修和环境处理。</p>
+                </section>
+                <section class="form-note-card">
+                    <h3>描述建议</h3>
+                    <ul>
+                        <li>尽量写清具体位置、故障现象和发生时间。</li>
+                        <li>若已指定处理人，可直接填写师傅姓名。</li>
+                        <li>描述越完整，后续流转与回访越高效。</li>
+                    </ul>
+                </section>
+            </aside>
         </section>
     </main>
 </div>
