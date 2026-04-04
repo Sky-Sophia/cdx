@@ -44,37 +44,46 @@
                 return;
             }
 
-            const setUnderline = (tab) => {
-                if (!tab) return;
+            const setUnderline = (tab, instant = false) => {
+                if (!tab) {
+                    return;
+                }
+                underline.classList.toggle("is-instant", instant);
                 underline.style.width = `${tab.offsetWidth}px`;
                 underline.style.left = `${tab.offsetLeft}px`;
+                if (instant) {
+                    requestAnimationFrame(() => {
+                        underline.classList.remove("is-instant");
+                    });
+                }
             };
 
             const getActiveTab = () => tabs.find((item) => item.classList.contains("is-active")) || tabs[0];
             let rafId = 0;
-            const refresh = () => {
+            const refresh = (instant = false) => {
                 if (rafId) {
                     cancelAnimationFrame(rafId);
                 }
                 rafId = requestAnimationFrame(() => {
-                    setUnderline(getActiveTab());
+                    setUnderline(getActiveTab(), instant);
                 });
             };
 
-            tabs.forEach((tab) => {
-                tab.addEventListener("click", refresh);
-            });
-            container.addEventListener("management-tab-changed", refresh);
             container.dataset.slideInited = "1";
             refreshers.push(refresh);
-            refresh();
+            refresh(true);
+
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => refresh(true)).catch(() => {
+                });
+            }
         });
 
-        const refreshAll = () => {
-            refreshers.forEach((fn) => fn());
+        const refreshAll = (instant = false) => {
+            refreshers.forEach((fn) => fn(instant));
         };
         window.refreshTopNavUnderline = refreshAll;
-        window.addEventListener("resize", refreshAll, { passive: true });
+        window.addEventListener("resize", () => refreshAll(true), { passive: true });
     }
 
     if (!enforceTabSession()) {

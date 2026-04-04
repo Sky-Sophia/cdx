@@ -70,38 +70,38 @@
         <a href="/admin/management?tab=dashboard"
            data-management-tab="dashboard"
            th:classappend="${(active == 'management' and currentTab == 'dashboard') or active == 'dashboard'} ? ' is-active'">
-            <span class="ico">D</span>
+            <span class="ico"><img src="/images/chart-bar.svg" alt="dashboard"></span>
             <span>概览看板</span>
         </a>
         <!--/*@thymesVar id="currentTab" type="java.lang.String"*/-->
         <a href="/admin/management?tab=units"
            data-management-tab="units"
            th:classappend="${(active == 'management' and currentTab == 'units') or active == 'units'} ? ' is-active'">
-            <span class="ico">U</span>
+            <span class="ico"><img src="/images/building.svg" alt="units"></span>
             <span>房屋楼栋</span>
         </a>
         <a href="/admin/management?tab=residents"
            data-management-tab="residents"
            th:classappend="${(active == 'management' and currentTab == 'residents') or active == 'residents'} ? ' is-active'">
-            <span class="ico">R</span>
+            <span class="ico"><img src="/images/resident.svg" alt="residents"></span>
             <span>住户信息</span>
         </a>
         <a href="/admin/management?tab=work-orders"
            data-management-tab="work-orders"
            th:classappend="${(active == 'management' and currentTab == 'work-orders') or active == 'work-orders'} ? ' is-active'">
-            <span class="ico">W</span>
+            <span class="ico"><img src="/images/repair.svg" alt="work-orders"></span>
             <span>报修工单</span>
         </a>
         <a href="/admin/management?tab=bills"
            data-management-tab="bills"
            th:classappend="${(active == 'management' and currentTab == 'bills') or active == 'bills'} ? ' is-active'">
-            <span class="ico">B</span>
+            <span class="ico"><img src="/images/bill-bold.svg" alt="bills"></span>
             <span>收费账单</span>
         </a>
         <a href="/admin/management?tab=users"
            data-management-tab="users"
            th:classappend="${(active == 'management' and currentTab == 'users') or active == 'users'} ? ' is-active'">
-            <span class="ico">A</span>
+            <span class="ico"><img src="/images/user-md.svg" alt="dashboard"></span>
             <span>权限用户</span>
         </a>
     </nav>

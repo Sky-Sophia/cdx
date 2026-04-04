@@ -71,7 +71,7 @@
             updateNavHighlight(target);
             updateHistory(target);
             if (typeof window.refreshTopNavUnderline === "function") {
-                window.refreshTopNavUnderline();
+                window.refreshTopNavUnderline(true);
             }
         }
 

@@ -1,5 +1,7 @@
 package org.example.javawebdemo.controller;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import org.example.javawebdemo.model.Role;
 import org.example.javawebdemo.service.BuildingService;
 import org.example.javawebdemo.service.FeeBillService;
@@ -59,9 +61,14 @@ public class AdminManagementController {
         String currentTab = normalizeTab(tab);
         model.addAttribute("currentTab", currentTab);
 
-        model.addAttribute("stats", propertyDashboardService.stats());
+        var stats = propertyDashboardService.stats();
+        model.addAttribute("stats", stats);
         model.addAttribute("recentOrders", propertyDashboardService.recentOrders(6));
         model.addAttribute("dueBills", propertyDashboardService.dueBills(6));
+        model.addAttribute("overviewScaleMax", Math.max(1L,
+                Math.max(Math.max(stats.getUnitCount(), stats.getResidentCount()),
+                        Math.max(stats.getOpenOrderCount(), stats.getDueBillCount()))));
+        model.addAttribute("collectionRate", computeCollectionRate(stats.getTotalReceived(), stats.getTotalReceivable()));
 
         model.addAttribute("units", propertyUnitService.list(unitKeyword, unitBuildingId, unitStatus));
         model.addAttribute("buildings", buildingService.listAll());
@@ -100,5 +107,18 @@ public class AdminManagementController {
             return tab;
         }
         return "dashboard";
+    }
+
+    private int computeCollectionRate(BigDecimal received, BigDecimal receivable) {
+        if (receivable == null || received == null || receivable.signum() <= 0) {
+            return 0;
+        }
+        BigDecimal rate = received.multiply(BigDecimal.valueOf(100))
+                .divide(receivable, 0, RoundingMode.DOWN);
+        int value = rate.intValue();
+        if (value < 0) {
+            return 0;
+        }
+        return Math.min(value, 100);
     }
 }

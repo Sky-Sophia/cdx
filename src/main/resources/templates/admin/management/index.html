@@ -20,7 +20,6 @@
                  th:classappend="${currentTab != 'dashboard'} ? ' is-hidden'">
             <section class="page-head">
                 <div>
-                    <p class="kicker">物业概览</p>
                     <h1>今日运营概览</h1>
                     <p>集中查看楼栋房屋、住户服务与费用收缴状态。</p>
                 </div>
@@ -52,11 +51,55 @@
                     <strong th:text="${stats.dueBillCount}">0</strong>
                     <span>未缴 / 部分已缴 / 逾期</span>
                 </article>
-                <article class="stat-card">
-                    <h3>收缴进度</h3>
-                    <strong th:text="${#numbers.formatDecimal(stats.totalReceived, 1, 'COMMA', 2, 'POINT')}">0.00</strong>
-                    <span>/ <span th:text="${#numbers.formatDecimal(stats.totalReceivable, 1, 'COMMA', 2, 'POINT')}">0.00</span></span>
-                </article>
+            </section>
+
+            <section class="overview-viz">
+                <div class="overview-viz-head">
+                    <h2>今日运营分布</h2>
+                    <p>使用统一比例，快速比较核心指标</p>
+                </div>
+                <div class="overview-viz-body">
+                    <div class="overview-viz-ring" th:style="|--progress:${collectionRate};|">
+                        <div class="overview-viz-ring-core">
+                            <strong th:text="|${collectionRate}%|">0%</strong>
+                            <span>收缴进度</span>
+                        </div>
+                    </div>
+                    <div class="overview-viz-list">
+                        <div class="overview-viz-item">
+                            <span class="overview-viz-label">在管房屋</span>
+                            <div class="overview-viz-track">
+                                <span class="overview-viz-fill"
+                                      th:style="|width:${stats.unitCount * 100 / overviewScaleMax}%;|"></span>
+                            </div>
+                            <strong class="overview-viz-value" th:text="${stats.unitCount}">0</strong>
+                        </div>
+                        <div class="overview-viz-item">
+                            <span class="overview-viz-label">活跃住户</span>
+                            <div class="overview-viz-track">
+                                <span class="overview-viz-fill"
+                                      th:style="|width:${stats.residentCount * 100 / overviewScaleMax}%;|"></span>
+                            </div>
+                            <strong class="overview-viz-value" th:text="${stats.residentCount}">0</strong>
+                        </div>
+                        <div class="overview-viz-item">
+                            <span class="overview-viz-label">待处理工单</span>
+                            <div class="overview-viz-track">
+                                <span class="overview-viz-fill"
+                                      th:style="|width:${stats.openOrderCount * 100 / overviewScaleMax}%;|"></span>
+                            </div>
+                            <strong class="overview-viz-value" th:text="${stats.openOrderCount}">0</strong>
+                        </div>
+                        <div class="overview-viz-item">
+                            <span class="overview-viz-label">待缴账单</span>
+                            <div class="overview-viz-track">
+                                <span class="overview-viz-fill"
+                                      th:style="|width:${stats.dueBillCount * 100 / overviewScaleMax}%;|"></span>
+                            </div>
+                            <strong class="overview-viz-value" th:text="${stats.dueBillCount}">0</strong>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section class="panel-grid">
@@ -134,7 +177,7 @@
             </section>
         </section>
 
-        <section class="panel panel-dense mgmt-pane mgmt-pane-units"
+        <section class="mgmt-pane mgmt-pane-units"
                  data-pane-tab="units"
                  th:classappend="${currentTab != 'units'} ? ' is-hidden'">
             <section class="page-head compact">
@@ -209,7 +252,7 @@
             </div>
         </section>
 
-        <section class="panel panel-dense mgmt-pane mgmt-pane-residents"
+        <section class="mgmt-pane mgmt-pane-residents"
                  data-pane-tab="residents"
                  th:classappend="${currentTab != 'residents'} ? ' is-hidden'">
             <section class="page-head compact">
@@ -272,7 +315,7 @@
             </div>
         </section>
 
-        <section class="panel panel-dense mgmt-pane mgmt-pane-work-orders"
+        <section class="mgmt-pane mgmt-pane-work-orders"
                  data-pane-tab="work-orders"
                  th:classappend="${currentTab != 'work-orders'} ? ' is-hidden'">
             <section class="page-head compact">
@@ -358,7 +401,7 @@
             </div>
         </section>
 
-        <section class="panel panel-dense mgmt-pane mgmt-pane-bills"
+        <section class="mgmt-pane mgmt-pane-bills"
                  data-pane-tab="bills"
                  th:classappend="${currentTab != 'bills'} ? ' is-hidden'">
             <section class="page-head compact">
@@ -427,7 +470,7 @@
             </div>
         </section>
 
-        <section class="panel panel-dense mgmt-pane mgmt-pane-users"
+        <section class="mgmt-pane mgmt-pane-users"
                  data-pane-tab="users"
                  th:classappend="${currentTab != 'users'} ? ' is-hidden'">
             <section class="page-head compact">

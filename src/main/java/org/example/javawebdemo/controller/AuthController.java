@@ -63,14 +63,14 @@ public class AuthController {
         }
 
         if (bindingResult.hasErrors() || username.isEmpty() || password.isBlank()) {
-            model.addAttribute("error", "请输入正确的用户名和密码。");
+            model.addAttribute("error", "璇疯緭鍏ユ纭殑鐢ㄦ埛鍚嶅拰瀵嗙爜銆?");
             registerFailedAttempt(attemptKey);
             return "auth/login";
         }
 
         User user = userService.authenticate(username, password);
         if (user == null) {
-            model.addAttribute("error", "账号或密码错误，或账号已被禁用。");
+            model.addAttribute("error", "璐﹀彿鎴栧瘑鐮侀敊璇紝鎴栬处鍙峰凡琚鐢ㄣ€?");
             registerFailedAttempt(attemptKey);
             return "auth/login";
         }
@@ -92,12 +92,12 @@ public class AuthController {
         model.addAttribute("registerUsername", username);
 
         if (bindingResult.hasErrors() || username.isEmpty()) {
-            model.addAttribute("error", "请输入正确的注册信息。");
+            model.addAttribute("error", "璇疯緭鍏ユ纭殑娉ㄥ唽淇℃伅銆?");
             return "auth/login";
         }
 
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            model.addAttribute("error", "两次输入的密码不一致。");
+            model.addAttribute("error", "涓ゆ杈撳叆鐨勫瘑鐮佷笉涓€鑷淬€?");
             return "auth/login";
         }
 
@@ -105,7 +105,7 @@ public class AuthController {
             User user = userService.register(username, request.getPassword());
             userService.updateRole(user.getId(), Role.STAFF);
             userService.updateStatus(user.getId(), "DISABLED");
-            redirectAttributes.addFlashAttribute("success", "注册成功，待管理员审核启用后可登录。");
+            redirectAttributes.addFlashAttribute("success", "娉ㄥ唽鎴愬姛锛屽緟绠＄悊鍛樺鏍稿惎鐢ㄥ悗鍙櫥褰曘€?");
             return "redirect:/login";
         } catch (IllegalArgumentException ex) {
             model.addAttribute("error", ex.getMessage());
@@ -125,8 +125,12 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public String profileRedirect() {
-        return "redirect:/admin/management?tab=dashboard";
+    public String profile(HttpSession session) {
+        UserSession currentUser = (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+        return "profile";
     }
 
     @GetMapping("/profile/password")
@@ -150,7 +154,7 @@ public class AuthController {
         }
         long seconds = Duration.between(Instant.now(), attempt.lockedUntil()).toSeconds();
         long remainSeconds = Math.max(seconds, 1);
-        model.addAttribute("error", "登录失败次数过多，请 " + remainSeconds + " 秒后再试。");
+        model.addAttribute("error", "鐧诲綍澶辫触娆℃暟杩囧锛岃 " + remainSeconds + " 绉掑悗鍐嶈瘯銆?");
         return true;
     }
 
