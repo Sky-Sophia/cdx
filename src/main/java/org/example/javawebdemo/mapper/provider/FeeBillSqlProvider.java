@@ -22,6 +22,27 @@ public class FeeBillSqlProvider {
         return sql.toString();
     }
 
+    public String countSql(Map<String, Object> params) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) ");
+        sql.append("FROM fee_bills f ");
+        sql.append("LEFT JOIN units u ON u.id = f.unit_id ");
+        sql.append("WHERE 1=1");
+
+        if (isNotBlank(params.get("status"))) {
+            sql.append(" AND f.status = #{status}");
+        }
+        if (isNotBlank(params.get("billingMonth"))) {
+            sql.append(" AND f.billing_month = #{billingMonth}");
+        }
+
+        return sql.toString();
+    }
+
+    public String findAllPagedSql(Map<String, Object> params) {
+        return findAllSql(params) + " LIMIT #{offset}, #{pageSize}";
+    }
+
     private boolean isNotBlank(Object value) {
         return value instanceof String str && !str.isBlank();
     }

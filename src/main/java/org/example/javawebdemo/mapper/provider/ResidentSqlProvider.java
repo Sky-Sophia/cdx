@@ -24,6 +24,29 @@ public class ResidentSqlProvider {
         return sql.toString();
     }
 
+    public String countSql(Map<String, Object> params) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) ");
+        sql.append("FROM residents r ");
+        sql.append("LEFT JOIN units u ON u.id = r.unit_id ");
+        sql.append("WHERE 1=1");
+
+        if (isNotBlank(params.get("keyword"))) {
+            sql.append(" AND (r.name LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" OR r.phone LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" OR u.unit_no LIKE CONCAT('%', #{keyword}, '%'))");
+        }
+        if (isNotBlank(params.get("status"))) {
+            sql.append(" AND r.status = #{status}");
+        }
+
+        return sql.toString();
+    }
+
+    public String findAllPagedSql(Map<String, Object> params) {
+        return findAllSql(params) + " LIMIT #{offset}, #{pageSize}";
+    }
+
     private boolean isNotBlank(Object value) {
         return value instanceof String str && !str.isBlank();
     }

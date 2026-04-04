@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/admin")
 public class AdminManagementController {
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
     private final PropertyUnitService propertyUnitService;
     private final BuildingService buildingService;
     private final ResidentService residentService;
@@ -57,6 +59,11 @@ public class AdminManagementController {
                              @RequestParam(required = false) String userQ,
                              @RequestParam(required = false) Role userRole,
                              @RequestParam(required = false) String userStatus,
+                             @RequestParam(defaultValue = "1") int unitPage,
+                             @RequestParam(defaultValue = "1") int residentPage,
+                             @RequestParam(defaultValue = "1") int orderPage,
+                             @RequestParam(defaultValue = "1") int billPage,
+                             @RequestParam(defaultValue = "1") int userPage,
                              Model model) {
         String currentTab = normalizeTab(tab);
         model.addAttribute("currentTab", currentTab);
@@ -70,25 +77,25 @@ public class AdminManagementController {
                         Math.max(stats.getOpenOrderCount(), stats.getDueBillCount()))));
         model.addAttribute("collectionRate", computeCollectionRate(stats.getTotalReceived(), stats.getTotalReceivable()));
 
-        model.addAttribute("units", propertyUnitService.list(unitKeyword, unitBuildingId, unitStatus));
+        model.addAttribute("unitPageResult", propertyUnitService.listPaged(unitKeyword, unitBuildingId, unitStatus, unitPage, DEFAULT_PAGE_SIZE));
         model.addAttribute("buildings", buildingService.listAll());
         model.addAttribute("unitKeyword", unitKeyword);
         model.addAttribute("unitBuildingId", unitBuildingId);
         model.addAttribute("unitStatus", unitStatus);
 
-        model.addAttribute("residents", residentService.list(residentKeyword, residentStatus));
+        model.addAttribute("residentPageResult", residentService.listPaged(residentKeyword, residentStatus, residentPage, DEFAULT_PAGE_SIZE));
         model.addAttribute("residentKeyword", residentKeyword);
         model.addAttribute("residentStatus", residentStatus);
 
-        model.addAttribute("orders", workOrderService.list(workOrderStatus, workOrderPriority));
+        model.addAttribute("orderPageResult", workOrderService.listPaged(workOrderStatus, workOrderPriority, orderPage, DEFAULT_PAGE_SIZE));
         model.addAttribute("workOrderStatus", workOrderStatus);
         model.addAttribute("workOrderPriority", workOrderPriority);
 
-        model.addAttribute("bills", feeBillService.list(billStatus, billBillingMonth));
+        model.addAttribute("billPageResult", feeBillService.listPaged(billStatus, billBillingMonth, billPage, DEFAULT_PAGE_SIZE));
         model.addAttribute("billStatus", billStatus);
         model.addAttribute("billBillingMonth", billBillingMonth);
 
-        model.addAttribute("users", userService.listByFilters(userQ, userRole, userStatus));
+        model.addAttribute("userPageResult", userService.listByFiltersPaged(userQ, userRole, userStatus, userPage, DEFAULT_PAGE_SIZE));
         model.addAttribute("roles", Role.values());
         model.addAttribute("userQ", userQ);
         model.addAttribute("userRole", userRole);

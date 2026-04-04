@@ -1,6 +1,7 @@
 (() => {
     "use strict";
 
+
     const VALID_TABS = new Set(["dashboard", "units", "residents", "work-orders", "bills", "users"]);
 
     function isManagementPath() {

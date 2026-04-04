@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 import org.example.javawebdemo.mapper.UserMapper;
+import org.example.javawebdemo.dto.PageResult;
 import org.example.javawebdemo.model.Role;
 import org.example.javawebdemo.model.User;
 import org.example.javawebdemo.service.UserService;
@@ -78,6 +79,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public PageResult<User> listByFiltersPaged(String q, Role role, String status, int page, int pageSize) {
+        long total = userMapper.countWithFilters(q, role, status);
+        int offset = PageResult.calcOffset(page, pageSize);
+        List<User> items = userMapper.findAllWithFiltersPaged(q, role, status, offset, pageSize);
+        return new PageResult<>(items, page, pageSize, total);
+    }
+
+    @Override
     @Transactional
     public void updateRole(Long userId, Role role) {
         userMapper.updateRole(userId, role);
@@ -105,6 +114,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long userId) {
         return userMapper.findById(userId);
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        return userMapper.findByUsername(normalizeUsername(username));
     }
 
     private String normalizeUsername(String username) {

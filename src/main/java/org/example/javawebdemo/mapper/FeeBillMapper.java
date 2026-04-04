@@ -20,6 +20,16 @@ public interface FeeBillMapper {
     List<FeeBill> findAll(@Param("status") String status,
                           @Param("billingMonth") String billingMonth);
 
+    @SelectProvider(type = FeeBillSqlProvider.class, method = "countSql")
+    long count(@Param("status") String status,
+               @Param("billingMonth") String billingMonth);
+
+    @SelectProvider(type = FeeBillSqlProvider.class, method = "findAllPagedSql")
+    List<FeeBill> findAllPaged(@Param("status") String status,
+                                @Param("billingMonth") String billingMonth,
+                                @Param("offset") int offset,
+                                @Param("pageSize") int pageSize);
+
     @Select("SELECT f.*, u.unit_no FROM fee_bills f LEFT JOIN units u ON u.id = f.unit_id WHERE f.id = #{id}")
     FeeBill findById(@Param("id") Long id);
 

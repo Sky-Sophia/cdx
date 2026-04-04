@@ -35,6 +35,18 @@ public interface UserMapper {
                                   @Param("role") Role role,
                                   @Param("status") String status);
 
+    @SelectProvider(type = UserSqlProvider.class, method = "countWithFiltersSql")
+    long countWithFilters(@Param("q") String q,
+                          @Param("role") Role role,
+                          @Param("status") String status);
+
+    @SelectProvider(type = UserSqlProvider.class, method = "findAllWithFiltersPagedSql")
+    List<User> findAllWithFiltersPaged(@Param("q") String q,
+                                       @Param("role") Role role,
+                                       @Param("status") String status,
+                                       @Param("offset") int offset,
+                                       @Param("pageSize") int pageSize);
+
     @Update("UPDATE users SET role = #{role}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}")
     void updateRole(@Param("id") Long id, @Param("role") Role role);
 

@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>登录 - 物业运营平台管理系统</title>
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
-    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/apps/auth.css" />
 </head>
 <body class="auth-portal-body">
 <main class="auth-portal-card" th:attr="data-initial-tab=${tab}">
     <header class="auth-portal-header">
-        <div style="text-align: center; margin: 50px auto;">
+        <div class="auth-portal-intro">
             <h1>物业运营平台管理系统</h1>
             <p>请登录您的账号进行管理</p>
         </div>
@@ -83,7 +83,7 @@
             </div>
 
             <div class="auth-portal-meta">
-                <button type="button" class="auth-portal-link-btn" data-switch-tab="register">去注册</button>
+                <button type="button" class="auth-portal-link-btn" data-switch-tab="forgot">忘记密码？</button>
             </div>
 
             <button class="auth-portal-submit" id="loginSubmit" type="submit">登录系统</button>
@@ -171,6 +171,95 @@
             </div>
 
             <button class="auth-portal-submit" type="submit">立即注册</button>
+        </form>
+    </section>
+
+    <section class="auth-portal-section auth-portal-section-forgot is-hidden">
+        <form method="post" action="/forgot-password" class="auth-portal-form" id="forgotForm" autocomplete="off">
+            <p class="auth-portal-helper">请输入用户名和新密码来重置您的密码。</p>
+
+            <label class="auth-portal-label" for="forgot-username">用户名</label>
+            <div class="auth-portal-input-wrap">
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"></path>
+                    </svg>
+                </span>
+                <input id="forgot-username"
+                       name="username"
+                       placeholder="请输入您的用户名"
+                       autocomplete="username"
+                       minlength="3"
+                       maxlength="20"
+                       required />
+            </div>
+
+            <label class="auth-portal-label" for="forgot-new-password">新密码</label>
+            <div class="auth-portal-input-wrap">
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+                        <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
+                        <path d="M12 15v2"></path>
+                    </svg>
+                </span>
+                <input id="forgot-new-password"
+                       name="newPassword"
+                       type="password"
+                       placeholder="请输入 8-64 位新密码"
+                       autocomplete="new-password"
+                       minlength="8"
+                       maxlength="64"
+                       required />
+                <button class="auth-portal-eye"
+                        type="button"
+                        data-target="forgot-new-password"
+                        aria-label="显示或隐藏密码"
+                        aria-pressed="false">
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M2.2 12s3.5-6 9.8-6 9.8 6 9.8 6-3.5 6-9.8 6-9.8-6-9.8-6z"></path>
+                        <circle cx="12" cy="12" r="2.6"></circle>
+                        <path class="eye-slash" d="M4 4l16 16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <label class="auth-portal-label" for="forgot-confirm-password">确认新密码</label>
+            <div class="auth-portal-input-wrap">
+                <span class="auth-portal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+                        <path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
+                        <path d="M12 15v2"></path>
+                    </svg>
+                </span>
+                <input id="forgot-confirm-password"
+                       name="confirmPassword"
+                       type="password"
+                       placeholder="请再次输入新密码"
+                       autocomplete="new-password"
+                       minlength="8"
+                       maxlength="64"
+                       required />
+                <button class="auth-portal-eye"
+                        type="button"
+                        data-target="forgot-confirm-password"
+                        aria-label="显示或隐藏密码"
+                        aria-pressed="false">
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M2.2 12s3.5-6 9.8-6 9.8 6 9.8 6-3.5 6-9.8 6-9.8-6-9.8-6z"></path>
+                        <circle cx="12" cy="12" r="2.6"></circle>
+                        <path class="eye-slash" d="M4 4l16 16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="auth-portal-meta">
+                <button type="button" class="auth-portal-link-btn" data-switch-tab="login">返回登录</button>
+            </div>
+
+            <button class="auth-portal-submit" type="submit">重置密码</button>
         </form>
     </section>
 </main>

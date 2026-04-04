@@ -1,6 +1,7 @@
 package org.example.javawebdemo.service.impl;
 
 import java.util.List;
+import org.example.javawebdemo.dto.PageResult;
 import org.example.javawebdemo.mapper.PropertyUnitMapper;
 import org.example.javawebdemo.model.PropertyUnit;
 import org.example.javawebdemo.service.PropertyUnitService;
@@ -55,6 +56,14 @@ public class PropertyUnitServiceImpl implements PropertyUnitService {
     @Transactional
     public void deleteById(Long id) {
         propertyUnitMapper.deleteById(id);
+    }
+
+    @Override
+    public PageResult<PropertyUnit> listPaged(String keyword, Long buildingId, String status, int page, int pageSize) {
+        long total = propertyUnitMapper.count(keyword, buildingId, status);
+        int offset = PageResult.calcOffset(page, pageSize);
+        List<PropertyUnit> items = propertyUnitMapper.findAllPaged(keyword, buildingId, status, offset, pageSize);
+        return new PageResult<>(items, page, pageSize, total);
     }
 
     private boolean isBlank(String value) {

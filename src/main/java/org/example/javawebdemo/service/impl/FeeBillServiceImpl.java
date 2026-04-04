@@ -3,6 +3,7 @@ package org.example.javawebdemo.service.impl;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.example.javawebdemo.dto.PageResult;
 import org.example.javawebdemo.mapper.FeeBillMapper;
 import org.example.javawebdemo.model.FeeBill;
 import org.example.javawebdemo.service.FeeBillService;
@@ -21,6 +22,14 @@ public class FeeBillServiceImpl implements FeeBillService {
     @Override
     public List<FeeBill> list(String status, String billingMonth) {
         return feeBillMapper.findAll(status, billingMonth);
+    }
+
+    @Override
+    public PageResult<FeeBill> listPaged(String status, String billingMonth, int page, int pageSize) {
+        long total = feeBillMapper.count(status, billingMonth);
+        int offset = PageResult.calcOffset(page, pageSize);
+        List<FeeBill> items = feeBillMapper.findAllPaged(status, billingMonth, offset, pageSize);
+        return new PageResult<>(items, page, pageSize, total);
     }
 
     @Override

@@ -26,6 +26,17 @@
     gap: 14px;
 }
 
+.auth-portal-intro {
+    text-align: center;
+    margin: 50px auto;
+}
+
+.auth-portal-helper {
+    color: #555;
+    font-size: 0.94rem;
+    margin: 8px 0 4px;
+}
+
 .auth-portal-logo {
     width: 56px;
     height: 56px;

@@ -103,6 +103,39 @@ public class AuthController {
         session.invalidate();
         return "redirect:/login";
     }
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String username,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
+        model.addAttribute("tab", "login");
+        if (username == null || username.isBlank()) {
+            model.addAttribute("error", "请输入用户名。");
+            return "auth/login";
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            model.addAttribute("error", "请输入新密码。");
+            return "auth/login";
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("error", "两次输入的密码不一致。");
+            return "auth/login";
+        }
+        User user = userService.findByUsername(username.trim());
+        if (user == null) {
+            model.addAttribute("error", "用户不存在，请检查用户名。");
+            return "auth/login";
+        }
+        try {
+            userService.resetPassword(user.getId(), newPassword);
+            redirectAttributes.addFlashAttribute("success", "密码重置成功，请使用新密码登录。");
+            return "redirect:/login";
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "auth/login";
+        }
+    }
     @GetMapping("/register")
     public String registerRedirect() {
         return "redirect:/login?tab=register";

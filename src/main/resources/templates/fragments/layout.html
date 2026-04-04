@@ -20,10 +20,9 @@
                 <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).USER}" href="/admin/management?tab=work-orders">我的工单</a>
                 <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/management?tab=dashboard">管理后台</a>
                 <a class="nav-link nav-pill" th:if="${role == T(org.example.javawebdemo.model.Role).STAFF}" href="/admin/management?tab=work-orders">员工后台</a>
-                <a class="nav-link" th:if="${user != null}" href="/profile">个人中心</a>
                 <a class="nav-link" th:if="${user == null}" href="/login">登录</a>
                 <a class="nav-link" th:if="${user == null}" href="/register">注册</a>
-                <a class="nav-link" th:if="${user != null}" href="/logout">退出</a>
+                <a class="nav-link" th:if="${user != null}" href="/profile">个人中心</a>
             </div>
         </div>
     </header>
@@ -33,7 +32,7 @@
     <div class="topbar-left">
         <a class="brand" href="/admin/management?tab=dashboard">
            <span class="ico">
-    <img src="/icons/logo-e.svg" alt="dashboard" style="width: 60px; height: 60px;">
+    <img src="/icons/logo-e.svg" alt="dashboard" class="brand-logo-img">
 </span>
             <span>物业后台管理系统</span>
         </a>
@@ -62,9 +61,9 @@
     </div>
     <div class="topbar-right" th:if="${current != null}">
         <a class="user-chip" href="/profile">个人中心</a>
-        <a class="btn ghost mini" href="/logout">退出登录</a>
     </div>
-    <script src="/js/common/tabs.js" defer></script>
+    <script src="/js/common/session-guard.js" defer></script>
+    <script src="/js/common/nav-tabs.js" defer></script>
 </header>
 
 <aside class="sidebar" th:fragment="sidebar(active)">
@@ -116,6 +115,20 @@
     <div class="msg error" th:if="${error}" th:text="${error}"></div>
 </div>
 
+<div th:fragment="confirmModal">
+    <div class="confirm-modal" id="globalConfirmModal" aria-hidden="true">
+        <div class="confirm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmMessage">
+            <h3 class="confirm-modal-title" id="globalConfirmTitle">操作确认</h3>
+            <p class="confirm-modal-message" id="globalConfirmMessage">确定要执行此操作吗？</p>
+            <div class="confirm-modal-actions">
+                <button class="confirm-modal-btn" id="globalConfirmCancel" type="button">取消</button>
+                <button class="confirm-modal-btn primary" id="globalConfirmOk" type="button">确定</button>
+            </div>
+        </div>
+    </div>
+    <script src="/js/common/confirm-actions.js" defer></script>
+</div>
+
 <div th:fragment="footer">
     <footer class="site-footer">
         <div class="footer-inner">
@@ -130,5 +143,36 @@
         </div>
     </footer>
 </div>
+<div th:fragment="pagination(pageResult, baseUrl, pageParamName)" th:if="${pageResult.totalPages > 0}" class="pagination-bar">
+    <span class="pagination-info">共 <strong th:text="${pageResult.totalPages}">1</strong> 页，当前第 <strong th:text="${pageResult.page}">1</strong> 页</span>
+    <nav class="pagination-nav">
+        <a class="page-link" th:if="${pageResult.hasPrev}" th:href="${baseUrl + '&' + pageParamName + '=1'}">首页</a>
+        <span class="page-link disabled" th:unless="${pageResult.hasPrev}">首页</span>
+
+        <a class="page-link" th:if="${pageResult.hasPrev}" th:href="${baseUrl + '&' + pageParamName + '=' + (pageResult.page - 1)}">上一页</a>
+        <span class="page-link disabled" th:unless="${pageResult.hasPrev}">上一页</span>
+
+        <th:block th:each="p : ${pageResult.pageWindow}">
+            <span class="page-link current" th:if="${p == pageResult.page}" th:text="${p}">1</span>
+            <a class="page-link" th:unless="${p == pageResult.page}" th:href="${baseUrl + '&' + pageParamName + '=' + p}" th:text="${p}">1</a>
+        </th:block>
+
+        <a class="page-link" th:if="${pageResult.hasNext}" th:href="${baseUrl + '&' + pageParamName + '=' + (pageResult.page + 1)}">下一页</a>
+        <span class="page-link disabled" th:unless="${pageResult.hasNext}">下一页</span>
+
+        <a class="page-link" th:if="${pageResult.hasNext}" th:href="${baseUrl + '&' + pageParamName + '=' + pageResult.totalPages}">尾页</a>
+        <span class="page-link disabled" th:unless="${pageResult.hasNext}">尾页</span>
+    </nav>
+    <form class="pagination-jump"
+          th:attr="data-base-url=${baseUrl},data-param-name=${pageParamName},data-max=${pageResult.totalPages}">
+        <span>跳转到</span>
+        <label class="sr-only" th:for="|jump-page-${pageParamName}|">跳转页码</label>
+        <input type="number" th:id="|jump-page-${pageParamName}|" name="jumpPage" min="1" th:max="${pageResult.totalPages}" class="page-jump-input" />
+        <span>页</span>
+        <button class="btn mini" type="submit">跳转</button>
+    </form>
+</div>
+
+
 </body>
 </html>

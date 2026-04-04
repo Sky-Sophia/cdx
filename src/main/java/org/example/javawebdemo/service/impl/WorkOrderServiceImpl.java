@@ -3,6 +3,7 @@ package org.example.javawebdemo.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import org.example.javawebdemo.dto.PageResult;
 import org.example.javawebdemo.mapper.WorkOrderMapper;
 import org.example.javawebdemo.model.WorkOrder;
 import org.example.javawebdemo.service.WorkOrderService;
@@ -23,6 +24,14 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public List<WorkOrder> list(String status, String priority) {
         return workOrderMapper.findAll(status, priority);
+    }
+
+    @Override
+    public PageResult<WorkOrder> listPaged(String status, String priority, int page, int pageSize) {
+        long total = workOrderMapper.count(status, priority);
+        int offset = PageResult.calcOffset(page, pageSize);
+        List<WorkOrder> items = workOrderMapper.findAllPaged(status, priority, offset, pageSize);
+        return new PageResult<>(items, page, pageSize, total);
     }
 
     @Override

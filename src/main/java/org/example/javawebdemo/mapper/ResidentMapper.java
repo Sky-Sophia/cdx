@@ -19,6 +19,16 @@ public interface ResidentMapper {
     List<Resident> findAll(@Param("keyword") String keyword,
                            @Param("status") String status);
 
+    @SelectProvider(type = ResidentSqlProvider.class, method = "countSql")
+    long count(@Param("keyword") String keyword,
+               @Param("status") String status);
+
+    @SelectProvider(type = ResidentSqlProvider.class, method = "findAllPagedSql")
+    List<Resident> findAllPaged(@Param("keyword") String keyword,
+                                @Param("status") String status,
+                                @Param("offset") int offset,
+                                @Param("pageSize") int pageSize);
+
     @Select("SELECT r.*, u.unit_no FROM residents r LEFT JOIN units u ON u.id = r.unit_id WHERE r.id = #{id}")
     Resident findById(@Param("id") Long id);
 

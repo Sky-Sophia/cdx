@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>统一管理 - 物业后台管理系统</title>
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
-    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/apps/admin-management.css" />
 </head>
 <body>
 <div class="app-shell">
@@ -25,81 +25,152 @@
                 </div>
             </section>
 
-            <section class="stat-grid">
-                <article class="stat-card">
-                    <h3>在管楼栋</h3>
-                    <strong th:text="${stats.buildingCount}">0</strong>
-                    <span>栋</span>
+            <section class="dashboard-strip">
+                <article class="dashboard-metric" data-tone="neutral">
+                    <div class="dashboard-metric-head">
+                        <h3>在管楼栋</h3>
+                        <span>资源基础</span>
+                    </div>
+                    <div class="dashboard-metric-main">
+                        <strong th:text="${stats.buildingCount}">0</strong>
+                        <small>栋</small>
+                    </div>
+                    <p>当前物业覆盖的楼栋总量</p>
                 </article>
-                <article class="stat-card">
-                    <h3>在管房屋</h3>
-                    <strong th:text="${stats.unitCount}">0</strong>
-                    <span>户室</span>
+                <article class="dashboard-metric" data-tone="neutral">
+                    <div class="dashboard-metric-head">
+                        <h3>在管房屋</h3>
+                        <span>户室总数</span>
+                    </div>
+                    <div class="dashboard-metric-main">
+                        <strong th:text="${stats.unitCount}">0</strong>
+                        <small>户室</small>
+                    </div>
+                    <p>当前纳入管理的房屋单元</p>
                 </article>
-                <article class="stat-card">
-                    <h3>活跃住户</h3>
-                    <strong th:text="${stats.residentCount}">0</strong>
-                    <span>当前在住</span>
+                <article class="dashboard-metric" data-tone="positive">
+                    <div class="dashboard-metric-head">
+                        <h3>活跃住户</h3>
+                        <span th:text="|入住率 ${stats.unitCount > 0 ? #numbers.formatDecimal(stats.residentCount * 100.0 / stats.unitCount, 1, 2) : '0.00'}%|">入住率 0.00%</span>
+                    </div>
+                    <div class="dashboard-metric-main">
+                        <strong th:text="${stats.residentCount}">0</strong>
+                        <small>当前在住</small>
+                    </div>
+                    <p>已入住并保持活跃状态的住户数量</p>
                 </article>
-                <article class="stat-card">
-                    <h3>待处理工单</h3>
-                    <strong th:text="${stats.openOrderCount}">0</strong>
-                    <span>待受理 / 处理中</span>
+                <article class="dashboard-metric" data-tone="warning">
+                    <div class="dashboard-metric-head">
+                        <h3>待处理工单</h3>
+                        <span>需重点跟进</span>
+                    </div>
+                    <div class="dashboard-metric-main">
+                        <strong th:text="${stats.openOrderCount}">0</strong>
+                        <small>待受理 / 处理中</small>
+                    </div>
+                    <p>工单中心仍在流转中的维修任务</p>
                 </article>
-                <article class="stat-card">
-                    <h3>待缴账单</h3>
-                    <strong th:text="${stats.dueBillCount}">0</strong>
-                    <span>未缴 / 部分已缴 / 逾期</span>
+                <article class="dashboard-metric" data-tone="danger">
+                    <div class="dashboard-metric-head">
+                        <h3>待缴账单</h3>
+                        <span>收缴提醒</span>
+                    </div>
+                    <div class="dashboard-metric-main">
+                        <strong th:text="${stats.dueBillCount}">0</strong>
+                        <small>未缴 / 部分已缴 / 逾期</small>
+                    </div>
+                    <p>需要继续催缴与跟踪的账单数量</p>
                 </article>
             </section>
 
-            <section class="overview-viz">
-                <div class="overview-viz-head">
-                    <h2>今日运营分布</h2>
-                    <p>使用统一比例，快速比较核心指标</p>
-                </div>
-                <div class="overview-viz-body">
-                    <div class="overview-viz-ring" th:style="|--progress:${collectionRate};|">
-                        <div class="overview-viz-ring-core">
-                            <strong th:text="|${collectionRate}%|">0%</strong>
-                            <span>收缴进度</span>
+            <section class="dashboard-visuals">
+                <article class="dashboard-collection">
+                    <div class="dashboard-section-head">
+                        <div>
+                            <h2>收缴进度</h2>
+                            <p>按当前账单汇总应收与实收金额</p>
                         </div>
                     </div>
-                    <div class="overview-viz-list">
-                        <div class="overview-viz-item">
-                            <span class="overview-viz-label">在管房屋</span>
-                            <div class="overview-viz-track">
-                                <span class="overview-viz-fill"
-                                      th:style="|width:${stats.unitCount * 100 / overviewScaleMax}%;|"></span>
+                    <div class="dashboard-collection-body">
+                        <div class="dashboard-donut" th:attr="data-progress=${collectionRate}">
+                            <div class="dashboard-donut-core">
+                                <strong th:text="|${collectionRate}%|">0%</strong>
+                                <span>收缴完成</span>
                             </div>
-                            <strong class="overview-viz-value" th:text="${stats.unitCount}">0</strong>
                         </div>
-                        <div class="overview-viz-item">
-                            <span class="overview-viz-label">活跃住户</span>
-                            <div class="overview-viz-track">
-                                <span class="overview-viz-fill"
-                                      th:style="|width:${stats.residentCount * 100 / overviewScaleMax}%;|"></span>
+                        <div class="dashboard-legend">
+                            <div class="dashboard-legend-item">
+                                <span class="dashboard-dot dashboard-dot-solid"></span>
+                                <div>
+                                    <strong>已收缴</strong>
+                                    <p th:text="${#numbers.formatDecimal(stats.totalReceived, 1, 'COMMA', 2, 'POINT')}">0.00</p>
+                                </div>
                             </div>
-                            <strong class="overview-viz-value" th:text="${stats.residentCount}">0</strong>
-                        </div>
-                        <div class="overview-viz-item">
-                            <span class="overview-viz-label">待处理工单</span>
-                            <div class="overview-viz-track">
-                                <span class="overview-viz-fill"
-                                      th:style="|width:${stats.openOrderCount * 100 / overviewScaleMax}%;|"></span>
+                            <div class="dashboard-legend-item">
+                                <span class="dashboard-dot"></span>
+                                <div>
+                                    <strong>待收缴</strong>
+                                    <p th:text="${#numbers.formatDecimal(stats.totalReceivable.subtract(stats.totalReceived), 1, 'COMMA', 2, 'POINT')}">0.00</p>
+                                </div>
                             </div>
-                            <strong class="overview-viz-value" th:text="${stats.openOrderCount}">0</strong>
-                        </div>
-                        <div class="overview-viz-item">
-                            <span class="overview-viz-label">待缴账单</span>
-                            <div class="overview-viz-track">
-                                <span class="overview-viz-fill"
-                                      th:style="|width:${stats.dueBillCount * 100 / overviewScaleMax}%;|"></span>
+                            <div class="dashboard-collection-meta">
+                                <span>应收总额</span>
+                                <strong th:text="${#numbers.formatDecimal(stats.totalReceivable, 1, 'COMMA', 2, 'POINT')}">0.00</strong>
                             </div>
-                            <strong class="overview-viz-value" th:text="${stats.dueBillCount}">0</strong>
                         </div>
                     </div>
-                </div>
+                </article>
+
+                <article class="dashboard-distribution">
+                    <div class="dashboard-section-head">
+                        <div>
+                            <h2>今日运营分布</h2>
+                            <p>使用统一比例，快速比较核心指标</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-bars">
+                        <div class="dashboard-bar-row" data-tone="neutral">
+                            <div class="dashboard-bar-labels">
+                                <strong>在管房屋</strong>
+                                <span>户室资源总量</span>
+                            </div>
+                            <div class="dashboard-bar-track">
+                                <span class="dashboard-bar-fill" th:attr="data-width=${stats.unitCount * 100 / overviewScaleMax}"></span>
+                            </div>
+                            <strong class="dashboard-bar-value" th:text="${stats.unitCount}">0</strong>
+                        </div>
+                        <div class="dashboard-bar-row" data-tone="positive">
+                            <div class="dashboard-bar-labels">
+                                <strong>活跃住户</strong>
+                                <span>当前实际在住</span>
+                            </div>
+                            <div class="dashboard-bar-track">
+                                <span class="dashboard-bar-fill" th:attr="data-width=${stats.residentCount * 100 / overviewScaleMax}"></span>
+                            </div>
+                            <strong class="dashboard-bar-value" th:text="${stats.residentCount}">0</strong>
+                        </div>
+                        <div class="dashboard-bar-row" data-tone="warning">
+                            <div class="dashboard-bar-labels">
+                                <strong>待处理工单</strong>
+                                <span>服务响应压力</span>
+                            </div>
+                            <div class="dashboard-bar-track">
+                                <span class="dashboard-bar-fill" th:attr="data-width=${stats.openOrderCount * 100 / overviewScaleMax}"></span>
+                            </div>
+                            <strong class="dashboard-bar-value" th:text="${stats.openOrderCount}">0</strong>
+                        </div>
+                        <div class="dashboard-bar-row" data-tone="danger">
+                            <div class="dashboard-bar-labels">
+                                <strong>待缴账单</strong>
+                                <span>费用收缴压力</span>
+                            </div>
+                            <div class="dashboard-bar-track">
+                                <span class="dashboard-bar-fill" th:attr="data-width=${stats.dueBillCount * 100 / overviewScaleMax}"></span>
+                            </div>
+                            <strong class="dashboard-bar-value" th:text="${stats.dueBillCount}">0</strong>
+                        </div>
+                    </div>
+                </article>
             </section>
 
             <section class="panel-grid">
@@ -225,10 +296,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${#lists.isEmpty(units)}">
+                    <tr th:if="${#lists.isEmpty(unitPageResult.items)}">
                         <td colspan="8" class="empty">暂无房屋数据。</td>
                     </tr>
-                    <tr th:each="unit : ${units}">
+                    <tr th:each="unit : ${unitPageResult.items}">
                         <td th:text="${unit.buildingName}"></td>
                         <td th:text="${unit.unitNo}"></td>
                         <td th:text="${unit.floorNo}"></td>
@@ -240,16 +311,23 @@
                                   th:attr="data-status=${unit.occupancyStatus}"
                                   th:text="${unit.occupancyStatus == 'OCCUPIED' ? '自住' : (unit.occupancyStatus == 'RENTED' ? '出租' : '空置')}"></span>
                         </td>
-                        <td class="align-right actions">
-                            <a class="btn ghost mini" th:href="@{'/admin/units/edit/' + ${unit.id}}">编辑</a>
-                            <form th:action="@{'/admin/units/delete/' + ${unit.id}}" method="post" onsubmit="return confirm('确认删除该房屋吗？');">
-                                <button class="btn danger mini" type="submit">删除</button>
-                            </form>
+                        <td class="align-right">
+                            <div class="actions">
+                                <a class="btn ghost mini" th:href="@{'/admin/units/edit/' + ${unit.id}}">编辑</a>
+                                <form th:action="@{'/admin/units/delete/' + ${unit.id}}"
+                                      method="post"
+                                      data-confirm-message="确认删除该房屋吗？删除后将无法恢复。"
+                                      data-confirm-confirm-text="确认删除"
+                                      data-confirm-tone="danger">
+                                    <button class="btn danger mini" type="submit">删除</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div th:replace="~{fragments/layout :: pagination(${unitPageResult}, '/admin/management?tab=units', 'unitPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-residents"
@@ -289,10 +367,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${#lists.isEmpty(residents)}">
+                    <tr th:if="${#lists.isEmpty(residentPageResult.items)}">
                         <td colspan="7" class="empty">暂无住户数据。</td>
                     </tr>
-                    <tr th:each="resident : ${residents}">
+                    <tr th:each="resident : ${residentPageResult.items}">
                         <td th:text="${resident.name}"></td>
                         <td th:text="${resident.unitNo}"></td>
                         <td th:text="${resident.phone}"></td>
@@ -303,16 +381,23 @@
                                   th:attr="data-status=${resident.status}"
                                   th:text="${resident.status == 'ACTIVE' ? '在住' : '已迁出'}"></span>
                         </td>
-                        <td class="align-right actions">
-                            <a class="btn ghost mini" th:href="@{'/admin/residents/edit/' + ${resident.id}}">编辑</a>
-                            <form th:action="@{'/admin/residents/delete/' + ${resident.id}}" method="post" onsubmit="return confirm('确认删除该住户吗？');">
-                                <button class="btn danger mini" type="submit">删除</button>
-                            </form>
+                        <td class="align-right">
+                            <div class="actions">
+                                <a class="btn ghost mini" th:href="@{'/admin/residents/edit/' + ${resident.id}}">编辑</a>
+                                <form th:action="@{'/admin/residents/delete/' + ${resident.id}}"
+                                      method="post"
+                                      data-confirm-message="确认删除该住户吗？删除后将无法恢复。"
+                                      data-confirm-confirm-text="确认删除"
+                                      data-confirm-tone="danger">
+                                    <button class="btn danger mini" type="submit">删除</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div th:replace="~{fragments/layout :: pagination(${residentPageResult}, '/admin/management?tab=residents', 'residentPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-work-orders"
@@ -346,7 +431,7 @@
             </form>
 
             <div class="table-wrap">
-                <table class="table">
+                <table class="table table-work-orders">
                     <thead>
                     <tr>
                         <th>工单号</th>
@@ -360,15 +445,17 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${#lists.isEmpty(orders)}">
+                    <tr th:if="${#lists.isEmpty(orderPageResult.items)}">
                         <td colspan="8" class="empty">暂无工单数据。</td>
                     </tr>
-                    <tr th:each="item : ${orders}">
+                    <tr th:each="item : ${orderPageResult.items}">
                         <td th:text="${item.orderNo}"></td>
                         <td th:text="${item.unitNo}"></td>
                         <td>
-                            <div th:text="${item.residentName}"></div>
-                            <small th:text="${item.phone}"></small>
+                            <div class="cell-reporter">
+                                <span th:text="${item.residentName}"></span>
+                                <small th:text="${item.phone}"></small>
+                            </div>
                         </td>
                         <td th:text="${item.category}"></td>
                         <td th:text="${item.priority == 'HIGH' ? '高' : (item.priority == 'MEDIUM' ? '中' : '低')}"></td>
@@ -378,27 +465,39 @@
                                   th:attr="data-status=${item.status}"
                                   th:text="${item.status == 'OPEN' ? '待受理' : (item.status == 'IN_PROGRESS' ? '处理中' : (item.status == 'DONE' ? '已完成' : '已关闭'))}"></span>
                         </td>
-                        <td class="align-right actions">
-                            <form th:if="${item.status == 'OPEN'}" th:action="@{'/admin/work-orders/' + ${item.id} + '/status'}" method="post">
-                                <input type="hidden" name="status" value="IN_PROGRESS" />
-                                <input type="hidden" name="assignee" th:value="${item.assignee}" />
-                                <button class="btn mini" type="submit">开始处理</button>
-                            </form>
-                            <form th:if="${item.status == 'IN_PROGRESS'}" th:action="@{'/admin/work-orders/' + ${item.id} + '/status'}" method="post">
-                                <input type="hidden" name="status" value="DONE" />
-                                <input type="hidden" name="assignee" th:value="${item.assignee}" />
-                                <button class="btn primary mini" type="submit">标记完成</button>
-                            </form>
-                            <form th:if="${item.status == 'DONE'}" th:action="@{'/admin/work-orders/' + ${item.id} + '/status'}" method="post">
-                                <input type="hidden" name="status" value="CLOSED" />
-                                <input type="hidden" name="assignee" th:value="${item.assignee}" />
-                                <button class="btn ghost mini" type="submit">归档关闭</button>
-                            </form>
+                        <td class="align-right">
+                            <div class="actions actions-compact">
+                                <form th:if="${item.status == 'OPEN'}"
+                                      th:action="@{'/admin/work-orders/' + ${item.id} + '/status'}"
+                                      method="post"
+                                      data-confirm-message="确认开始处理该工单吗？">
+                                    <input type="hidden" name="status" value="IN_PROGRESS" />
+                                    <input type="hidden" name="assignee" th:value="${item.assignee}" />
+                                    <button class="btn mini" type="submit">开始处理</button>
+                                </form>
+                                <form th:if="${item.status == 'IN_PROGRESS'}"
+                                      th:action="@{'/admin/work-orders/' + ${item.id} + '/status'}"
+                                      method="post"
+                                      data-confirm-message="确认将该工单标记为已完成吗？">
+                                    <input type="hidden" name="status" value="DONE" />
+                                    <input type="hidden" name="assignee" th:value="${item.assignee}" />
+                                    <button class="btn primary mini" type="submit">标记完成</button>
+                                </form>
+                                <form th:if="${item.status == 'DONE'}"
+                                      th:action="@{'/admin/work-orders/' + ${item.id} + '/status'}"
+                                      method="post"
+                                      data-confirm-message="确认归档并关闭该工单吗？">
+                                    <input type="hidden" name="status" value="CLOSED" />
+                                    <input type="hidden" name="assignee" th:value="${item.assignee}" />
+                                    <button class="btn ghost mini" type="submit">归档关闭</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div th:replace="~{fragments/layout :: pagination(${orderPageResult}, '/admin/management?tab=work-orders', 'orderPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-bills"
@@ -427,7 +526,7 @@
             </form>
 
             <div class="table-wrap">
-                <table class="table">
+                <table class="table table-bills">
                     <thead>
                     <tr>
                         <th>账单号</th>
@@ -441,10 +540,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${#lists.isEmpty(bills)}">
+                    <tr th:if="${#lists.isEmpty(billPageResult.items)}">
                         <td colspan="8" class="empty">暂无账单数据。</td>
                     </tr>
-                    <tr th:each="bill : ${bills}">
+                    <tr th:each="bill : ${billPageResult.items}">
                         <td th:text="${bill.billNo}"></td>
                         <td th:text="${bill.unitNo}"></td>
                         <td th:text="${bill.billingMonth}"></td>
@@ -456,18 +555,25 @@
                                   th:attr="data-status=${bill.status}"
                                   th:text="${bill.status == 'UNPAID' ? '未缴' : (bill.status == 'PARTIAL' ? '部分已缴' : (bill.status == 'OVERDUE' ? '逾期' : '已缴清'))}"></span>
                         </td>
-                        <td class="align-right actions">
-                            <form th:if="${bill.status != 'PAID'}" th:action="@{'/admin/bills/' + ${bill.id} + '/pay'}" method="post" class="inline-pay">
-                                <label>
-                                    <input type="number" name="paidAmount" step="0.01" min="0.01" th:value="${bill.amount}" />
-                                </label>
-                                <button class="btn mini" type="submit">登记缴费</button>
-                            </form>
+                        <td class="align-right">
+                            <div class="actions">
+                                <form th:if="${bill.status != 'PAID'}"
+                                      th:action="@{'/admin/bills/' + ${bill.id} + '/pay'}"
+                                      method="post"
+                                      class="inline-pay"
+                                      data-confirm-message="确认登记这笔账单的缴费信息吗？">
+                                    <label>
+                                        <input type="number" name="paidAmount" step="0.01" min="0.01" th:value="${bill.amount}" />
+                                    </label>
+                                    <button class="btn mini" type="submit">登记缴费</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div th:replace="~{fragments/layout :: pagination(${billPageResult}, '/admin/management?tab=bills', 'billPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-users"
@@ -511,34 +617,45 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${#lists.isEmpty(users)}">
+                    <tr th:if="${#lists.isEmpty(userPageResult.items)}">
                         <td colspan="5" class="empty">暂无用户数据。</td>
                     </tr>
-                    <tr th:each="user : ${users}">
+                    <tr th:each="user : ${userPageResult.items}">
                         <td th:text="${user.username}"></td>
                         <td><span class="badge" th:attr="data-status=${user.role}" th:text="${user.role.label}"></span></td>
                         <td><span class="badge" th:attr="data-status=${user.status}" th:text="${user.status == 'ACTIVE' ? '启用' : '禁用'}"></span></td>
                         <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                        <td class="align-right actions">
-                            <form th:action="@{'/admin/users/' + ${user.id} + '/status'}" method="post">
-                                <input type="hidden" name="status" th:value="${user.status == 'ACTIVE' ? 'DISABLED' : 'ACTIVE'}" />
-                                <button class="btn ghost mini" type="submit" th:text="${user.status == 'ACTIVE' ? '禁用' : '启用'}"></button>
-                            </form>
-                            <form th:action="@{'/admin/users/' + ${user.id} + '/reset-password'}" method="post">
-                                <label>
-                                    <input name="newPassword" placeholder="可选：输入新密码" />
-                                </label>
-                                <button class="btn mini" type="submit">重置密码</button>
-                            </form>
+                        <td class="align-right">
+                            <div class="actions">
+                                <form th:action="@{'/admin/users/' + ${user.id} + '/status'}"
+                                      method="post"
+                                      th:attr="data-confirm-message=${user.status == 'ACTIVE' ? '确认禁用该用户吗？禁用后将无法登录。' : '确认启用该用户吗？'}">
+                                    <input type="hidden" name="status" th:value="${user.status == 'ACTIVE' ? 'DISABLED' : 'ACTIVE'}" />
+                                    <button class="btn ghost mini" type="submit" th:text="${user.status == 'ACTIVE' ? '禁用' : '启用'}"></button>
+                                </form>
+                                <form th:action="@{'/admin/users/' + ${user.id} + '/reset-password'}"
+                                      method="post"
+                                      data-confirm-message="确认重置该用户密码吗？">
+                                    <label>
+                                        <input name="newPassword" placeholder="可选：输入新密码" />
+                                    </label>
+                                    <button class="btn mini" type="submit">重置密码</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div th:replace="~{fragments/layout :: pagination(${userPageResult}, '/admin/management?tab=users', 'userPage')}"></div>
         </section>
     </main>
 </div>
 
+<div th:replace="~{fragments/layout :: confirmModal}"></div>
+
+<script src="/js/common/pagination.js" defer></script>
+<script src="/js/admin/management-dashboard.js" defer></script>
 <script src="/js/admin/management.js" defer></script>
 </body>
 </html>

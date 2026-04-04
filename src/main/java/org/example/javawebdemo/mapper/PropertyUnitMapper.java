@@ -20,6 +20,18 @@ public interface PropertyUnitMapper {
                                @Param("buildingId") Long buildingId,
                                @Param("status") String status);
 
+    @SelectProvider(type = PropertyUnitSqlProvider.class, method = "countSql")
+    long count(@Param("keyword") String keyword,
+               @Param("buildingId") Long buildingId,
+               @Param("status") String status);
+
+    @SelectProvider(type = PropertyUnitSqlProvider.class, method = "findAllPagedSql")
+    List<PropertyUnit> findAllPaged(@Param("keyword") String keyword,
+                                    @Param("buildingId") Long buildingId,
+                                    @Param("status") String status,
+                                    @Param("offset") int offset,
+                                    @Param("pageSize") int pageSize);
+
     @Select("SELECT u.*, b.name AS building_name FROM units u LEFT JOIN buildings b ON b.id = u.building_id WHERE u.id = #{id}")
     PropertyUnit findById(@Param("id") Long id);
 

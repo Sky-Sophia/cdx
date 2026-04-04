@@ -1,6 +1,7 @@
 package org.example.javawebdemo.service.impl;
 
 import java.util.List;
+import org.example.javawebdemo.dto.PageResult;
 import org.example.javawebdemo.mapper.ResidentMapper;
 import org.example.javawebdemo.model.Resident;
 import org.example.javawebdemo.service.ResidentService;
@@ -18,6 +19,14 @@ public class ResidentServiceImpl implements ResidentService {
     @Override
     public List<Resident> list(String keyword, String status) {
         return residentMapper.findAll(keyword, status);
+    }
+
+    @Override
+    public PageResult<Resident> listPaged(String keyword, String status, int page, int pageSize) {
+        long total = residentMapper.count(keyword, status);
+        int offset = PageResult.calcOffset(page, pageSize);
+        List<Resident> items = residentMapper.findAllPaged(keyword, status, offset, pageSize);
+        return new PageResult<>(items, page, pageSize, total);
     }
 
     @Override

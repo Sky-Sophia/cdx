@@ -15,10 +15,11 @@
         const tabUnderline = tabNav ? tabNav.querySelector(".slide-underline") : null;
         const loginSection = document.querySelector(".auth-portal-section-login");
         const registerSection = document.querySelector(".auth-portal-section-register");
+        const forgotSection = document.querySelector(".auth-portal-section-forgot");
         const quickSwitch = document.querySelectorAll("[data-switch-tab]");
         const loginForm = document.getElementById("loginForm");
         const credentialInputs = document.querySelectorAll(
-            "#login-username, #login-password, #register-username, #register-password, #register-confirm-password"
+            "#login-username, #login-password, #register-username, #register-password, #register-confirm-password, #forgot-username, #forgot-new-password, #forgot-confirm-password"
         );
         const clearTimerIds = [];
 
@@ -29,15 +30,20 @@
         }
 
         function switchTab(tab) {
-            const target = tab === "register" ? "register" : "login";
+            const target = (tab === "register" || tab === "forgot") ? tab : "login";
             if (loginSection) {
                 loginSection.classList.toggle("is-hidden", target !== "login");
             }
             if (registerSection) {
                 registerSection.classList.toggle("is-hidden", target !== "register");
             }
+            if (forgotSection) {
+                forgotSection.classList.toggle("is-hidden", target !== "forgot");
+            }
+            // For tab underline, map forgot back to login tab highlight
+            const underlineTarget = target === "forgot" ? "login" : target;
             tabButtons.forEach((btn) => {
-                const isActive = btn.getAttribute("data-tab-target") === target;
+                const isActive = btn.getAttribute("data-tab-target") === underlineTarget;
                 btn.classList.toggle("is-active", isActive);
             });
             setUnderline(Array.from(tabButtons).find((btn) => btn.classList.contains("is-active")));
