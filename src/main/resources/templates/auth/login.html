@@ -29,9 +29,7 @@
         <span class="slide-underline" aria-hidden="true"></span>
     </nav>
 
-    <div class="auth-portal-msg">
-        <div th:replace="~{fragments/layout :: messages}"></div>
-    </div>
+    <div th:replace="~{fragments/layout :: messages}"></div>
 
     <section class="auth-portal-section auth-portal-section-login"
              th:classappend="${tab == 'register'} ? ' is-hidden'">

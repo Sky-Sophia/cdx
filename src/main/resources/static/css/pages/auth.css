@@ -14,7 +14,7 @@
     background: #fff;
     border: 1px solid #d8e0e8;
     border-radius: var(--radius);
-    box-shadow: 0 10px 24px rgba(45, 64, 89, 0.12);
+    box-shadow: none;
     padding: 28px 34px 34px;
     display: flex;
     flex-direction: column;
@@ -138,13 +138,6 @@
     min-height: 370px;
 }
 
-.auth-portal-msg {
-    margin-top: 10px;
-}
-
-.auth-portal-msg .msg {
-    font-size: 0.82rem;
-}
 
 .auth-portal-form {
     margin-top: 6px;
@@ -233,7 +226,6 @@
 
 .auth-portal-eye .eye-slash {
     opacity: 1;
-    transition: opacity 0.15s ease;
 }
 
 .auth-portal-eye.is-visible .eye-slash {

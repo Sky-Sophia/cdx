@@ -11,8 +11,8 @@
     <groupId>org.example</groupId>
     <artifactId>spring-boot-management-system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>java-web-demo</name>
-    <description>java-web-demo</description>
+    <name>property-management-system</name>
+    <description>property-management-system</description>
     <url/>
     <licenses>
         <license/>
@@ -55,10 +55,6 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>3.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
         <dependency>

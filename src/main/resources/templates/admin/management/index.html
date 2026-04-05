@@ -51,14 +51,14 @@
                 </article>
                 <article class="dashboard-metric" data-tone="positive">
                     <div class="dashboard-metric-head">
-                        <h3>活跃住户</h3>
-                        <span th:text="|入住率 ${stats.unitCount > 0 ? #numbers.formatDecimal(stats.residentCount * 100.0 / stats.unitCount, 1, 2) : '0.00'}%|">入住率 0.00%</span>
+                        <h3>入住户室</h3>
+                        <span th:text="|入住率 ${stats.unitCount > 0 ? #numbers.formatDecimal(stats.occupiedUnitCount * 100.0 / stats.unitCount, 1, 2) : '0.00'}%|">入住率 0.00%</span>
                     </div>
                     <div class="dashboard-metric-main">
-                        <strong th:text="${stats.residentCount}">0</strong>
-                        <small>当前在住</small>
+                        <strong th:text="${stats.occupiedUnitCount}">0</strong>
+                        <small>当前已入住</small>
                     </div>
-                    <p>已入住并保持活跃状态的住户数量</p>
+                    <p th:text="|按存在活跃住户的房屋统计；当前活跃住户 ${stats.residentCount} 人|">按存在活跃住户的房屋统计；当前活跃住户 0 人</p>
                 </article>
                 <article class="dashboard-metric" data-tone="warning">
                     <div class="dashboard-metric-head">
@@ -191,7 +191,7 @@
                                 <th>状态</th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody th:if="${recentOrders != null}">
                             <tr th:if="${#lists.isEmpty(recentOrders)}">
                                 <td colspan="5" class="empty">暂无工单。</td>
                             </tr>
@@ -227,7 +227,7 @@
                                 <th>状态</th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody th:if="${dueBills != null}">
                             <tr th:if="${#lists.isEmpty(dueBills)}">
                                 <td colspan="5" class="empty">暂无账单。</td>
                             </tr>
@@ -265,7 +265,7 @@
                 <label>
                     <select name="unitBuildingId">
                         <option value="">全部楼栋</option>
-                        <option th:each="building : ${buildings}"
+                        <option th:if="${buildings != null}" th:each="building : ${buildings}"
                                 th:value="${building.id}"
                                 th:text="${building.name}"
                                 th:selected="${unitBuildingId == building.id}"></option>
@@ -296,7 +296,7 @@
                         <th class="align-right">操作</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody th:if="${unitPageResult != null}">
                     <tr th:if="${#lists.isEmpty(unitPageResult.items)}">
                         <td colspan="8" class="empty">暂无房屋数据。</td>
                     </tr>
@@ -315,20 +315,13 @@
                         <td class="align-right">
                             <div class="actions">
                                 <a class="btn ghost mini" th:href="@{'/admin/units/edit/' + ${unit.id}}">编辑</a>
-                                <form th:action="@{'/admin/units/delete/' + ${unit.id}}"
-                                      method="post"
-                                      data-confirm-message="确认删除该房屋吗？删除后将无法恢复。"
-                                      data-confirm-confirm-text="确认删除"
-                                      data-confirm-tone="danger">
-                                    <button class="btn danger mini" type="submit">删除</button>
-                                </form>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div th:replace="~{fragments/layout :: pagination(${unitPageResult}, '/admin/management?tab=units', 'unitPage')}"></div>
+            <div th:if="${unitPageResult != null}" th:replace="~{fragments/layout :: pagination(${unitPageResult}, '/admin/management?tab=units', 'unitPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-residents"
@@ -367,7 +360,7 @@
                         <th class="align-right">操作</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody th:if="${residentPageResult != null}">
                     <tr th:if="${#lists.isEmpty(residentPageResult.items)}">
                         <td colspan="7" class="empty">暂无住户数据。</td>
                     </tr>
@@ -385,20 +378,13 @@
                         <td class="align-right">
                             <div class="actions">
                                 <a class="btn ghost mini" th:href="@{'/admin/residents/edit/' + ${resident.id}}">编辑</a>
-                                <form th:action="@{'/admin/residents/delete/' + ${resident.id}}"
-                                      method="post"
-                                      data-confirm-message="确认删除该住户吗？删除后将无法恢复。"
-                                      data-confirm-confirm-text="确认删除"
-                                      data-confirm-tone="danger">
-                                    <button class="btn danger mini" type="submit">删除</button>
-                                </form>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div th:replace="~{fragments/layout :: pagination(${residentPageResult}, '/admin/management?tab=residents', 'residentPage')}"></div>
+            <div th:if="${residentPageResult != null}" th:replace="~{fragments/layout :: pagination(${residentPageResult}, '/admin/management?tab=residents', 'residentPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-work-orders"
@@ -445,7 +431,7 @@
                         <th class="align-right">操作</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody th:if="${orderPageResult != null}">
                     <tr th:if="${#lists.isEmpty(orderPageResult.items)}">
                         <td colspan="8" class="empty">暂无工单数据。</td>
                     </tr>
@@ -498,7 +484,7 @@
                     </tbody>
                 </table>
             </div>
-            <div th:replace="~{fragments/layout :: pagination(${orderPageResult}, '/admin/management?tab=work-orders', 'orderPage')}"></div>
+            <div th:if="${orderPageResult != null}" th:replace="~{fragments/layout :: pagination(${orderPageResult}, '/admin/management?tab=work-orders', 'orderPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-bills"
@@ -540,7 +526,7 @@
                         <th class="align-right">收款</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody th:if="${billPageResult != null}">
                     <tr th:if="${#lists.isEmpty(billPageResult.items)}">
                         <td colspan="8" class="empty">暂无账单数据。</td>
                     </tr>
@@ -558,23 +544,17 @@
                         </td>
                         <td class="align-right">
                             <div class="actions">
-                                <form th:if="${bill.status != 'PAID'}"
-                                      th:action="@{'/admin/bills/' + ${bill.id} + '/pay'}"
-                                      method="post"
-                                      class="inline-pay"
-                                      data-confirm-message="确认登记这笔账单的缴费信息吗？">
-                                    <label>
-                                        <input type="number" name="paidAmount" step="0.01" min="0.01" th:value="${bill.amount}" />
-                                    </label>
-                                    <button class="btn mini" type="submit">登记缴费</button>
-                                </form>
+                                <span class="badge" th:if="${bill.status == 'PAID'}" data-status="PAID">已完成</span>
+                                <a class="btn ghost mini"
+                                   th:if="${bill.status != 'PAID'}"
+                                   th:href="@{'/admin/bills/edit/' + ${bill.id}}">登记缴费</a>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div th:replace="~{fragments/layout :: pagination(${billPageResult}, '/admin/management?tab=bills', 'billPage')}"></div>
+            <div th:if="${billPageResult != null}" th:replace="~{fragments/layout :: pagination(${billPageResult}, '/admin/management?tab=bills', 'billPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-users"
@@ -593,7 +573,7 @@
                 <label>
                     <select name="userRole">
                         <option value="">全部角色</option>
-                        <option th:each="item : ${roles}" th:value="${item}" th:text="${item.label}" th:selected="${userRole == item}"></option>
+                        <option th:if="${roles != null}" th:each="item : ${roles}" th:value="${item}" th:text="${item.label}" th:selected="${userRole == item}"></option>
                     </select>
                 </label>
                 <label>
@@ -617,7 +597,7 @@
                         <th class="align-right">操作</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody th:if="${userPageResult != null}">
                     <tr th:if="${#lists.isEmpty(userPageResult.items)}">
                         <td colspan="5" class="empty">暂无用户数据。</td>
                     </tr>
@@ -628,27 +608,14 @@
                         <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                         <td class="align-right">
                             <div class="actions">
-                                <form th:action="@{'/admin/users/' + ${user.id} + '/status'}"
-                                      method="post"
-                                      th:attr="data-confirm-message=${user.status == 'ACTIVE' ? '确认禁用该用户吗？禁用后将无法登录。' : '确认启用该用户吗？'}">
-                                    <input type="hidden" name="status" th:value="${user.status == 'ACTIVE' ? 'DISABLED' : 'ACTIVE'}" />
-                                    <button class="btn ghost mini" type="submit" th:text="${user.status == 'ACTIVE' ? '禁用' : '启用'}"></button>
-                                </form>
-                                <form th:action="@{'/admin/users/' + ${user.id} + '/reset-password'}"
-                                      method="post"
-                                      data-confirm-message="确认重置该用户密码吗？">
-                                    <label>
-                                        <input name="newPassword" placeholder="可选：输入新密码" />
-                                    </label>
-                                    <button class="btn mini" type="submit">重置密码</button>
-                                </form>
+                                <a class="btn ghost mini" th:href="@{'/admin/users/edit/' + ${user.id}}">编辑</a>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div th:replace="~{fragments/layout :: pagination(${userPageResult}, '/admin/management?tab=users', 'userPage')}"></div>
+            <div th:if="${userPageResult != null}" th:replace="~{fragments/layout :: pagination(${userPageResult}, '/admin/management?tab=users', 'userPage')}"></div>
         </section>
     </main>
 </div>

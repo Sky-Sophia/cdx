@@ -17,9 +17,9 @@
                 <a class="nav-link" href="/">首页</a>
             </div>
             <div class="nav-right">
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).USER}" href="/admin/management?tab=work-orders">我的工单</a>
-                <a class="nav-link" th:if="${role == T(org.example.javawebdemo.model.Role).ADMIN}" href="/admin/management?tab=dashboard">管理后台</a>
-                <a class="nav-link nav-pill" th:if="${role == T(org.example.javawebdemo.model.Role).STAFF}" href="/admin/management?tab=work-orders">员工后台</a>
+                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).USER}" href="/admin/management?tab=work-orders">我的工单</a>
+                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).ADMIN}" href="/admin/management?tab=dashboard">管理后台</a>
+                <a class="nav-link nav-pill" th:if="${role == T(org.example.propertyms.user.model.Role).STAFF}" href="/admin/management?tab=work-orders">员工后台</a>
                 <a class="nav-link" th:if="${user == null}" href="/login">登录</a>
                 <a class="nav-link" th:if="${user == null}" href="/register">注册</a>
                 <a class="nav-link" th:if="${user != null}" href="/profile">个人中心</a>
@@ -32,7 +32,7 @@
     <div class="topbar-left">
         <a class="brand" href="/admin/management?tab=dashboard">
            <span class="ico">
-    <img src="/icons/logo-e.svg" alt="dashboard" class="brand-logo-img">
+   <img src="/icons/logo-e.svg" alt="dashboard" class="brand-logo-img" style="width: 60px; height: 60px;">
 </span>
             <span>物业后台管理系统</span>
         </a>
@@ -59,8 +59,9 @@
             <span class="slide-underline" aria-hidden="true"></span>
         </nav>
     </div>
-    <div class="topbar-right" th:if="${current != null}">
-        <a class="user-chip" href="/profile">个人中心</a>
+    <div class="topbar-right" th:if="${current != null}" style="display: flex; gap: 24px; align-items: center;">
+        <span class="ico"><img src="/icons/bell.svg" alt="bell" style="width:24px; height:24px;"></span>
+        <a class="" href="/profile"><span class="ico"><img src="/icons/user-16.svg" alt="用户中心" style="width:24px; height:24px;"></span></a>
     </div>
     <script src="/js/common/session-guard.js" defer></script>
     <script src="/js/common/nav-tabs.js" defer></script>
@@ -108,11 +109,18 @@
     </nav>
 </aside>
 
-<div th:fragment="messages" class="messages-wrap" data-auto-dismiss="true" data-dismiss-delay="2200" data-dismiss-duration="280">
+<div th:fragment="messages"
+     th:if="${success != null or error != null}"
+     class="messages-wrap"
+     data-auto-dismiss="true"
+     data-dismiss-delay="3000"
+     data-dismiss-duration="320"
+     aria-live="polite"
+     aria-atomic="true">
     <!--/*@thymesVar id="success" type="java.lang.String"*/-->
-    <div class="msg success" th:if="${success}" th:text="${success}"></div>
+    <div class="msg success" th:if="${success}" th:text="${success}" role="status"></div>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
-    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+    <div class="msg error" th:if="${error}" th:text="${error}" role="alert"></div>
     <script src="/js/common/flash-messages.js" defer></script>
 </div>
 
@@ -145,7 +153,8 @@
     </footer>
 </div>
 <div th:fragment="pagination(pageResult, baseUrl, pageParamName)" th:if="${pageResult.totalPages > 0}" class="pagination-bar">
-    <span class="pagination-info">共 <strong th:text="${pageResult.totalPages}">1</strong> 页，当前第 <strong th:text="${pageResult.page}">1</strong> 页</span>
+    <span class="pagination-info">共 <!--/*@thymesVar id="totalPages" type=""*/-->
+    <strong th:text="${pageResult.totalPages}">1</strong> 页，当前第 <strong th:text="${pageResult.page}">1</strong> 页</span>
     <nav class="pagination-nav">
         <a class="page-link" th:if="${pageResult.hasPrev}" th:href="${baseUrl + '&' + pageParamName + '=1'}">首页</a>
         <span class="page-link disabled" th:unless="${pageResult.hasPrev}">首页</span>
@@ -161,6 +170,7 @@
         <a class="page-link" th:if="${pageResult.hasNext}" th:href="${baseUrl + '&' + pageParamName + '=' + (pageResult.page + 1)}">下一页</a>
         <span class="page-link disabled" th:unless="${pageResult.hasNext}">下一页</span>
 
+        <!--/*@thymesVar id="hasNext" type=""*/-->
         <a class="page-link" th:if="${pageResult.hasNext}" th:href="${baseUrl + '&' + pageParamName + '=' + pageResult.totalPages}">尾页</a>
         <span class="page-link disabled" th:unless="${pageResult.hasNext}">尾页</span>
     </nav>
@@ -168,7 +178,9 @@
           th:attr="data-base-url=${baseUrl},data-param-name=${pageParamName},data-max=${pageResult.totalPages}">
         <span>跳转到</span>
         <label class="sr-only" th:for="|jump-page-${pageParamName}|">跳转页码</label>
-        <input type="number" th:id="|jump-page-${pageParamName}|" name="jumpPage" min="1" th:max="${pageResult.totalPages}" class="page-jump-input" />
+        <label>
+            <input type="number" th:id="|jump-page-${pageParamName}|" name="jumpPage" min="1" th:max="${pageResult.totalPages}" class="page-jump-input" />
+        </label>
         <span>页</span>
         <button class="btn mini" type="submit">跳转</button>
     </form>

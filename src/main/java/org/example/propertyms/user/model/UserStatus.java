@@ -1,0 +1,20 @@
+package org.example.propertyms.user.model;
+
+/**
+ * 用户状态枚举常量，替代硬编码字符串。
+ */
+public enum UserStatus {
+    ACTIVE("正常 · 已启用"),
+    DISABLED("已停用");
+
+    private final String label;
+
+    UserStatus(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+}
+

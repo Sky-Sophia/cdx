@@ -55,6 +55,7 @@
             cancelBtn.textContent = payload.cancelText || "取消";
         }
         modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
         document.body.classList.add("confirm-modal-open");
         window.setTimeout(() => confirmBtn?.focus(), 0);
         return true;
@@ -65,6 +66,7 @@
             return;
         }
         modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
         document.body.classList.remove("confirm-modal-open");
         activePayload = null;
     }

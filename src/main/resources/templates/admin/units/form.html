@@ -14,6 +14,8 @@
     <div th:replace="~{fragments/layout :: sidebar('units')}"></div>
 
     <main class="app-main">
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
         <section class="page-head compact form-page-head">
             <div class="page-head-copy">
                 <h1 th:text="${editing} ? '编辑房屋档案' : '新增房屋档案'"></h1>
@@ -75,6 +77,22 @@
                             <a class="btn ghost" href="/admin/units">取消</a>
                         </div>
                     </form>
+
+                    <section class="embedded-danger-panel" th:if="${editing and unit.id != null}">
+                        <div class="embedded-danger-copy">
+                            <span class="note-kicker">危险操作</span>
+                            <h3>删除当前房屋档案</h3>
+                            <p>删除后不可恢复。若该房屋仍关联住户、账单或工单，系统会阻止删除并提示先处理关联数据。</p>
+                        </div>
+                        <form th:action="@{'/admin/units/delete/' + ${unit.id}}"
+                              method="post"
+                              class="embedded-danger-actions"
+                              data-confirm-message="确认删除该房屋吗？删除后将无法恢复。"
+                              data-confirm-confirm-text="确认删除"
+                              data-confirm-tone="danger">
+                            <button class="btn danger" type="submit">删除房屋档案</button>
+                        </form>
+                    </section>
                 </section>
             </div>
 
@@ -96,5 +114,6 @@
         </section>
     </main>
 </div>
+<div th:replace="~{fragments/layout :: confirmModal}"></div>
 </body>
 </html>

@@ -14,9 +14,11 @@
     <div th:replace="~{fragments/layout :: sidebar('residents')}"></div>
 
     <main class="app-main">
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
         <section class="page-head compact form-page-head">
             <div class="page-head-copy">
-                <h1 th:text="${editing} ? '编辑住户档案' : '新增住户档案'"></h1>
+                <h1 th:text="${editing} ? '编辑住户档案' : '新增住户档案'">住户档案</h1>
                 <p>统一记录住户身份、联系方式与入住状态，让住户信息与房屋档案、工单和费用模块保持关联一致。</p>
             </div>
             <a class="btn ghost" href="/admin/residents">返回列表</a>
@@ -26,63 +28,79 @@
             <div class="form-main">
                 <section class="panel form-panel">
                     <form method="post" action="/admin/residents/save" class="form-grid">
-                <input type="hidden" name="id" th:value="${resident.id}" />
+                        <input type="hidden" name="id" th:value="${resident.id}" />
 
-                <label>
-                    所属房屋
-                    <select name="unitId" required>
-                        <option value="">请选择房屋</option>
-                        <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${resident.unitId == unit.id}"></option>
-                    </select>
-                </label>
+                        <label>
+                            所属房屋
+                            <select name="unitId" required>
+                                <option value="">请选择房屋</option>
+                                <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${resident.unitId == unit.id}"></option>
+                            </select>
+                        </label>
 
-                <label>
-                    姓名
-                    <input name="name" th:value="${resident.name}" required />
-                </label>
+                        <label>
+                            姓名
+                            <input name="name" th:value="${resident.name}" required />
+                        </label>
 
-                <label>
-                    手机号
-                    <input name="phone" th:value="${resident.phone}" />
-                </label>
+                        <label>
+                            手机号
+                            <input name="phone" th:value="${resident.phone}" />
+                        </label>
 
-                <label>
-                    证件号
-                    <input name="identityNo" th:value="${resident.identityNo}" />
-                </label>
+                        <label>
+                            证件号
+                            <input name="identityNo" th:value="${resident.identityNo}" />
+                        </label>
 
-                <label>
-                    住户类型
-                    <select name="residentType">
-                        <option value="OWNER" th:selected="${resident.residentType == 'OWNER'}">业主</option>
-                        <option value="TENANT" th:selected="${resident.residentType == 'TENANT'}">租户</option>
-                        <option value="FAMILY" th:selected="${resident.residentType == 'FAMILY'}">家属</option>
-                    </select>
-                </label>
+                        <label>
+                            住户类型
+                            <select name="residentType">
+                                <option value="OWNER" th:selected="${resident.residentType == 'OWNER'}">业主</option>
+                                <option value="TENANT" th:selected="${resident.residentType == 'TENANT'}">租户</option>
+                                <option value="FAMILY" th:selected="${resident.residentType == 'FAMILY'}">家属</option>
+                            </select>
+                        </label>
 
-                <label>
-                    状态
-                    <select name="status">
-                        <option value="ACTIVE" th:selected="${resident.status == 'ACTIVE'}">在住</option>
-                        <option value="MOVED_OUT" th:selected="${resident.status == 'MOVED_OUT'}">已迁出</option>
-                    </select>
-                </label>
+                        <label>
+                            状态
+                            <select name="status">
+                                <option value="ACTIVE" th:selected="${resident.status == 'ACTIVE'}">在住</option>
+                                <option value="MOVED_OUT" th:selected="${resident.status == 'MOVED_OUT'}">已迁出</option>
+                            </select>
+                        </label>
 
-                <label>
-                    入住日期
-                    <input type="date" name="moveInDate" th:value="${resident.moveInDate}" />
-                </label>
+                        <label>
+                            入住日期
+                            <input type="date" name="moveInDate" th:value="${resident.moveInDate}" />
+                        </label>
 
-                <label>
-                    迁出日期
-                    <input type="date" name="moveOutDate" th:value="${resident.moveOutDate}" />
-                </label>
+                        <label>
+                            迁出日期
+                            <input type="date" name="moveOutDate" th:value="${resident.moveOutDate}" />
+                        </label>
 
                         <div class="form-actions">
                             <button class="btn primary" type="submit">保存</button>
                             <a class="btn ghost" href="/admin/residents">取消</a>
                         </div>
                     </form>
+
+                    <section class="embedded-danger-panel" th:if="${editing and resident.id != null}">
+                        <div class="embedded-danger-copy">
+                            <span class="note-kicker">危险操作</span>
+                            <h3>删除当前住户档案</h3>
+                            <p>删除后不可恢复。若该住户仍关联账单、工单或房屋在住信息，请先处理关联数据后再删除。</p>
+                        </div>
+                        <form th:action="@{'/admin/residents/delete/' + ${resident.id}}"
+                              method="post"
+                              class="embedded-danger-actions"
+                              data-confirm-message="确认删除该住户吗？删除后将无法恢复。"
+                              data-confirm-confirm-text="确认删除"
+                              data-confirm-tone="danger">
+                            <button class="btn danger" type="submit">删除住户档案</button>
+                        </form>
+                    </section>
                 </section>
             </div>
 
@@ -104,5 +122,6 @@
         </section>
     </main>
 </div>
+<div th:replace="~{fragments/layout :: confirmModal}"></div>
 </body>
 </html>

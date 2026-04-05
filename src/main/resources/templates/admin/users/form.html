@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>新增用户 - 物业后台管理系统</title>
+    <title th:text="${editing} ? '编辑用户' : '新增用户'">系统用户表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
@@ -14,10 +14,12 @@
     <div th:replace="~{fragments/layout :: sidebar('users')}"></div>
 
     <main class="app-main">
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
         <section class="page-head compact form-page-head">
             <div class="page-head-copy">
-                <h1>新增系统用户</h1>
-                <p>统一创建后台账号并分配角色权限，确保用户的功能入口、状态控制和后续密码重置都可集中管理。</p>
+                <h1 th:text="${editing} ? '编辑系统用户' : '新增系统用户'">系统用户</h1>
+                <p th:text="${editing ? '集中管理当前账号的角色权限、启用状态与密码维护，保持后台账号分工清晰且可追踪。' : '统一创建后台账号并分配角色权限，确保用户的功能入口、状态控制和后续密码重置都可集中管理。'}"></p>
             </div>
             <a class="btn ghost" href="/admin/users">返回列表</a>
         </section>
@@ -25,37 +27,93 @@
         <section class="form-layout">
             <div class="form-main">
                 <section class="panel form-panel">
-                    <form method="post" action="/admin/users/save" class="form-grid">
-                <label>
-                    用户名
-                    <input name="username" required />
-                </label>
+                    <form th:unless="${editing}" method="post" action="/admin/users/save" class="form-grid">
+                        <label>
+                            用户名
+                            <input name="username" required />
+                        </label>
 
-                <label>
-                    初始密码
-                    <input name="password" type="password" required />
-                </label>
+                        <label>
+                            初始密码
+                            <input name="password" type="password" required />
+                        </label>
 
-                <label class="span-2">
-                    角色
-                    <select name="role">
-                        <option th:each="role : ${roles}" th:value="${role}" th:text="${role.label}"></option>
-                    </select>
-                </label>
+                        <label class="span-2">
+                            角色
+                            <select name="role">
+                                <option th:each="role : ${roles}" th:value="${role}" th:text="${role.label}"></option>
+                            </select>
+                        </label>
 
                         <div class="form-actions">
                             <button class="btn primary" type="submit">创建用户</button>
                             <a class="btn ghost" href="/admin/users">取消</a>
                         </div>
                     </form>
+
+                    <form th:if="${editing}" th:action="@{'/admin/users/' + ${managedUser.id} + '/manage'}" method="post" class="form-grid">
+                        <label>
+                            用户名
+                            <input th:value="${managedUser.username}" readonly />
+                        </label>
+
+                        <label>
+                            账号状态
+                            <select name="status">
+                                <option value="ACTIVE" th:selected="${managedUser.status == 'ACTIVE'}">启用</option>
+                                <option value="DISABLED" th:selected="${managedUser.status == 'DISABLED'}">禁用</option>
+                            </select>
+                        </label>
+
+                        <label class="span-2">
+                            角色权限
+                            <select name="role">
+                                <option th:each="role : ${roles}" th:value="${role}" th:text="${role.label}" th:selected="${managedUser.role == role}"></option>
+                            </select>
+                        </label>
+
+                        <label>
+                            创建时间
+                            <input th:value="${managedUser.createdAt != null ? #temporals.format(managedUser.createdAt, 'yyyy-MM-dd HH:mm') : ''}" readonly />
+                        </label>
+
+                        <label>
+                            最近更新时间
+                            <input th:value="${managedUser.updatedAt != null ? #temporals.format(managedUser.updatedAt, 'yyyy-MM-dd HH:mm') : '暂无更新'}" readonly />
+                        </label>
+
+                        <div class="form-actions">
+                            <button class="btn primary" type="submit">保存设置</button>
+                            <a class="btn ghost" href="/admin/users">取消</a>
+                        </div>
+                    </form>
+
+                    <section class="embedded-support-panel" th:if="${editing and managedUser.id != null}">
+                        <div class="embedded-support-copy">
+                            <span class="note-kicker">密码维护</span>
+                            <h3>重置当前账号密码</h3>
+                            <p>如不填写新密码，系统将重置为默认密码 <strong>Property@123</strong>。建议只在确有需要时执行。</p>
+                        </div>
+                        <form th:action="@{'/admin/users/' + ${managedUser.id} + '/reset-password'}"
+                              method="post"
+                              class="embedded-support-actions"
+                              data-confirm-message="确认重置该用户密码吗？"
+                              data-confirm-confirm-text="确认重置">
+                            <label>
+                                新密码（可选）
+                                <input name="newPassword" type="password" placeholder="留空则重置为默认密码" />
+                            </label>
+                            <button class="btn" type="submit">重置密码</button>
+                        </form>
+                    </section>
                 </section>
             </div>
 
             <aside class="form-aside">
                 <section class="form-note-card">
                     <span class="note-kicker">权限分配</span>
-                    <h3>创建后可直接进入统一管理</h3>
-                    <p>建议根据实际岗位分配管理员、员工或财务角色，后续也可以在用户列表中继续调整状态与密码。</p>
+                    <h3 th:text="${editing} ? '编辑页集中管理核心权限' : '创建后可直接进入统一管理'"></h3>
+                    <p th:text="${editing ? '建议结合岗位职责调整角色与状态，避免在列表页分散执行多个高频管理动作。' : '建议根据实际岗位分配管理员、员工或财务角色，后续也可以在编辑页继续调整状态与密码。'}"></p>
                 </section>
                 <section class="form-note-card">
                     <h3>角色建议</h3>
@@ -65,9 +123,18 @@
                         <li><strong>财务</strong>：更适合账单与收费管理。</li>
                     </ul>
                 </section>
+                <section class="form-note-card" th:if="${editing}">
+                    <h3>状态提醒</h3>
+                    <ul>
+                        <li>禁用后，该账号将无法登录后台。</li>
+                        <li>当前登录账号不允许在此页面被禁用。</li>
+                        <li>调整角色后，新权限将在下次访问相关模块时生效。</li>
+                    </ul>
+                </section>
             </aside>
         </section>
     </main>
 </div>
+<div th:replace="~{fragments/layout :: confirmModal}"></div>
 </body>
 </html>

@@ -5,25 +5,39 @@
 .confirm-modal {
     position: fixed;
     inset: 0;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(0, 0, 0, 0.38);
+    background: rgba(15, 23, 42, 0.18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
     z-index: 120;
 }
 
 .confirm-modal.is-open {
-    display: flex;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .confirm-modal-dialog {
     width: min(360px, calc(100vw - 32px));
     background: #fff;
     border: 1px solid #e1e1df;
-    border-radius: 12px;
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+    border-radius: 6px;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.14);
     padding: 22px 20px 18px;
+    transform: translateY(8px) scale(0.98);
+    transition: transform 0.2s ease;
+}
+
+.confirm-modal.is-open .confirm-modal-dialog {
+    transform: translateY(0) scale(1);
 }
 
 .confirm-modal-title {
@@ -51,7 +65,7 @@
     min-width: 88px;
     min-height: 36px;
     padding: 0 14px;
-    border-radius: 8px;
+    border-radius: 6px;
     border: 1px solid #d0d0cd;
     background: #fff;
     color: #2d2d2d;

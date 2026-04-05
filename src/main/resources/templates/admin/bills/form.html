@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>新增账单 - 物业后台管理系统</title>
+    <title th:text="${editing} ? '登记账单收款' : '新增账单'">费用账单表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
@@ -14,10 +14,12 @@
     <div th:replace="~{fragments/layout :: sidebar('bills')}"></div>
 
     <main class="app-main">
+        <div th:replace="~{fragments/layout :: messages}"></div>
+
         <section class="page-head compact form-page-head">
             <div class="page-head-copy">
-                <h1>新增费用账单</h1>
-                <p>统一登记房屋账期、应收金额、实收金额与到期日期，让收费进度、催缴与收款记录保持一致展示。</p>
+                <h1 th:text="${editing} ? '登记账单收款' : '新增费用账单'">费用账单</h1>
+                <p th:text="${editing ? '集中查看当前账单的应收、已收和剩余待收金额，并在此页面完成缴费登记。' : '统一登记房屋账期、应收金额、实收金额与到期日期，让收费进度、催缴与收款记录保持一致展示。'}"></p>
             </div>
             <a class="btn ghost" href="/admin/bills">返回列表</a>
         </section>
@@ -25,63 +27,134 @@
         <section class="form-layout">
             <div class="form-main">
                 <section class="panel form-panel">
-                    <form method="post" action="/admin/bills/save" class="form-grid">
-                <label>
-                    房屋
-                    <select name="unitId" required>
-                        <option value="">请选择房屋</option>
-                        <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${bill.unitId == unit.id}"></option>
-                    </select>
-                </label>
+                    <form th:unless="${editing}" method="post" action="/admin/bills/save" class="form-grid">
+                        <label>
+                            房屋
+                            <select name="unitId" required>
+                                <option value="">请选择房屋</option>
+                                <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${bill.unitId == unit.id}"></option>
+                            </select>
+                        </label>
 
-                <label>
-                    账期
-                    <input type="month" name="billingMonth" th:value="${bill.billingMonth}" required />
-                </label>
+                        <label>
+                            账期
+                            <input type="month" name="billingMonth" th:value="${bill.billingMonth}" required />
+                        </label>
 
-                <label>
-                    应收金额
-                    <input type="number" name="amount" th:value="${bill.amount}" step="0.01" min="0" required />
-                </label>
+                        <label>
+                            应收金额
+                            <input type="number" name="amount" th:value="${bill.amount}" step="0.01" min="0" required />
+                        </label>
 
-                <label>
-                    状态
-                    <select name="status">
-                        <option value="UNPAID" th:selected="${bill.status == 'UNPAID'}">未缴</option>
-                        <option value="PARTIAL" th:selected="${bill.status == 'PARTIAL'}">部分已缴</option>
-                        <option value="OVERDUE" th:selected="${bill.status == 'OVERDUE'}">逾期</option>
-                        <option value="PAID" th:selected="${bill.status == 'PAID'}">已缴清</option>
-                    </select>
-                </label>
+                        <label>
+                            状态
+                            <select name="status">
+                                <option value="UNPAID" th:selected="${bill.status == 'UNPAID'}">未缴</option>
+                                <option value="PARTIAL" th:selected="${bill.status == 'PARTIAL'}">部分已缴</option>
+                                <option value="OVERDUE" th:selected="${bill.status == 'OVERDUE'}">逾期</option>
+                                <option value="PAID" th:selected="${bill.status == 'PAID'}">已缴清</option>
+                            </select>
+                        </label>
 
-                <label>
-                    实收金额
-                    <input type="number" name="paidAmount" th:value="${bill.paidAmount}" step="0.01" min="0" />
-                </label>
+                        <label>
+                            实收金额
+                            <input type="number" name="paidAmount" th:value="${bill.paidAmount}" step="0.01" min="0" />
+                        </label>
 
-                <label>
-                    到期日期
-                    <input type="date" name="dueDate" th:value="${bill.dueDate}" />
-                </label>
+                        <label>
+                            到期日期
+                            <input type="date" name="dueDate" th:value="${bill.dueDate}" />
+                        </label>
 
-                <label class="span-2">
-                    备注
-                    <textarea name="remarks" rows="3" th:text="${bill.remarks}"></textarea>
-                </label>
+                        <label class="span-2">
+                            备注
+                            <textarea name="remarks" rows="3" th:text="${bill.remarks}"></textarea>
+                        </label>
 
                         <div class="form-actions">
                             <button class="btn primary" type="submit">保存</button>
                             <a class="btn ghost" href="/admin/bills">取消</a>
                         </div>
                     </form>
+
+                    <div th:if="${editing}" class="form-grid">
+                        <label>
+                            账单编号
+                            <input th:value="${bill.billNo}" readonly />
+                        </label>
+
+                        <label>
+                            房屋
+                            <input th:value="${bill.unitNo}" readonly />
+                        </label>
+
+                        <label>
+                            账期
+                            <input th:value="${bill.billingMonth}" readonly />
+                        </label>
+
+                        <label>
+                            到期日期
+                            <input th:value="${bill.dueDate}" readonly />
+                        </label>
+
+                        <label>
+                            应收金额
+                            <input th:value="${#numbers.formatDecimal(bill.amount, 1, 'COMMA', 2, 'POINT')}" readonly />
+                        </label>
+
+                        <label>
+                            已收金额
+                            <input th:value="${#numbers.formatDecimal(bill.paidAmount, 1, 'COMMA', 2, 'POINT')}" readonly />
+                        </label>
+
+                        <label>
+                            当前状态
+                            <input th:value="${bill.status == 'UNPAID' ? '未缴' : (bill.status == 'PARTIAL' ? '部分已缴' : (bill.status == 'OVERDUE' ? '逾期' : '已缴清'))}" readonly />
+                        </label>
+
+                        <label>
+                            待收金额
+                            <input th:value="${#numbers.formatDecimal(remainingAmount, 1, 'COMMA', 2, 'POINT')}" readonly />
+                        </label>
+                    </div>
+
+                    <section class="embedded-support-panel" th:if="${editing and bill.status != 'PAID'}">
+                        <div class="embedded-support-copy">
+                            <span class="note-kicker">缴费登记</span>
+                            <h3>录入本次到账金额</h3>
+                            <p>这里填写的是本次新增到账金额，系统会自动叠加到累计实收并更新账单状态。</p>
+                        </div>
+                        <form th:action="@{'/admin/bills/' + ${bill.id} + '/pay'}"
+                              method="post"
+                              class="embedded-support-actions"
+                              data-confirm-message="确认登记这笔账单的缴费信息吗？"
+                              data-confirm-confirm-text="确认登记">
+                            <label>
+                                本次收款金额
+                                <input type="number" name="paidAmount" step="0.01" min="0.01"
+                                       th:attr="max=${remainingAmount}"
+                                       placeholder="请输入本次到账金额" required />
+                            </label>
+                            <button class="btn primary" type="submit">登记缴费</button>
+                        </form>
+                    </section>
+
+                    <section class="embedded-support-panel" th:if="${editing and bill.status == 'PAID'}">
+                        <div class="embedded-support-copy">
+                            <span class="note-kicker">收款结果</span>
+                            <h3>该账单已完成收款</h3>
+                            <p>当前账单已经全部缴清，无需再次登记缴费。若需核对，可直接查看上方账单信息。</p>
+                        </div>
+                    </section>
                 </section>
             </div>
 
             <aside class="form-aside">
                 <section class="form-note-card">
                     <span class="note-kicker">计费提醒</span>
-                    <h3>建议先录应收，再录实收</h3>
-                    <p>账单创建阶段优先维护账期、应收金额和到期时间；若已收款，可补充实收金额并同步调整状态。</p>
+                    <h3 th:text="${editing} ? '先核对账单信息，再登记收款' : '建议先录应收，再录实收'"></h3>
+                    <p th:text="${editing ? '请确认账单编号、账期与待收金额无误后再录入本次到账金额，避免重复登记。' : '账单创建阶段优先维护账期、应收金额和到期时间；若已收款，可补充实收金额并同步调整状态。'}"></p>
                 </section>
                 <section class="form-note-card">
                     <h3>状态参考</h3>
@@ -96,5 +169,6 @@
         </section>
     </main>
 </div>
+<div th:replace="~{fragments/layout :: confirmModal}"></div>
 </body>
 </html>
