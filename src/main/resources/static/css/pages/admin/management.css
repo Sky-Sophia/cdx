@@ -308,6 +308,39 @@
     border-radius: var(--u-radius);
 }
 
+.mgmt-pane .btn.btn-edit-default {
+    padding: 0 14px;
+    min-height: 30px;
+    border: 1px solid #c9cdd4;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #86909c;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: none;
+    transition: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.mgmt-pane .btn.btn-edit-default:hover,
+.mgmt-pane .btn.btn-edit-default:focus-visible {
+    border-color: #86909c;
+    color: #4e5969;
+    background-color: #ffffff;
+    box-shadow: none;
+    transform: none;
+}
+
+.mgmt-pane .btn.btn-edit-default:active {
+    background-color: #ffffff;
+    border-color: #86909c;
+    color: #4e5969;
+    box-shadow: none;
+    transform: none;
+}
+
 /* ── Table wrap & table ── */
 .mgmt-pane .table-wrap {
     border-color: var(--u-border-light);

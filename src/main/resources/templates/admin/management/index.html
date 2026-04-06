@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>统一管理 - 物业后台管理系统</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin-management.css" />
 </head>
 <body>
@@ -220,7 +220,9 @@
                  th:classappend="${currentTab != 'units'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>房屋档案</h1>
-                <a class="btn primary" href="/admin/units/new">新增房屋</a>
+                <a class="btn primary" href="/admin/units/new">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增房屋</a>
             </section>
 
             <form method="get" action="/admin/management" class="filter-row">
@@ -307,7 +309,7 @@
                         </td>
                         <td>
                             <div class="actions">
-                                <a class="btn ghost mini" th:href="@{'/admin/units/edit/' + ${unit.id}}">编辑</a>
+                                <a class="btn ghost mini btn-edit-default" th:href="@{'/admin/units/edit/' + ${unit.id}}">编辑</a>
                             </div>
                         </td>
                     </tr>
@@ -322,7 +324,9 @@
                  th:classappend="${currentTab != 'residents'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>住户档案</h1>
-                <a class="btn primary" href="/admin/residents/new">新增住户</a>
+                <a class="btn primary" href="/admin/residents/new">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增住户</a>
             </section>
 
             <form method="get" action="/admin/management" class="filter-row">
@@ -386,7 +390,7 @@
                         </td>
                         <td>
                             <div class="actions">
-                                <a class="btn ghost mini" th:href="@{'/admin/residents/edit/' + ${resident.id}}">编辑</a>
+                                <a class="btn ghost mini btn-edit-default" th:href="@{'/admin/residents/edit/' + ${resident.id}}">编辑</a>
                             </div>
                         </td>
                     </tr>
@@ -401,7 +405,9 @@
                  th:classappend="${currentTab != 'work-orders'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>报修工单</h1>
-                <a class="btn primary" href="/admin/work-orders/new">新建工单</a>
+                <a class="btn primary" href="/admin/work-orders/new">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新建工单</a>
             </section>
 
             <form method="get" action="/admin/management" class="filter-row">
@@ -539,7 +545,9 @@
                  th:classappend="${currentTab != 'bills'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>费用账单</h1>
-                <a class="btn primary" href="/admin/bills/new">新增账单</a>
+                <a class="btn primary" href="/admin/bills/new">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增账单</a>
             </section>
 
             <form method="get" action="/admin/management" class="filter-row">
@@ -632,7 +640,9 @@
                  th:classappend="${currentTab != 'users'} ? ' is-hidden'">
             <section class="page-head compact">
                 <h1>系统用户与权限</h1>
-                <a class="btn primary" href="/admin/users/new">+ 新增用户</a>
+                <a class="btn primary" href="/admin/users/new">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增用户</a>
             </section>
 
             <form method="get" action="/admin/management" class="filter-row">
@@ -713,7 +723,7 @@
                         <td><span class="badge" th:attr="data-status=${user.status}" th:text="${user.status == 'ACTIVE' ? '启用' : '禁用'}"></span></td>
                         <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                         <td>
-                            <a class="btn ghost mini" th:href="@{'/admin/users/edit/' + ${user.id}}">编辑</a>
+                            <a class="btn ghost mini btn-edit-default" th:href="@{'/admin/users/edit/' + ${user.id}}">编辑</a>
                         </td>
                     </tr>
                     </tbody>

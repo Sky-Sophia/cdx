@@ -70,8 +70,8 @@
     height: 100%;
     display: block;
     background-color: currentColor;
-    -webkit-mask: url("/icons/chevron-down.svg") center / contain no-repeat;
-    mask: url("/icons/chevron-down.svg") center / contain no-repeat;
+    -webkit-mask: url("../../icons/chevron-down.svg") center / contain no-repeat;
+    mask: url("../../icons/chevron-down.svg") center / contain no-repeat;
 }
 
 .custom-select.is-open .custom-select-arrow {

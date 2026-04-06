@@ -200,13 +200,13 @@
 }
 
 .auth-portal-icon-user::before {
-    -webkit-mask-image: url("/icons/user-outline.svg");
-    mask-image: url("/icons/user-outline.svg");
+    -webkit-mask-image: url("../../icons/user-outline.svg");
+    mask-image: url("../../icons/user-outline.svg");
 }
 
 .auth-portal-icon-lock::before {
-    -webkit-mask-image: url("/icons/lock-outline.svg");
-    mask-image: url("/icons/lock-outline.svg");
+    -webkit-mask-image: url("../../icons/lock-outline.svg");
+    mask-image: url("../../icons/lock-outline.svg");
 }
 
 .auth-portal-eye {
@@ -233,13 +233,13 @@
     height: 21px;
     display: block;
     background-color: currentColor;
-    -webkit-mask: url("/icons/eye-closed.svg") center / contain no-repeat;
-    mask: url("/icons/eye-closed.svg") center / contain no-repeat;
+    -webkit-mask: url("../../icons/eye-closed.svg") center / contain no-repeat;
+    mask: url("../../icons/eye-closed.svg") center / contain no-repeat;
 }
 
 .auth-portal-eye.is-visible::before {
-    -webkit-mask-image: url("/icons/eye-open.svg");
-    mask-image: url("/icons/eye-open.svg");
+    -webkit-mask-image: url("../../icons/eye-open.svg");
+    mask-image: url("../../icons/eye-open.svg");
 }
 
 .auth-portal-eye:hover {
