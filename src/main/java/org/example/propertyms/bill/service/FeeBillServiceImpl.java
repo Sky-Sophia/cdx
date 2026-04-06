@@ -21,11 +21,16 @@ public class FeeBillServiceImpl implements FeeBillService {
     }
 
     @Override
-    public PageResult<FeeBill> listPaged(String status, String billingMonth, int page, int pageSize) {
-        long total = feeBillMapper.count(status, billingMonth);
+    public PageResult<FeeBill> listPaged(String keyword, String status, String billingMonth, int page, int pageSize) {
+        long total = feeBillMapper.count(keyword, status, billingMonth);
         int offset = PageResult.calcOffset(page, pageSize);
-        List<FeeBill> items = feeBillMapper.findAllPaged(status, billingMonth, offset, pageSize);
+        List<FeeBill> items = feeBillMapper.findAllPaged(keyword, status, billingMonth, offset, pageSize);
         return new PageResult<>(items, page, pageSize, total);
+    }
+
+    @Override
+    public List<FeeBill> listAll(String keyword, String status, String billingMonth) {
+        return feeBillMapper.findAll(keyword, status, billingMonth);
     }
 
     @Override

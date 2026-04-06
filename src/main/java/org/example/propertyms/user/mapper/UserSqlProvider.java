@@ -24,7 +24,7 @@ public class UserSqlProvider {
 
     private void appendFilters(StringBuilder sql, Map<String, Object> params) {
         if (SqlProviderHelper.isNotBlank(params.get("q"))) {
-            sql.append(" AND username LIKE CONCAT('%', #{q}, '%')");
+            sql.append(" AND (username LIKE CONCAT('%', #{q}, '%') OR CAST(id AS CHAR) = #{q})");
         }
         if (params.get("role") != null) {
             sql.append(" AND role = #{role}");

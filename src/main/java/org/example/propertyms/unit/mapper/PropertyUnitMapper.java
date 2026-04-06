@@ -26,6 +26,11 @@ public interface PropertyUnitMapper {
                                     @Param("offset") int offset,
                                     @Param("pageSize") int pageSize);
 
+    @SelectProvider(type = PropertyUnitSqlProvider.class, method = "findAllSql")
+    List<PropertyUnit> findAll(@Param("keyword") String keyword,
+                               @Param("buildingId") Long buildingId,
+                               @Param("status") String status);
+
     @Select("SELECT u.*, b.name AS building_name FROM units u LEFT JOIN buildings b ON b.id = u.building_id WHERE u.id = #{id}")
     PropertyUnit findById(@Param("id") Long id);
 

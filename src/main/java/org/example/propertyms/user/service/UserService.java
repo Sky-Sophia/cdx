@@ -1,5 +1,6 @@
 package org.example.propertyms.user.service;
 
+import java.util.List;
 import org.example.propertyms.common.dto.PageResult;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
@@ -10,6 +11,8 @@ public interface UserService {
     User authenticate(String username, String password);
 
     PageResult<User> listByFiltersPaged(String q, Role role, String status, int page, int pageSize);
+
+    List<User> listByFilters(String q, Role role, String status);
 
     void updateRole(Long userId, Role role);
 

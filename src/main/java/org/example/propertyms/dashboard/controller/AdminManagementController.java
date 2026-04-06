@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 统一管理页面控制器。
- * <p>优化：按当前 tab 懒加载数据，而非原版的全量加载。</p>
+ * <p>全量加载所有 tab 数据，前端通过 JS 做客户端切换。</p>
  */
 @Controller
 @RequestMapping("/admin")
@@ -57,8 +57,10 @@ public class AdminManagementController {
                              @RequestParam(required = false) String unitStatus,
                              @RequestParam(required = false) String residentKeyword,
                              @RequestParam(required = false) String residentStatus,
+                             @RequestParam(required = false) String workOrderKeyword,
                              @RequestParam(required = false) String workOrderStatus,
                              @RequestParam(required = false) String workOrderPriority,
+                             @RequestParam(required = false) String billKeyword,
                              @RequestParam(required = false) String billStatus,
                              @RequestParam(required = false) String billBillingMonth,
                              @RequestParam(required = false) String userQ,
@@ -76,52 +78,43 @@ public class AdminManagementController {
         // 统计数据始终加载（侧边栏也需要）
         var stats = propertyDashboardService.stats();
         model.addAttribute("stats", stats);
-        model.addAttribute("overviewScaleMax", Math.max(1L,
-                Math.max(Math.max(stats.getUnitCount(), stats.getResidentCount()),
-                        Math.max(stats.getOpenOrderCount(), stats.getDueBillCount()))));
         model.addAttribute("collectionRate", computeCollectionRate(stats.getTotalReceived(), stats.getTotalReceivable()));
 
-        // 按 tab 懒加载对应模块数据
-        switch (currentTab) {
-            case "dashboard" -> {
-                model.addAttribute("recentOrders", propertyDashboardService.recentOrders(6));
-                model.addAttribute("dueBills", propertyDashboardService.dueBills(6));
-            }
-            case "units" -> {
-                model.addAttribute("unitPageResult", propertyUnitService.listPaged(unitKeyword, unitBuildingId, unitStatus, unitPage, DEFAULT_PAGE_SIZE));
-                model.addAttribute("buildings", buildingService.listAll());
-                model.addAttribute("unitKeyword", unitKeyword);
-                model.addAttribute("unitBuildingId", unitBuildingId);
-                model.addAttribute("unitStatus", unitStatus);
-            }
-            case "residents" -> {
-                model.addAttribute("residentPageResult", residentService.listPaged(residentKeyword, residentStatus, residentPage, DEFAULT_PAGE_SIZE));
-                model.addAttribute("residentKeyword", residentKeyword);
-                model.addAttribute("residentStatus", residentStatus);
-            }
-            case "work-orders" -> {
-                model.addAttribute("orderPageResult", workOrderService.listPaged(workOrderStatus, workOrderPriority, orderPage, WORK_ORDER_PAGE_SIZE));
-                model.addAttribute("workOrderStatus", workOrderStatus);
-                model.addAttribute("workOrderPriority", workOrderPriority);
-            }
-            case "bills" -> {
-                model.addAttribute("billPageResult", feeBillService.listPaged(billStatus, billBillingMonth, billPage, DEFAULT_PAGE_SIZE));
-                model.addAttribute("billStatus", billStatus);
-                model.addAttribute("billBillingMonth", billBillingMonth);
-            }
-            case "users" -> {
-                model.addAttribute("userPageResult", userService.listByFiltersPaged(userQ, userRole, userStatus, userPage, DEFAULT_PAGE_SIZE));
-                model.addAttribute("roles", Role.values());
-                model.addAttribute("userQ", userQ);
-                model.addAttribute("userRole", userRole);
-                model.addAttribute("userStatus", userStatus);
-            }
-            default -> {
-                // fallback to dashboard
-                model.addAttribute("recentOrders", propertyDashboardService.recentOrders(6));
-                model.addAttribute("dueBills", propertyDashboardService.dueBills(6));
-            }
-        }
+        // 全量加载所有 tab 数据，前端做客户端切换
+        // Dashboard
+        model.addAttribute("recentOrders", propertyDashboardService.recentOrders(6));
+        model.addAttribute("dueBills", propertyDashboardService.dueBills(6));
+
+        // Units
+        model.addAttribute("unitPageResult", propertyUnitService.listPaged(unitKeyword, unitBuildingId, unitStatus, unitPage, DEFAULT_PAGE_SIZE));
+        model.addAttribute("buildings", buildingService.listAll());
+        model.addAttribute("unitKeyword", unitKeyword);
+        model.addAttribute("unitBuildingId", unitBuildingId);
+        model.addAttribute("unitStatus", unitStatus);
+
+        // Residents
+        model.addAttribute("residentPageResult", residentService.listPaged(residentKeyword, residentStatus, residentPage, DEFAULT_PAGE_SIZE));
+        model.addAttribute("residentKeyword", residentKeyword);
+        model.addAttribute("residentStatus", residentStatus);
+
+        // Work Orders
+        model.addAttribute("orderPageResult", workOrderService.listPaged(workOrderKeyword, workOrderStatus, workOrderPriority, orderPage, WORK_ORDER_PAGE_SIZE));
+        model.addAttribute("workOrderKeyword", workOrderKeyword);
+        model.addAttribute("workOrderStatus", workOrderStatus);
+        model.addAttribute("workOrderPriority", workOrderPriority);
+
+        // Bills
+        model.addAttribute("billPageResult", feeBillService.listPaged(billKeyword, billStatus, billBillingMonth, billPage, DEFAULT_PAGE_SIZE));
+        model.addAttribute("billKeyword", billKeyword);
+        model.addAttribute("billStatus", billStatus);
+        model.addAttribute("billBillingMonth", billBillingMonth);
+
+        // Users
+        model.addAttribute("userPageResult", userService.listByFiltersPaged(userQ, userRole, userStatus, userPage, DEFAULT_PAGE_SIZE));
+        model.addAttribute("roles", Role.values());
+        model.addAttribute("userQ", userQ);
+        model.addAttribute("userRole", userRole);
+        model.addAttribute("userStatus", userStatus);
 
         return "admin/management/index";
     }

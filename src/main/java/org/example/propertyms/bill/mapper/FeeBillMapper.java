@@ -16,14 +16,21 @@ import org.example.propertyms.bill.model.FeeBill;
 public interface FeeBillMapper {
 
     @SelectProvider(type = FeeBillSqlProvider.class, method = "countSql")
-    long count(@Param("status") String status,
+    long count(@Param("keyword") String keyword,
+               @Param("status") String status,
                @Param("billingMonth") String billingMonth);
 
     @SelectProvider(type = FeeBillSqlProvider.class, method = "findAllPagedSql")
-    List<FeeBill> findAllPaged(@Param("status") String status,
+    List<FeeBill> findAllPaged(@Param("keyword") String keyword,
+                                @Param("status") String status,
                                 @Param("billingMonth") String billingMonth,
                                 @Param("offset") int offset,
                                 @Param("pageSize") int pageSize);
+
+    @SelectProvider(type = FeeBillSqlProvider.class, method = "findAllSql")
+    List<FeeBill> findAll(@Param("keyword") String keyword,
+                          @Param("status") String status,
+                          @Param("billingMonth") String billingMonth);
 
     @Select("SELECT f.*, u.unit_no FROM fee_bills f LEFT JOIN units u ON u.id = f.unit_id WHERE f.id = #{id}")
     FeeBill findById(@Param("id") Long id);

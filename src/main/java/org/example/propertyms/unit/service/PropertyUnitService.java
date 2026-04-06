@@ -8,6 +8,8 @@ import java.util.List;
 public interface PropertyUnitService {
     PageResult<PropertyUnit> listPaged(String keyword, Long buildingId, String status, int page, int pageSize);
 
+    List<PropertyUnit> listAll(String keyword, Long buildingId, String status);
+
     List<PropertyUnit> listSimple();
 
     PropertyUnit findById(Long id);

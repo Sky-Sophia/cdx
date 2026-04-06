@@ -1,7 +1,24 @@
 package org.example.propertyms.user.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.constant.SessionKeys;
@@ -196,6 +213,94 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/admin/users/edit/" + id;
+    }
+
+    @GetMapping("/export")
+    public void exportExcel(@RequestParam(required = false) String q,
+                            @RequestParam(required = false) Role role,
+                            @RequestParam(required = false) String status,
+                            HttpSession session,
+                            HttpServletResponse response) throws IOException {
+        if (lacksAdminPermission(session)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        List<User> users = userService.listByFilters(q, role, status);
+
+        DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String fileName = "用户列表_" + timestamp + ".xlsx";
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition",
+                "attachment; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"");
+
+        try (Workbook wb = new XSSFWorkbook()) {
+            Sheet sheet = wb.createSheet("用户列表");
+
+            // ── Header style ──
+            CellStyle headerStyle = wb.createCellStyle();
+            Font headerFont = wb.createFont();
+            headerFont.setBold(true);
+            headerFont.setFontHeightInPoints((short) 12);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.ROYAL_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+
+            // ── Body style ──
+            CellStyle bodyStyle = wb.createCellStyle();
+            bodyStyle.setBorderBottom(BorderStyle.THIN);
+            bodyStyle.setBorderTop(BorderStyle.THIN);
+            bodyStyle.setBorderLeft(BorderStyle.THIN);
+            bodyStyle.setBorderRight(BorderStyle.THIN);
+
+            // ── Header row ──
+            String[] headers = {"用户名", "角色", "状态", "创建时间"};
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                var cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // ── Data rows ──
+            for (int i = 0; i < users.size(); i++) {
+                User user = users.get(i);
+                Row row = sheet.createRow(i + 1);
+
+                var c0 = row.createCell(0);
+                c0.setCellValue(user.getUsername());
+                c0.setCellStyle(bodyStyle);
+
+                var c1 = row.createCell(1);
+                c1.setCellValue(user.getRole() != null ? user.getRole().getLabel() : "");
+                c1.setCellStyle(bodyStyle);
+
+                var c2 = row.createCell(2);
+                c2.setCellValue("ACTIVE".equals(user.getStatus()) ? "启用" : "禁用");
+                c2.setCellStyle(bodyStyle);
+
+                var c3 = row.createCell(3);
+                c3.setCellValue(user.getCreatedAt() != null ? user.getCreatedAt().format(dtFmt) : "");
+                c3.setCellStyle(bodyStyle);
+            }
+
+            // ── Auto-size columns ──
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+                // Add a little extra width for Chinese characters
+                sheet.setColumnWidth(i, Math.max(sheet.getColumnWidth(i), 4000));
+            }
+
+            wb.write(response.getOutputStream());
+        }
     }
 
     private boolean lacksAdminPermission(HttpSession session) {

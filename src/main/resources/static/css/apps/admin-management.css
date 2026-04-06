@@ -1,4 +1,5 @@
 @import url("./admin.css");
-@import url("../components/confirm-modal.css");
+@import url("../common/confirm-modal.css");
+@import url("../common/custom-select.css");
 @import url("../pages/admin/management.css");
 

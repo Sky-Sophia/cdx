@@ -1,7 +1,10 @@
 package org.example.propertyms.unit.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.example.propertyms.building.service.BuildingService;
 import org.example.propertyms.common.constant.RedirectUrls;
+import org.example.propertyms.common.util.ExcelExportHelper;
 import org.example.propertyms.unit.model.PropertyUnit;
 import org.example.propertyms.unit.service.PropertyUnitService;
 import org.springframework.stereotype.Controller;
@@ -87,6 +90,34 @@ public class AdminUnitController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/admin/units/edit/" + id;
         }
+    }
+
+    @GetMapping("/export")
+    public void exportExcel(@RequestParam(required = false) String keyword,
+                            @RequestParam(required = false) Long buildingId,
+                            @RequestParam(required = false) String status,
+                            HttpServletResponse response) throws IOException {
+        var list = propertyUnitService.listAll(keyword, buildingId, status);
+        String[] headers = {"楼栋", "房号", "楼层", "建筑面积(m²)", "业主", "手机号", "状态"};
+        ExcelExportHelper.export(response, "房屋列表", "房屋列表", headers, list, (row, u) -> {
+            row.getCell(0).setCellValue(u.getBuildingName() != null ? u.getBuildingName() : "");
+            row.getCell(1).setCellValue(u.getUnitNo() != null ? u.getUnitNo() : "");
+            row.getCell(2).setCellValue(u.getFloorNo() != null ? u.getFloorNo() : 0);
+            row.getCell(3).setCellValue(u.getAreaM2() != null ? u.getAreaM2().doubleValue() : 0);
+            row.getCell(4).setCellValue(u.getOwnerName() != null ? u.getOwnerName() : "");
+            row.getCell(5).setCellValue(u.getOwnerPhone() != null ? u.getOwnerPhone() : "");
+            row.getCell(6).setCellValue(statusLabel(u.getOccupancyStatus()));
+        });
+    }
+
+    private String statusLabel(String status) {
+        if (status == null) return "";
+        return switch (status) {
+            case "OCCUPIED" -> "自住";
+            case "RENTED" -> "出租";
+            case "VACANT" -> "空置";
+            default -> status;
+        };
     }
 }
 

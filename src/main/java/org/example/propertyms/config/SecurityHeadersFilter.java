@@ -35,6 +35,7 @@ public class SecurityHeadersFilter extends OncePerRequestFilter {
         if (!path.startsWith("/css")
                 && !path.startsWith("/js")
                 && !path.startsWith("/images")
+                && !path.startsWith("/icons")
                 && !path.startsWith("/webjars")
                 && !path.startsWith("/favicon")) {
             response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");

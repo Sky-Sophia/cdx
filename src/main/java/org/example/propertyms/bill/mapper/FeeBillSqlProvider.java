@@ -22,7 +22,11 @@ public class FeeBillSqlProvider {
 
     /** 【BUG FIX】原方法签名无参数，导致带 status/billingMonth 筛选时分页总数错误。 */
     public String countSql(Map<String, Object> params) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM fee_bills f WHERE 1=1");
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) ");
+        sql.append("FROM fee_bills f ");
+        sql.append("LEFT JOIN units u ON u.id = f.unit_id ");
+        sql.append("WHERE 1=1");
         appendFilters(sql, params);
         return sql.toString();
     }
@@ -32,6 +36,10 @@ public class FeeBillSqlProvider {
     }
 
     private void appendFilters(StringBuilder sql, Map<String, Object> params) {
+        if (SqlProviderHelper.isNotBlank(params.get("keyword"))) {
+            sql.append(" AND (f.bill_no LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" OR u.unit_no LIKE CONCAT('%', #{keyword}, '%'))");
+        }
         if (SqlProviderHelper.isNotBlank(params.get("status"))) {
             sql.append(" AND f.status = #{status}");
         }

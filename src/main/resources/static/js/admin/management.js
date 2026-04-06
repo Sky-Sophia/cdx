@@ -71,6 +71,13 @@
             main.dataset.currentTab = target;
             updateNavHighlight(target);
             updateHistory(target);
+
+            // 切换到 dashboard 时，通知 ECharts 图表重新计算尺寸
+            // （从 display:none 恢复后，容器尺寸才可被正确读取）
+            if (target === "dashboard" && typeof window.__dashboardChartsResize === "function") {
+                requestAnimationFrame(() => window.__dashboardChartsResize());
+            }
+
             if (typeof window.refreshTopNavUnderline === "function") {
                 window.refreshTopNavUnderline(true);
             }

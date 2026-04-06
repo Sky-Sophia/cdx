@@ -24,6 +24,10 @@ public interface ResidentMapper {
                                 @Param("offset") int offset,
                                 @Param("pageSize") int pageSize);
 
+    @SelectProvider(type = ResidentSqlProvider.class, method = "findAllSql")
+    List<Resident> findAll(@Param("keyword") String keyword,
+                           @Param("status") String status);
+
     @Select("SELECT r.*, u.unit_no FROM residents r LEFT JOIN units u ON u.id = r.unit_id WHERE r.id = #{id}")
     Resident findById(@Param("id") Long id);
 

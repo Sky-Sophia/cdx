@@ -5,7 +5,9 @@ import org.example.propertyms.common.dto.PageResult;
 import org.example.propertyms.workorder.model.WorkOrder;
 
 public interface WorkOrderService {
-    PageResult<WorkOrder> listPaged(String status, String priority, int page, int pageSize);
+    PageResult<WorkOrder> listPaged(String keyword, String status, String priority, int page, int pageSize);
+
+    List<WorkOrder> listAll(String keyword, String status, String priority);
 
     WorkOrder findById(Long id);
 

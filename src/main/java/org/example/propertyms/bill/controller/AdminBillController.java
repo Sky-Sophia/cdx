@@ -1,9 +1,12 @@
 package org.example.propertyms.bill.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import org.example.propertyms.bill.model.FeeBill;
 import org.example.propertyms.bill.service.FeeBillService;
 import org.example.propertyms.common.constant.RedirectUrls;
+import org.example.propertyms.common.util.ExcelExportHelper;
 import org.example.propertyms.unit.service.PropertyUnitService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,10 +30,14 @@ public class AdminBillController {
     }
 
     @GetMapping
-    public String list(@RequestParam(required = false) String status,
+    public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String status,
                        @RequestParam(required = false) String billingMonth) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
                 .queryParam("tab", "bills");
+        if (keyword != null && !keyword.isBlank()) {
+            builder.queryParam("billKeyword", keyword);
+        }
         if (status != null && !status.isBlank()) {
             builder.queryParam("billStatus", status);
         }
@@ -93,5 +100,33 @@ public class AdminBillController {
             return "redirect:/admin/bills/edit/" + id;
         }
     }
-}
 
+    @GetMapping("/export")
+    public void exportExcel(@RequestParam(required = false) String keyword,
+                            @RequestParam(required = false) String status,
+                            @RequestParam(required = false) String billingMonth,
+                            HttpServletResponse response) throws IOException {
+        var list = feeBillService.listAll(keyword, status, billingMonth);
+        String[] headers = {"账单号", "房号", "账期", "应收", "实收", "到期日", "状态"};
+        ExcelExportHelper.export(response, "账单列表", "账单列表", headers, list, (row, b) -> {
+            row.getCell(0).setCellValue(b.getBillNo() != null ? b.getBillNo() : "");
+            row.getCell(1).setCellValue(b.getUnitNo() != null ? b.getUnitNo() : "");
+            row.getCell(2).setCellValue(b.getBillingMonth() != null ? b.getBillingMonth() : "");
+            row.getCell(3).setCellValue(b.getAmount() != null ? b.getAmount().doubleValue() : 0);
+            row.getCell(4).setCellValue(b.getPaidAmount() != null ? b.getPaidAmount().doubleValue() : 0);
+            row.getCell(5).setCellValue(b.getDueDate() != null ? b.getDueDate().toString() : "");
+            row.getCell(6).setCellValue(billStatusLabel(b.getStatus()));
+        });
+    }
+
+    private String billStatusLabel(String status) {
+        if (status == null) return "";
+        return switch (status) {
+            case "UNPAID" -> "未缴";
+            case "PARTIAL" -> "部分已缴";
+            case "OVERDUE" -> "逾期";
+            case "PAID" -> "已缴清";
+            default -> status;
+        };
+    }
+}

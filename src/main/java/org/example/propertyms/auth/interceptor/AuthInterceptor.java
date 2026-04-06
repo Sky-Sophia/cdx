@@ -55,10 +55,12 @@ public class AuthInterceptor implements HandlerInterceptor {
         return "/login".equals(path)
                 || "/register".equals(path)
                 || "/logout".equals(path)
+                || "/forgot-password".equals(path)
                 || "/error".equals(path)
                 || path.startsWith("/css")
                 || path.startsWith("/js")
                 || path.startsWith("/images")
+                || path.startsWith("/icons")
                 || path.startsWith("/favicon")
                 || path.startsWith("/webjars");
     }

@@ -31,6 +31,11 @@ public interface UserMapper {
                           @Param("role") Role role,
                           @Param("status") String status);
 
+    @SelectProvider(type = UserSqlProvider.class, method = "findAllWithFiltersSql")
+    List<User> findAllWithFilters(@Param("q") String q,
+                                  @Param("role") Role role,
+                                  @Param("status") String status);
+
     @SelectProvider(type = UserSqlProvider.class, method = "findAllWithFiltersPagedSql")
     List<User> findAllWithFiltersPaged(@Param("q") String q,
                                        @Param("role") Role role,

@@ -70,6 +70,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> listByFilters(String q, Role role, String status) {
+        return userMapper.findAllWithFilters(q, role, status);
+    }
+
+    @Override
     @Transactional
     public void updateRole(Long userId, Role role) {
         userMapper.updateRole(userId, role);

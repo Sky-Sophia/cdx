@@ -27,7 +27,9 @@
         <section class="form-layout">
             <div class="form-main">
                 <section class="panel form-panel">
-                    <form method="post" action="/admin/residents/save" class="form-grid">
+                    <form method="post" action="/admin/residents/save" class="form-grid"
+                          th:attr="data-confirm-message=${editing ? '确认保存对该住户档案的修改吗？' : null},
+                                   data-confirm-confirm-text=${editing ? '确认保存' : null}">
                         <input type="hidden" name="id" th:value="${resident.id}" />
 
                         <label>
@@ -95,7 +97,7 @@
                         <form th:action="@{'/admin/residents/delete/' + ${resident.id}}"
                               method="post"
                               class="embedded-danger-actions"
-                              data-confirm-message="确认删除该住户吗？删除后将无法恢复。"
+                              data-confirm-message="确认删除该住户吗？删除后将无法恢复"
                               data-confirm-confirm-text="确认删除"
                               data-confirm-tone="danger">
                             <button class="btn danger" type="submit">删除住户档案</button>

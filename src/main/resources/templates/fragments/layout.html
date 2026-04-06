@@ -6,12 +6,7 @@
         <div class="nav-inner">
             <div class="nav-left">
                 <a class="brand" href="/">
-                    <span class="brand-mark">
-                        <svg class="icon stroke" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M4 7h16v10H4z"></path>
-                            <path d="M8 7l2 3m4-3l2 3M8 14h8"></path>
-                        </svg>
-                    </span>
+                    <span class="brand-mark" aria-hidden="true"></span>
                     <span>物业管理系统</span>
                 </a>
                 <a class="nav-link" href="/">首页</a>
@@ -61,7 +56,7 @@
     </div>
     <div class="topbar-right" th:if="${current != null}" style="display: flex; gap: 24px; align-items: center;">
         <span class="ico"><img src="/icons/bell.svg" alt="bell" style="width:24px; height:24px;"></span>
-        <a class="" href="/profile"><span class="ico"><img src="/icons/user-16.svg" alt="用户中心" style="width:24px; height:24px;"></span></a>
+        <a class="" href="/profile"><span class="ico"><img src="/icons/user.svg" alt="用户中心" style="width:24px; height:24px;"></span></a>
     </div>
     <script src="/js/common/session-guard.js" defer></script>
     <script src="/js/common/nav-tabs.js" defer></script>
@@ -72,7 +67,7 @@
         <a href="/admin/management?tab=dashboard"
            data-management-tab="dashboard"
            th:classappend="${(active == 'management' and currentTab == 'dashboard') or active == 'dashboard'} ? ' is-active'">
-            <span class="ico"><img src="/icons/chart-bar.svg" alt="dashboard"></span>
+            <span class="ico"><img src="/icons/chart.svg" alt="dashboard"></span>
             <span>概览看板</span>
         </a>
         <!--/*@thymesVar id="currentTab" type="java.lang.String"*/-->
@@ -97,13 +92,13 @@
         <a href="/admin/management?tab=bills"
            data-management-tab="bills"
            th:classappend="${(active == 'management' and currentTab == 'bills') or active == 'bills'} ? ' is-active'">
-            <span class="ico"><img src="/icons/bill-bold.svg" alt="bills"></span>
+            <span class="ico"><img src="/icons/bill.svg" alt="bills"></span>
             <span>收费账单</span>
         </a>
         <a href="/admin/management?tab=users"
            data-management-tab="users"
            th:classappend="${(active == 'management' and currentTab == 'users') or active == 'users'} ? ' is-active'">
-            <span class="ico"><img src="/icons/user-md.svg" alt="dashboard"></span>
+            <span class="ico"><img src="/icons/user-mg.svg" alt="dashboard"></span>
             <span>权限用户</span>
         </a>
     </nav>

@@ -8,24 +8,32 @@
         return path.startsWith("/admin") || path.startsWith("/profile");
     }
 
-    function enforceTabSession() {
+    /**
+     * If the page rendered in a protected area, the server-side interceptor already
+     * verified the session. Ensure the sessionStorage marker exists so that future
+     * client-side checks (e.g. after bfcache restore) can rely on it.
+     *
+     * Previous implementation redirected to /logout when the marker was absent,
+     * which incorrectly destroyed valid server sessions when users opened new tabs,
+     * bookmarks, or navigated to form pages.
+     */
+    function ensureTabMarker() {
         if (!inProtectedArea()) {
             return;
         }
         try {
-            const marker = sessionStorage.getItem(AUTH_TAB_KEY);
-            if (!marker) {
-                window.location.replace("/logout");
+            if (!sessionStorage.getItem(AUTH_TAB_KEY)) {
+                sessionStorage.setItem(AUTH_TAB_KEY, String(Date.now()));
             }
         } catch (error) {
-            window.location.replace("/logout");
+            // sessionStorage unavailable — ignore silently
         }
     }
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", enforceTabSession, { once: true });
+        document.addEventListener("DOMContentLoaded", ensureTabMarker, { once: true });
     } else {
-        enforceTabSession();
+        ensureTabMarker();
     }
 })();
 

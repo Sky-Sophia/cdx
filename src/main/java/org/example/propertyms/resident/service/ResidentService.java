@@ -8,6 +8,8 @@ import java.util.List;
 public interface ResidentService {
     PageResult<Resident> listPaged(String keyword, String status, int page, int pageSize);
 
+    List<Resident> listAll(String keyword, String status);
+
     Resident findById(Long id);
 
     void save(Resident resident);

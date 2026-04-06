@@ -3,7 +3,7 @@
 :root {
     --surface: #ffffff;
     --surface-muted: #f8fbff;
-    --page-bg: #f3f7ff;
+    --page-bg: #F5F7FA;
     --page-bg-strong: #eaf1ff;
     --ink: #1e293b;
     --muted: #64748b;
@@ -12,6 +12,7 @@
     --radius: 6px;
     --shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.03);
+    --msg-dismiss-duration: 300ms;
     --primary: #2f54eb;
     --primary-dark: #1d39c4;
     --primary-soft: #edf3ff;
@@ -81,6 +82,26 @@ a {
     font-weight: 700;
     letter-spacing: 0.02em;
     color: var(--primary-dark);
+}
+
+.brand-mark {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+    flex-shrink: 0;
+}
+
+.brand-mark::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-color: currentColor;
+    -webkit-mask: url("/icons/property-brand.svg") center / contain no-repeat;
+    mask: url("/icons/property-brand.svg") center / contain no-repeat;
 }
 
 .brand-logo-img {

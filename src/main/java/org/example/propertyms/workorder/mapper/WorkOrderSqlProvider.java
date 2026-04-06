@@ -31,6 +31,10 @@ public class WorkOrderSqlProvider {
     }
 
     private void appendFilters(StringBuilder sql, Map<String, Object> params) {
+        if (SqlProviderHelper.isNotBlank(params.get("keyword"))) {
+            sql.append(" AND (w.order_no LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" OR u.unit_no LIKE CONCAT('%', #{keyword}, '%'))");
+        }
         if (SqlProviderHelper.isNotBlank(params.get("status"))) {
             sql.append(" AND w.status = #{status}");
         }

@@ -15,14 +15,21 @@ import org.example.propertyms.workorder.model.WorkOrder;
 public interface WorkOrderMapper {
 
     @SelectProvider(type = WorkOrderSqlProvider.class, method = "countSql")
-    long count(@Param("status") String status,
+    long count(@Param("keyword") String keyword,
+               @Param("status") String status,
                @Param("priority") String priority);
 
     @SelectProvider(type = WorkOrderSqlProvider.class, method = "findAllPagedSql")
-    List<WorkOrder> findAllPaged(@Param("status") String status,
+    List<WorkOrder> findAllPaged(@Param("keyword") String keyword,
+                                 @Param("status") String status,
                                  @Param("priority") String priority,
                                  @Param("offset") int offset,
                                  @Param("pageSize") int pageSize);
+
+    @SelectProvider(type = WorkOrderSqlProvider.class, method = "findAllSql")
+    List<WorkOrder> findAll(@Param("keyword") String keyword,
+                            @Param("status") String status,
+                            @Param("priority") String priority);
 
     @Select("SELECT w.*, u.unit_no FROM work_orders w LEFT JOIN units u ON u.id = w.unit_id WHERE w.id = #{id}")
     WorkOrder findById(@Param("id") Long id);

@@ -27,6 +27,11 @@ public class ResidentServiceImpl implements ResidentService {
     }
 
     @Override
+    public List<Resident> listAll(String keyword, String status) {
+        return residentMapper.findAll(keyword, status);
+    }
+
+    @Override
     public Resident findById(Long id) {
         return residentMapper.findById(id);
     }

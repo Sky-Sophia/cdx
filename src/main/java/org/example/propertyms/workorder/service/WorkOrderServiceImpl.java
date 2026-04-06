@@ -28,11 +28,16 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     }
 
     @Override
-    public PageResult<WorkOrder> listPaged(String status, String priority, int page, int pageSize) {
-        long total = workOrderMapper.count(status, priority);
+    public PageResult<WorkOrder> listPaged(String keyword, String status, String priority, int page, int pageSize) {
+        long total = workOrderMapper.count(keyword, status, priority);
         int offset = PageResult.calcOffset(page, pageSize);
-        List<WorkOrder> items = workOrderMapper.findAllPaged(status, priority, offset, pageSize);
+        List<WorkOrder> items = workOrderMapper.findAllPaged(keyword, status, priority, offset, pageSize);
         return new PageResult<>(items, page, pageSize, total);
+    }
+
+    @Override
+    public List<WorkOrder> listAll(String keyword, String status, String priority) {
+        return workOrderMapper.findAll(keyword, status, priority);
     }
 
     @Override

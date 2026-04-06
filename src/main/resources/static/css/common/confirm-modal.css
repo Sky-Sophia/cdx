@@ -15,7 +15,6 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
     z-index: 120;
 }
 
@@ -26,74 +25,68 @@
 }
 
 .confirm-modal-dialog {
-    width: min(360px, calc(100vw - 32px));
+    width: min(320px, calc(100vw - 32px));
     background: #fff;
-    border: 1px solid #e1e1df;
-    border-radius: 6px;
-    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.14);
-    padding: 22px 20px 18px;
-    transform: translateY(8px) scale(0.98);
-    transition: transform 0.2s ease;
-}
-
-.confirm-modal.is-open .confirm-modal-dialog {
-    transform: translateY(0) scale(1);
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px 24px;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 .confirm-modal-title {
-    margin: 0;
-    font-size: 1.04rem;
-    font-weight: 700;
-    color: #181818;
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
 }
 
 .confirm-modal-message {
-    margin: 10px 0 0;
-    color: #585858;
-    line-height: 1.65;
-    font-size: 0.92rem;
+    margin: 0 0 24px;
+    color: #666;
+    line-height: 1.5;
+    font-size: 14px;
 }
 
 .confirm-modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 18px;
+    gap: 12px;
 }
 
 .confirm-modal-btn {
-    min-width: 88px;
-    min-height: 36px;
-    padding: 0 14px;
+    padding: 8px 20px;
     border-radius: 6px;
-    border: 1px solid #d0d0cd;
+    border: 1px solid #e5e5e5;
     background: #fff;
-    color: #2d2d2d;
-    font: inherit;
-    font-weight: 600;
+    color: #333;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
 }
 
 .confirm-modal-btn:hover {
-    background: #f7f7f6;
+    background: #f8f8f8;
 }
 
 .confirm-modal-btn.primary {
-    border-color: #131313;
-    background: #111;
+    border-color: #993333;
+    background: #993333;
     color: #fff;
+    border: none;
 }
 
 .confirm-modal-btn.primary:hover {
-    background: #2a2a2a;
+    background: #882222;
 }
 
 .confirm-modal-btn.primary.is-danger {
-    border-color: #8f4040;
-    background: #8f4040;
+    border-color: #993333;
+    background: #993333;
 }
 
 .confirm-modal-btn.primary.is-danger:hover {
-    background: #7a3434;
+    background: #882222;
 }
 

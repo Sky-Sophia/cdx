@@ -51,7 +51,9 @@
                         </div>
                     </form>
 
-                    <form th:if="${editing}" th:action="@{'/admin/users/' + ${managedUser.id} + '/manage'}" method="post" class="form-grid">
+                    <form th:if="${editing}" th:action="@{'/admin/users/' + ${managedUser.id} + '/manage'}" method="post" class="form-grid"
+                          data-confirm-message="确认保存对该用户的设置修改吗？"
+                          data-confirm-confirm-text="确认保存">
                         <label>
                             用户名
                             <input th:value="${managedUser.username}" readonly />

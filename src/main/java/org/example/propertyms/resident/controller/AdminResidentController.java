@@ -1,6 +1,9 @@
 package org.example.propertyms.resident.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.example.propertyms.common.constant.RedirectUrls;
+import org.example.propertyms.common.util.ExcelExportHelper;
 import org.example.propertyms.resident.model.Resident;
 import org.example.propertyms.resident.service.ResidentService;
 import org.example.propertyms.unit.service.PropertyUnitService;
@@ -83,6 +86,32 @@ public class AdminResidentController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/admin/residents/edit/" + id;
         }
+    }
+
+    @GetMapping("/export")
+    public void exportExcel(@RequestParam(required = false) String keyword,
+                            @RequestParam(required = false) String status,
+                            HttpServletResponse response) throws IOException {
+        var list = residentService.listAll(keyword, status);
+        String[] headers = {"姓名", "房号", "手机号", "证件号", "住户类型", "状态"};
+        ExcelExportHelper.export(response, "住户列表", "住户列表", headers, list, (row, r) -> {
+            row.getCell(0).setCellValue(r.getName() != null ? r.getName() : "");
+            row.getCell(1).setCellValue(r.getUnitNo() != null ? r.getUnitNo() : "");
+            row.getCell(2).setCellValue(r.getPhone() != null ? r.getPhone() : "");
+            row.getCell(3).setCellValue(r.getIdentityNo() != null ? r.getIdentityNo() : "");
+            row.getCell(4).setCellValue(residentTypeLabel(r.getResidentType()));
+            row.getCell(5).setCellValue("ACTIVE".equals(r.getStatus()) ? "在住" : "已迁出");
+        });
+    }
+
+    private String residentTypeLabel(String type) {
+        if (type == null) return "";
+        return switch (type) {
+            case "OWNER" -> "业主";
+            case "TENANT" -> "租户";
+            case "FAMILY" -> "家属";
+            default -> type;
+        };
     }
 }
 

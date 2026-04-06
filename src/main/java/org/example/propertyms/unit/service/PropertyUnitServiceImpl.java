@@ -68,6 +68,11 @@ public class PropertyUnitServiceImpl implements PropertyUnitService {
     }
 
     @Override
+    public List<PropertyUnit> listAll(String keyword, Long buildingId, String status) {
+        return propertyUnitMapper.findAll(keyword, buildingId, status);
+    }
+
+    @Override
     public long countAll() {
         return propertyUnitMapper.countAll();
     }

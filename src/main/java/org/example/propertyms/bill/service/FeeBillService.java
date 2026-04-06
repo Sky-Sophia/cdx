@@ -6,7 +6,9 @@ import org.example.propertyms.bill.model.FeeBill;
 import org.example.propertyms.common.dto.PageResult;
 
 public interface FeeBillService {
-    PageResult<FeeBill> listPaged(String status, String billingMonth, int page, int pageSize);
+    PageResult<FeeBill> listPaged(String keyword, String status, String billingMonth, int page, int pageSize);
+
+    List<FeeBill> listAll(String keyword, String status, String billingMonth);
 
     FeeBill findById(Long billId);
 

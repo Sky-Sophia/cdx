@@ -1,6 +1,10 @@
 package org.example.propertyms.workorder.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import org.example.propertyms.common.constant.RedirectUrls;
+import org.example.propertyms.common.util.ExcelExportHelper;
 import org.example.propertyms.unit.service.PropertyUnitService;
 import org.example.propertyms.workorder.model.WorkOrder;
 import org.example.propertyms.workorder.service.WorkOrderService;
@@ -26,10 +30,14 @@ public class AdminWorkOrderController {
     }
 
     @GetMapping
-    public String list(@RequestParam(required = false) String status,
+    public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String status,
                        @RequestParam(required = false) String priority) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
                 .queryParam("tab", "work-orders");
+        if (keyword != null && !keyword.isBlank()) {
+            builder.queryParam("workOrderKeyword", keyword);
+        }
         if (status != null && !status.isBlank()) {
             builder.queryParam("workOrderStatus", status);
         }
@@ -74,5 +82,46 @@ public class AdminWorkOrderController {
         }
         return RedirectUrls.MANAGEMENT_WORK_ORDERS;
     }
-}
 
+    @GetMapping("/export")
+    public void exportExcel(@RequestParam(required = false) String keyword,
+                            @RequestParam(required = false) String status,
+                            @RequestParam(required = false) String priority,
+                            HttpServletResponse response) throws IOException {
+        var list = workOrderService.listAll(keyword, status, priority);
+        DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String[] headers = {"工单号", "房号", "报修人", "联系电话", "类别", "优先级", "处理人", "状态", "创建时间"};
+        ExcelExportHelper.export(response, "工单列表", "工单列表", headers, list, (row, w) -> {
+            row.getCell(0).setCellValue(w.getOrderNo() != null ? w.getOrderNo() : "");
+            row.getCell(1).setCellValue(w.getUnitNo() != null ? w.getUnitNo() : "");
+            row.getCell(2).setCellValue(w.getResidentName() != null ? w.getResidentName() : "");
+            row.getCell(3).setCellValue(w.getPhone() != null ? w.getPhone() : "");
+            row.getCell(4).setCellValue(w.getCategory() != null ? w.getCategory() : "");
+            row.getCell(5).setCellValue(priorityLabel(w.getPriority()));
+            row.getCell(6).setCellValue(w.getAssignee() != null ? w.getAssignee() : "");
+            row.getCell(7).setCellValue(workOrderStatusLabel(w.getStatus()));
+            row.getCell(8).setCellValue(w.getCreatedAt() != null ? w.getCreatedAt().format(dtFmt) : "");
+        });
+    }
+
+    private String priorityLabel(String priority) {
+        if (priority == null) return "";
+        return switch (priority) {
+            case "HIGH" -> "高";
+            case "MEDIUM" -> "中";
+            case "LOW" -> "低";
+            default -> priority;
+        };
+    }
+
+    private String workOrderStatusLabel(String status) {
+        if (status == null) return "";
+        return switch (status) {
+            case "OPEN" -> "待受理";
+            case "IN_PROGRESS" -> "处理中";
+            case "DONE" -> "已完成";
+            case "CLOSED" -> "已关闭";
+            default -> status;
+        };
+    }
+}
