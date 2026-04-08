@@ -2,6 +2,7 @@ package org.example.propertyms.dashboard.controller;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import org.springframework.util.StringUtils;
 import org.example.propertyms.building.service.BuildingService;
 import org.example.propertyms.bill.service.FeeBillService;
 import org.example.propertyms.dashboard.service.PropertyDashboardService;
@@ -15,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * 统一管理页面控制器。
@@ -91,23 +93,27 @@ public class AdminManagementController {
         model.addAttribute("unitKeyword", unitKeyword);
         model.addAttribute("unitBuildingId", unitBuildingId);
         model.addAttribute("unitStatus", unitStatus);
+        model.addAttribute("unitPaginationBaseUrl", buildUnitPaginationBaseUrl(unitKeyword, unitBuildingId, unitStatus));
 
         // Residents
         model.addAttribute("residentPageResult", residentService.listPaged(residentKeyword, residentStatus, residentPage, DEFAULT_PAGE_SIZE));
         model.addAttribute("residentKeyword", residentKeyword);
         model.addAttribute("residentStatus", residentStatus);
+        model.addAttribute("residentPaginationBaseUrl", buildResidentPaginationBaseUrl(residentKeyword, residentStatus));
 
         // Work Orders
         model.addAttribute("orderPageResult", workOrderService.listPaged(workOrderKeyword, workOrderStatus, workOrderPriority, orderPage, WORK_ORDER_PAGE_SIZE));
         model.addAttribute("workOrderKeyword", workOrderKeyword);
         model.addAttribute("workOrderStatus", workOrderStatus);
         model.addAttribute("workOrderPriority", workOrderPriority);
+        model.addAttribute("workOrderPaginationBaseUrl", buildWorkOrderPaginationBaseUrl(workOrderKeyword, workOrderStatus, workOrderPriority));
 
         // Bills
         model.addAttribute("billPageResult", feeBillService.listPaged(billKeyword, billStatus, billBillingMonth, billPage, DEFAULT_PAGE_SIZE));
         model.addAttribute("billKeyword", billKeyword);
         model.addAttribute("billStatus", billStatus);
         model.addAttribute("billBillingMonth", billBillingMonth);
+        model.addAttribute("billPaginationBaseUrl", buildBillPaginationBaseUrl(billKeyword, billStatus, billBillingMonth));
 
         // Users
         model.addAttribute("userPageResult", userService.listByFiltersPaged(userQ, userRole, userStatus, userPage, DEFAULT_PAGE_SIZE));
@@ -115,8 +121,67 @@ public class AdminManagementController {
         model.addAttribute("userQ", userQ);
         model.addAttribute("userRole", userRole);
         model.addAttribute("userStatus", userStatus);
+        model.addAttribute("userPaginationBaseUrl", buildUserPaginationBaseUrl(userQ, userRole, userStatus));
 
         return "admin/management/index";
+    }
+
+    private String buildUnitPaginationBaseUrl(String unitKeyword, Long unitBuildingId, String unitStatus) {
+        UriComponentsBuilder builder = baseManagementUrl("units");
+        addStringQueryParam(builder, "unitKeyword", unitKeyword);
+        addObjectQueryParam(builder, "unitBuildingId", unitBuildingId);
+        addStringQueryParam(builder, "unitStatus", unitStatus);
+        return builder.build().encode().toUriString();
+    }
+
+    private String buildResidentPaginationBaseUrl(String residentKeyword, String residentStatus) {
+        UriComponentsBuilder builder = baseManagementUrl("residents");
+        addStringQueryParam(builder, "residentKeyword", residentKeyword);
+        addStringQueryParam(builder, "residentStatus", residentStatus);
+        return builder.build().encode().toUriString();
+    }
+
+    private String buildWorkOrderPaginationBaseUrl(String workOrderKeyword, String workOrderStatus, String workOrderPriority) {
+        UriComponentsBuilder builder = baseManagementUrl("work-orders");
+        addStringQueryParam(builder, "workOrderKeyword", workOrderKeyword);
+        addStringQueryParam(builder, "workOrderStatus", workOrderStatus);
+        addStringQueryParam(builder, "workOrderPriority", workOrderPriority);
+        return builder.build().encode().toUriString();
+    }
+
+    private String buildBillPaginationBaseUrl(String billKeyword, String billStatus, String billBillingMonth) {
+        UriComponentsBuilder builder = baseManagementUrl("bills");
+        addStringQueryParam(builder, "billKeyword", billKeyword);
+        addStringQueryParam(builder, "billStatus", billStatus);
+        addStringQueryParam(builder, "billBillingMonth", billBillingMonth);
+        return builder.build().encode().toUriString();
+    }
+
+    private String buildUserPaginationBaseUrl(String userQ, Role userRole, String userStatus) {
+        UriComponentsBuilder builder = baseManagementUrl("users");
+        addStringQueryParam(builder, "userQ", userQ);
+        if (userRole != null) {
+            builder.queryParam("userRole", userRole.name());
+        }
+        addStringQueryParam(builder, "userStatus", userStatus);
+        return builder.build().encode().toUriString();
+    }
+
+    private UriComponentsBuilder baseManagementUrl(String tab) {
+        return UriComponentsBuilder.fromPath("/admin/management")
+                .queryParam("tab", tab);
+    }
+
+    private void addStringQueryParam(UriComponentsBuilder builder, String name, String value) {
+        if (StringUtils.hasText(value)) {
+            builder.queryParam(name, value.trim());
+        }
+    }
+
+    private void addObjectQueryParam(UriComponentsBuilder builder, String name, Object value) {
+        if (value != null) {
+            builder.queryParam(name, value);
+        }
     }
 
     private String normalizeTab(String tab) {

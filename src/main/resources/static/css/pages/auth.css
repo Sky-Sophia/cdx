@@ -5,6 +5,10 @@
     background: #dfe6ee url("../../images/background.jpg") center center / cover no-repeat fixed;
 }
 
+.auth-portal-body.has-modal-open {
+    overflow: hidden;
+}
+
 .auth-portal-body::before {
     content: none;
 }
@@ -136,6 +140,153 @@
 
 .auth-portal-section {
     min-height: 370px;
+}
+
+.auth-forgot-modal {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 1100;
+}
+
+.auth-forgot-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.auth-forgot-modal-shell {
+    width: min(680px, calc(100vw - 48px));
+    padding: 0;
+}
+
+.auth-forgot-modal-dialog {
+    position: relative;
+    width: 100%;
+    background: #fff;
+    border-radius: 24px;
+    padding: 34px 44px 28px;
+}
+
+.auth-forgot-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #7a8ba3;
+    cursor: pointer;
+}
+
+.auth-forgot-modal-close::before,
+.auth-forgot-modal-close::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 999px;
+}
+
+.auth-forgot-modal-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.auth-forgot-modal-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.auth-forgot-modal-close:hover {
+    background: #f2f6fb;
+    color: #4e6484;
+}
+
+.auth-forgot-modal-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-forgot-modal-header h2 {
+    margin: 0;
+    font-size: clamp(1.9rem, 3vw, 2.35rem);
+    color: #132338;
+    letter-spacing: 0.02em;
+}
+
+.auth-forgot-modal-header p {
+    margin: 12px auto 0;
+    max-width: 420px;
+    color: #7a8798;
+    font-size: 0.98rem;
+    line-height: 1.7;
+}
+
+.auth-forgot-form {
+    margin-top: 0;
+    gap: 12px;
+}
+
+.auth-forgot-form .auth-portal-label {
+    margin-top: 0;
+    font-size: 1rem;
+}
+
+.auth-forgot-form .auth-portal-input-wrap input {
+    min-height: 58px;
+    border-radius: 14px;
+    border-color: #d7dfec;
+    background: #f7faff;
+    padding-left: 48px;
+}
+
+.auth-forgot-form .auth-portal-input-wrap input::placeholder {
+    color: #96a2b2;
+}
+
+.auth-forgot-form .auth-portal-icon {
+    left: 16px;
+    color: #5d6f88;
+}
+
+.auth-forgot-form .auth-portal-eye {
+    right: 10px;
+}
+
+.auth-forgot-submit {
+    margin-top: 14px;
+    min-height: 56px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--primary) 0%, #6f5df6 100%);
+    box-shadow: 0 14px 30px rgba(47, 84, 235, 0.22);
+}
+
+.auth-forgot-submit:hover {
+    background: linear-gradient(90deg, var(--primary-dark) 0%, #5a49dd 100%);
+}
+
+.auth-forgot-modal-footer {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    color: #7a8798;
+    font-size: 0.96rem;
+}
+
+.auth-forgot-modal-footer .auth-portal-link-btn {
+    font-size: inherit;
 }
 
 
@@ -311,6 +462,43 @@
 
     .auth-portal-card {
         padding: 18px 14px;
+    }
+
+    .auth-forgot-modal {
+        padding: 14px;
+    }
+
+    .auth-forgot-modal-shell {
+        width: min(100%, calc(100vw - 28px));
+        padding: 0;
+    }
+
+    .auth-forgot-modal-dialog {
+        border-radius: 18px;
+        padding: 24px 18px 22px;
+    }
+
+    .auth-forgot-modal-header {
+        margin-bottom: 18px;
+    }
+
+    .auth-forgot-modal-header h2 {
+        font-size: 1.72rem;
+    }
+
+    .auth-forgot-modal-header p,
+    .auth-forgot-modal-footer {
+        font-size: 0.9rem;
+    }
+
+    .auth-forgot-form .auth-portal-input-wrap input {
+        min-height: 50px;
+        border-radius: 12px;
+    }
+
+    .auth-forgot-submit {
+        min-height: 50px;
+        border-radius: 12px;
     }
 
     .auth-portal-header {

@@ -1,3 +1,278 @@
 @import url("../common/base.css");
 @import url("../common/confirm-modal.css");
+@import url("../common/validation-bubble.css");
+@import url("../common/custom-select.css");
+
+
+.form-page-head {
+	background: #f9f8f7;
+}
+
+.ui-picker {
+	position: relative;
+	width: 100%;
+	min-width: 0;
+}
+
+.ui-picker-native {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	clip-path: inset(50%);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ui-picker-trigger {
+	position: relative;
+	width: 100%;
+	min-height: 42px;
+	padding: 0 44px 0 14px;
+	border: 1px solid #dcdfe6;
+	border-radius: 8px;
+	background: #ffffff;
+	color: #1d2129;
+	font: inherit;
+	font-size: 0.95rem;
+	line-height: 1.2;
+	text-align: left;
+	cursor: pointer;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	outline: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.ui-picker-trigger-text {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ui-picker-trigger.is-placeholder {
+	color: #c9cdd4;
+}
+
+.ui-picker.is-open .ui-picker-trigger,
+.ui-picker-trigger:focus,
+.ui-picker.is-invalid .ui-picker-trigger {
+	border-color: #4080ff;
+	box-shadow: 0 0 0 2px rgba(64, 128, 255, 0.1);
+}
+
+.ui-picker.is-invalid .ui-picker-trigger {
+	border-color: var(--danger-ink, #f53f3f);
+	box-shadow: 0 0 0 2px rgba(245, 63, 63, 0.12);
+}
+
+.ui-picker-icon {
+	width: 20px;
+	height: 20px;
+	color: #86909c;
+	flex-shrink: 0;
+	pointer-events: none;
+    transform: translateX(32px);
+}
+
+.ui-picker-icon svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.ui-picker-popup {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 0;
+	z-index: 70;
+	width: min(100%, 340px);
+	min-width: 320px;
+	padding: 16px;
+	border: 1px solid #ebeef5;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.ui-picker-popup[hidden] {
+	display: none;
+}
+
+.ui-picker-header {
+	display: grid;
+	grid-template-columns: 32px 32px minmax(0, 1fr) 32px 32px;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 16px;
+}
+
+.ui-picker[data-picker-mode="month"] .ui-picker-header {
+	grid-template-columns: 32px minmax(0, 1fr) 32px;
+}
+
+.ui-picker-nav,
+.ui-picker-current,
+.ui-picker-footer-btn,
+.ui-picker-year,
+.ui-picker-day-btn,
+.ui-picker-month-btn {
+	font: inherit;
+}
+
+.ui-picker-nav {
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: #86909c;
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ui-picker-nav:hover,
+.ui-picker-current:hover,
+.ui-picker-footer-btn:hover,
+.ui-picker-year:hover,
+.ui-picker-day-btn:hover,
+.ui-picker-month-btn:hover {
+	background: #f2f3f5;
+	color: #1d2129;
+}
+
+.ui-picker-current {
+	min-width: 0;
+	border: none;
+	background: transparent;
+	color: #1d2129;
+	font-size: 1rem;
+	font-weight: 500;
+	padding: 6px 8px;
+	border-radius: 6px;
+	cursor: pointer;
+	text-align: center;
+}
+
+.ui-picker-years {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 8px;
+	margin-bottom: 16px;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.ui-picker-years[hidden] {
+	display: none;
+}
+
+.ui-picker-year {
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: #1d2129;
+	padding: 8px;
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ui-picker-year.is-active,
+.ui-picker-day-btn.is-selected,
+.ui-picker-month-btn.is-selected {
+	background: #4080ff;
+	color: #ffffff;
+}
+
+.ui-picker-weekdays,
+.ui-picker-days,
+.ui-picker-months {
+	display: grid;
+	gap: 4px;
+}
+
+.ui-picker-weekdays,
+.ui-picker-days {
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.ui-picker-months {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ui-picker-weekdays {
+	margin-bottom: 8px;
+}
+
+.ui-picker-weekdays span {
+	text-align: center;
+	font-size: 0.82rem;
+	font-weight: 500;
+	color: #86909c;
+	padding: 8px 0;
+}
+
+.ui-picker-day,
+.ui-picker-day-btn,
+.ui-picker-month-btn {
+	min-height: 38px;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.95rem;
+}
+
+.ui-picker-day {
+	color: #c9cdd4;
+	cursor: default;
+}
+
+.ui-picker-day-btn,
+.ui-picker-month-btn {
+	border: none;
+	background: transparent;
+	color: #1d2129;
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ui-picker-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 16px;
+	padding-top: 12px;
+	border-top: 1px solid #f2f3f5;
+}
+
+.ui-picker-footer-btn {
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: #4080ff;
+	padding: 6px 12px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.ui-picker-footer-btn:hover {
+	background: #f0f5ff;
+	color: #4080ff;
+}
+
+@media (max-width: 768px) {
+	.ui-picker-popup {
+		width: 100%;
+		min-width: 0;
+	}
+}
 

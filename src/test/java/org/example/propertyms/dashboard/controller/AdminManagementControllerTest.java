@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -94,6 +95,21 @@ class AdminManagementControllerTest {
 		org.mockito.Mockito.verify(propertyDashboardService).dueBills(6);
 		org.mockito.Mockito.verify(buildingService).listAll();
 		org.mockito.Mockito.verify(workOrderService).listPaged(null, null, null, 1, 9);
+	}
+
+	@Test
+	void management_unitsTab_shouldExposeFilteredPaginationBaseUrl() throws Exception {
+		stubAllServices();
+
+		mockMvc.perform(get("/admin/management")
+				.param("tab", "units")
+				.param("unitKeyword", "A-101")
+				.param("unitBuildingId", "3")
+				.param("unitStatus", "OCCUPIED"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("admin/management/index"))
+				.andExpect(model().attribute("unitPaginationBaseUrl",
+						"/admin/management?tab=units&unitKeyword=A-101&unitBuildingId=3&unitStatus=OCCUPIED"));
 	}
 }
 

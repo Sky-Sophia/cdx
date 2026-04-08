@@ -39,6 +39,7 @@ public class AuthController {
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
         model.addAttribute("tab", "register".equalsIgnoreCase(tab) ? "register" : "login");
+        model.addAttribute("forgotModalOpen", false);
         return "auth/login";
     }
 
@@ -53,6 +54,7 @@ public class AuthController {
         String attemptKey = rateLimiter.buildAttemptKey(httpServletRequest, username);
 
         model.addAttribute("tab", "login");
+        model.addAttribute("forgotModalOpen", false);
         model.addAttribute("loginUsername", username);
 
         if (rateLimiter.isBlocked(attemptKey, model)) {
@@ -86,6 +88,7 @@ public class AuthController {
                            RedirectAttributes redirectAttributes) {
         String username = request.getUsername() == null ? "" : request.getUsername().trim();
         model.addAttribute("tab", "register");
+        model.addAttribute("forgotModalOpen", false);
         model.addAttribute("registerUsername", username);
 
         if (bindingResult.hasErrors() || username.isEmpty()) {
@@ -120,8 +123,11 @@ public class AuthController {
                                  @RequestParam String confirmPassword,
                                  Model model,
                                  RedirectAttributes redirectAttributes) {
+        String trimmedUsername = username == null ? "" : username.trim();
         model.addAttribute("tab", "login");
-        if (username == null || username.isBlank()) {
+        model.addAttribute("forgotModalOpen", true);
+        model.addAttribute("forgotUsername", trimmedUsername);
+        if (trimmedUsername.isBlank()) {
             model.addAttribute("error", "请输入用户名。");
             return "auth/login";
         }
@@ -133,7 +139,7 @@ public class AuthController {
             model.addAttribute("error", "两次输入的密码不一致。");
             return "auth/login";
         }
-        User user = userService.findByUsername(username.trim());
+        User user = userService.findByUsername(trimmedUsername);
         if (user == null) {
             model.addAttribute("error", "用户不存在，请检查用户名。");
             return "auth/login";

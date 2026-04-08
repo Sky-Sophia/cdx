@@ -27,7 +27,8 @@
         <section class="form-layout">
             <div class="form-main">
                 <section class="panel form-panel">
-                    <form th:unless="${editing}" method="post" action="/admin/users/save" class="form-grid">
+                    <form th:unless="${editing}" method="post" action="/admin/users/save" class="form-grid"
+                          th:with="defaultRole=${roles != null and !#lists.isEmpty(roles) ? roles[0] : null}">
                         <label>
                             用户名
                             <input name="username" required />
@@ -40,9 +41,21 @@
 
                         <label class="span-2">
                             角色
-                            <select name="role">
-                                <option th:each="role : ${roles}" th:value="${role}" th:text="${role.label}"></option>
-                            </select>
+                            <div class="custom-select">
+                                <input type="hidden" name="role" th:value="${defaultRole}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text"
+                                          th:text="${defaultRole != null ? defaultRole.label : '请选择角色'}">请选择角色</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li th:each="role : ${roles}"
+                                        class="custom-select-option"
+                                        th:attr="data-value=${role},data-label=${role.label}"
+                                        th:classappend="${defaultRole == role} ? ' is-selected'"
+                                        th:text="${role.label}"></li>
+                                </ul>
+                            </div>
                         </label>
 
                         <div class="form-actions">
@@ -61,17 +74,41 @@
 
                         <label>
                             账号状态
-                            <select name="status">
-                                <option value="ACTIVE" th:selected="${managedUser.status == 'ACTIVE'}">启用</option>
-                                <option value="DISABLED" th:selected="${managedUser.status == 'DISABLED'}">禁用</option>
-                            </select>
+                            <div class="custom-select">
+                                <input type="hidden" name="status" th:value="${managedUser.status}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text"
+                                          th:text="${managedUser.status == 'DISABLED'} ? '禁用' : '启用'">启用</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="ACTIVE" data-label="启用"
+                                        th:classappend="${managedUser.status == 'ACTIVE'} ? ' is-selected'">启用
+                                        <span class="custom-select-option-badge" data-tone="success">正常</span></li>
+                                    <li class="custom-select-option" data-value="DISABLED" data-label="禁用"
+                                        th:classappend="${managedUser.status == 'DISABLED'} ? ' is-selected'">禁用
+                                        <span class="custom-select-option-badge" data-tone="muted">停用</span></li>
+                                </ul>
+                            </div>
                         </label>
 
                         <label class="span-2">
                             角色权限
-                            <select name="role">
-                                <option th:each="role : ${roles}" th:value="${role}" th:text="${role.label}" th:selected="${managedUser.role == role}"></option>
-                            </select>
+                            <div class="custom-select">
+                                <input type="hidden" name="role" th:value="${managedUser.role}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text"
+                                          th:text="${managedUser.role != null ? managedUser.role.label : '请选择角色'}">请选择角色</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li th:each="role : ${roles}"
+                                        class="custom-select-option"
+                                        th:attr="data-value=${role},data-label=${role.label}"
+                                        th:classappend="${managedUser.role == role} ? ' is-selected'"
+                                        th:text="${role.label}"></li>
+                                </ul>
+                            </div>
                         </label>
 
                         <label>

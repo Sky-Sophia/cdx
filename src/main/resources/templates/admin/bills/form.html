@@ -6,7 +6,7 @@
     <title th:text="${editing} ? '登记账单收款' : '新增账单'">费用账单表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin.css" />
+    <link rel="stylesheet" href="/css/apps/admin.css?v=20260408-all-date-pickers" />
 </head>
 <body>
 <div class="app-shell">
@@ -30,15 +30,27 @@
                     <form th:unless="${editing}" method="post" action="/admin/bills/save" class="form-grid">
                         <label>
                             房屋
-                            <select name="unitId" required>
-                                <option value="">请选择房屋</option>
-                                <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${bill.unitId == unit.id}"></option>
-                            </select>
+                            <div class="custom-select" data-required>
+                                <input type="hidden" name="unitId" th:value="${bill.unitId}" required />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text">请选择房屋</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="" data-label="请选择房屋"
+                                        th:classappend="${bill.unitId == null} ? ' is-selected'">请选择房屋</li>
+                                    <li th:each="unit : ${units}"
+                                        class="custom-select-option"
+                                        th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
+                                        th:classappend="${bill.unitId == unit.id} ? ' is-selected'"
+                                        th:text="${unit.unitNo}"></li>
+                                </ul>
+                            </div>
                         </label>
 
                         <label>
                             账期
-                            <input type="month" name="billingMonth" th:value="${bill.billingMonth}" required />
+                            <input type="month" name="billingMonth" th:value="${bill.billingMonth}" required data-ui-picker="month" />
                         </label>
 
                         <label>
@@ -48,12 +60,29 @@
 
                         <label>
                             状态
-                            <select name="status">
-                                <option value="UNPAID" th:selected="${bill.status == 'UNPAID'}">未缴</option>
-                                <option value="PARTIAL" th:selected="${bill.status == 'PARTIAL'}">部分已缴</option>
-                                <option value="OVERDUE" th:selected="${bill.status == 'OVERDUE'}">逾期</option>
-                                <option value="PAID" th:selected="${bill.status == 'PAID'}">已缴清</option>
-                            </select>
+                            <div class="custom-select">
+                                <input type="hidden" name="status"
+                                       th:value="${bill.status != null ? bill.status : 'UNPAID'}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text"
+                                          th:text="${bill.status == 'PARTIAL'} ? '部分已缴' : (${bill.status == 'OVERDUE'} ? '逾期' : (${bill.status == 'PAID'} ? '已缴清' : '未缴'))">未缴</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="UNPAID" data-label="未缴"
+                                        th:classappend="${bill.status == null or bill.status == 'UNPAID'} ? ' is-selected'">未缴
+                                        <span class="custom-select-option-badge" data-tone="muted">待收</span></li>
+                                    <li class="custom-select-option" data-value="PARTIAL" data-label="部分已缴"
+                                        th:classappend="${bill.status == 'PARTIAL'} ? ' is-selected'">部分已缴
+                                        <span class="custom-select-option-badge" data-tone="primary">进行中</span></li>
+                                    <li class="custom-select-option" data-value="OVERDUE" data-label="逾期"
+                                        th:classappend="${bill.status == 'OVERDUE'} ? ' is-selected'">逾期
+                                        <span class="custom-select-option-badge" data-tone="warning">催缴</span></li>
+                                    <li class="custom-select-option" data-value="PAID" data-label="已缴清"
+                                        th:classappend="${bill.status == 'PAID'} ? ' is-selected'">已缴清
+                                        <span class="custom-select-option-badge" data-tone="success">完成</span></li>
+                                </ul>
+                            </div>
                         </label>
 
                         <label>
@@ -63,7 +92,7 @@
 
                         <label>
                             到期日期
-                            <input type="date" name="dueDate" th:value="${bill.dueDate}" />
+                            <input type="date" name="dueDate" th:value="${bill.dueDate}" data-ui-picker="date" />
                         </label>
 
                         <label class="span-2">

@@ -8,8 +8,8 @@
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/auth.css" />
 </head>
-<body class="auth-portal-body">
-<main class="auth-portal-card" th:attr="data-initial-tab=${tab}">
+<body class="auth-portal-body" th:classappend="${forgotModalOpen} ? ' has-modal-open'">
+<main class="auth-portal-card" th:attr="data-initial-tab=${tab},data-forgot-open=${forgotModalOpen}">
     <header class="auth-portal-header">
         <div class="auth-portal-intro">
             <h1>物业运营平台管理系统</h1>
@@ -33,14 +33,21 @@
 
     <section class="auth-portal-section auth-portal-section-login"
              th:classappend="${tab == 'register'} ? ' is-hidden'">
-        <form method="post" action="/login" class="auth-portal-form" id="loginForm" autocomplete="on">
+        <form method="post"
+              action="/login"
+              class="auth-portal-form"
+              id="loginForm"
+              novalidate
+              autocomplete="off"
+              th:attr="data-preserve-username=${loginUsername != null and !#strings.isEmpty(loginUsername)}">
             <label class="auth-portal-label" for="login-username">用户名</label>
             <div class="auth-portal-input-wrap">
                 <span class="auth-portal-icon auth-portal-icon-user" aria-hidden="true"></span>
                 <input id="login-username"
                        name="username"
+                       th:value="${loginUsername}"
                        placeholder="请输入用户名"
-                       autocomplete="username"
+                       autocomplete="off"
                        minlength="3"
                        maxlength="20"
                        required />
@@ -53,7 +60,7 @@
                        name="password"
                        type="password"
                        placeholder="请输入密码"
-                       autocomplete="current-password"
+                       autocomplete="off"
                        minlength="8"
                        maxlength="64"
                        required />
@@ -66,7 +73,7 @@
             </div>
 
             <div class="auth-portal-meta">
-                <button type="button" class="auth-portal-link-btn" data-switch-tab="forgot">忘记密码？</button>
+                <button type="button" class="auth-portal-link-btn" data-open-forgot-modal>忘记密码？</button>
             </div>
 
             <button class="auth-portal-submit" id="loginSubmit" type="submit">登录系统</button>
@@ -81,6 +88,7 @@
                 <span class="auth-portal-icon auth-portal-icon-user" aria-hidden="true"></span>
                 <input id="register-username"
                        name="username"
+                       th:value="${registerUsername}"
                        placeholder="请输入 3-20 位用户名"
                        autocomplete="username"
                        minlength="3"
@@ -130,69 +138,91 @@
         </form>
     </section>
 
-    <section class="auth-portal-section auth-portal-section-forgot is-hidden">
-        <form method="post" action="/forgot-password" class="auth-portal-form" id="forgotForm" autocomplete="off">
-            <p class="auth-portal-helper">请输入用户名和新密码来重置您的密码。</p>
-
-            <label class="auth-portal-label" for="forgot-username">用户名</label>
-            <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon auth-portal-icon-user" aria-hidden="true"></span>
-                <input id="forgot-username"
-                       name="username"
-                       placeholder="请输入您的用户名"
-                       autocomplete="username"
-                       minlength="3"
-                       maxlength="20"
-                       required />
-            </div>
-
-            <label class="auth-portal-label" for="forgot-new-password">新密码</label>
-            <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon auth-portal-icon-lock" aria-hidden="true"></span>
-                <input id="forgot-new-password"
-                       name="newPassword"
-                       type="password"
-                       placeholder="请输入 8-64 位新密码"
-                       autocomplete="new-password"
-                       minlength="8"
-                       maxlength="64"
-                       required />
-                <button class="auth-portal-eye"
-                        type="button"
-                        data-target="forgot-new-password"
-                        aria-label="显示或隐藏密码"
-                        aria-pressed="false">
-                </button>
-            </div>
-
-            <label class="auth-portal-label" for="forgot-confirm-password">确认新密码</label>
-            <div class="auth-portal-input-wrap">
-                <span class="auth-portal-icon auth-portal-icon-lock" aria-hidden="true"></span>
-                <input id="forgot-confirm-password"
-                       name="confirmPassword"
-                       type="password"
-                       placeholder="请再次输入新密码"
-                       autocomplete="new-password"
-                       minlength="8"
-                       maxlength="64"
-                       required />
-                <button class="auth-portal-eye"
-                        type="button"
-                        data-target="forgot-confirm-password"
-                        aria-label="显示或隐藏密码"
-                        aria-pressed="false">
-                </button>
-            </div>
-
-            <div class="auth-portal-meta">
-                <button type="button" class="auth-portal-link-btn" data-switch-tab="login">返回登录</button>
-            </div>
-
-            <button class="auth-portal-submit" type="submit">重置密码</button>
-        </form>
-    </section>
 </main>
 
+<div class="auth-forgot-modal"
+     id="forgotPasswordModal"
+     th:classappend="${forgotModalOpen} ? ' is-open'"
+     th:attr="aria-hidden=${forgotModalOpen} ? 'false' : 'true'">
+    <div class="auth-forgot-modal-shell">
+        <section class="auth-forgot-modal-dialog"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="forgotPasswordTitle">
+            <button type="button"
+                    class="auth-forgot-modal-close"
+                    data-close-forgot-modal
+                    aria-label="关闭找回密码弹窗"></button>
+
+            <div class="auth-forgot-modal-header">
+                <h2 id="forgotPasswordTitle">找回密码</h2>
+                <p>请使用当前账号信息重置密码，重置后可直接返回登录。</p>
+            </div>
+
+            <form method="post" action="/forgot-password" class="auth-portal-form auth-forgot-form" id="forgotForm" autocomplete="off">
+                <label class="auth-portal-label" for="forgot-username">用户名</label>
+                <div class="auth-portal-input-wrap">
+                    <span class="auth-portal-icon auth-portal-icon-user" aria-hidden="true"></span>
+                    <input id="forgot-username"
+                           name="username"
+                           th:value="${forgotUsername}"
+                           placeholder="请输入您的用户名"
+                           autocomplete="username"
+                           minlength="3"
+                           maxlength="20"
+                           required />
+                </div>
+
+                <label class="auth-portal-label" for="forgot-new-password">新密码</label>
+                <div class="auth-portal-input-wrap">
+                    <span class="auth-portal-icon auth-portal-icon-lock" aria-hidden="true"></span>
+                    <input id="forgot-new-password"
+                           name="newPassword"
+                           type="password"
+                           placeholder="请输入 8-64 位新密码"
+                           autocomplete="new-password"
+                           minlength="8"
+                           maxlength="64"
+                           required />
+                    <button class="auth-portal-eye"
+                            type="button"
+                            data-target="forgot-new-password"
+                            aria-label="显示或隐藏密码"
+                            aria-pressed="false">
+                    </button>
+                </div>
+
+                <label class="auth-portal-label" for="forgot-confirm-password">确认新密码</label>
+                <div class="auth-portal-input-wrap">
+                    <span class="auth-portal-icon auth-portal-icon-lock" aria-hidden="true"></span>
+                    <input id="forgot-confirm-password"
+                           name="confirmPassword"
+                           type="password"
+                           placeholder="请再次输入新密码"
+                           autocomplete="new-password"
+                           minlength="8"
+                           maxlength="64"
+                           required />
+                    <button class="auth-portal-eye"
+                            type="button"
+                            data-target="forgot-confirm-password"
+                            aria-label="显示或隐藏密码"
+                            aria-pressed="false">
+                    </button>
+                </div>
+
+                <button class="auth-portal-submit auth-forgot-submit" type="submit">重置密码</button>
+
+                <div class="auth-forgot-modal-footer">
+                    <span>记得密码？</span>
+                    <button type="button" class="auth-portal-link-btn" data-close-forgot-modal>返回登录</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<script src="/js/common/validation-bubble.js?v=20260408-validation-top-toast" defer></script>
 <script src="/js/auth/login.js" defer></script>
 </body>
 </html>

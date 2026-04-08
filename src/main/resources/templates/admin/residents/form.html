@@ -6,7 +6,7 @@
     <title th:text="${editing} ? '编辑住户' : '新增住户'">住户表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin.css" />
+    <link rel="stylesheet" href="/css/apps/admin.css?v=20260408-all-date-pickers" />
 </head>
 <body>
 <div class="app-shell">
@@ -34,10 +34,22 @@
 
                         <label>
                             所属房屋
-                            <select name="unitId" required>
-                                <option value="">请选择房屋</option>
-                                <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${resident.unitId == unit.id}"></option>
-                            </select>
+                            <div class="custom-select" data-required>
+                                <input type="hidden" name="unitId" th:value="${resident.unitId}" required />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text">请选择房屋</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="" data-label="请选择房屋"
+                                        th:classappend="${resident.unitId == null} ? ' is-selected'">请选择房屋</li>
+                                    <li th:each="unit : ${units}"
+                                        class="custom-select-option"
+                                        th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
+                                        th:classappend="${resident.unitId == unit.id} ? ' is-selected'"
+                                        th:text="${unit.unitNo}"></li>
+                                </ul>
+                            </div>
                         </label>
 
                         <label>
@@ -56,31 +68,57 @@
                         </label>
 
                         <label>
-                            住户类型
-                            <select name="residentType">
-                                <option value="OWNER" th:selected="${resident.residentType == 'OWNER'}">业主</option>
-                                <option value="TENANT" th:selected="${resident.residentType == 'TENANT'}">租户</option>
-                                <option value="FAMILY" th:selected="${resident.residentType == 'FAMILY'}">家属</option>
-                            </select>
-                        </label>
-
-                        <label>
-                            状态
-                            <select name="status">
-                                <option value="ACTIVE" th:selected="${resident.status == 'ACTIVE'}">在住</option>
-                                <option value="MOVED_OUT" th:selected="${resident.status == 'MOVED_OUT'}">已迁出</option>
-                            </select>
-                        </label>
-
-                        <label>
                             入住日期
-                            <input type="date" name="moveInDate" th:value="${resident.moveInDate}" />
+                            <input type="date" name="moveInDate" th:value="${resident.moveInDate}" data-ui-picker="date" />
                         </label>
 
                         <label>
                             迁出日期
-                            <input type="date" name="moveOutDate" th:value="${resident.moveOutDate}" />
+                            <input type="date" name="moveOutDate" th:value="${resident.moveOutDate}" data-ui-picker="date" />
                         </label>
+
+                        <label>
+                            住户类型
+                            <div class="custom-select">
+                                <input type="hidden" name="residentType"
+                                       th:value="${resident.residentType != null ? resident.residentType : 'OWNER'}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text"
+                                          th:text="${resident.residentType == 'TENANT'} ? '租户' : (${resident.residentType == 'FAMILY'} ? '家属' : '业主')">业主</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="OWNER" data-label="业主"
+                                        th:classappend="${resident.residentType == null or resident.residentType == 'OWNER'} ? ' is-selected'">业主</li>
+                                    <li class="custom-select-option" data-value="TENANT" data-label="租户"
+                                        th:classappend="${resident.residentType == 'TENANT'} ? ' is-selected'">租户</li>
+                                    <li class="custom-select-option" data-value="FAMILY" data-label="家属"
+                                        th:classappend="${resident.residentType == 'FAMILY'} ? ' is-selected'">家属</li>
+                                </ul>
+                            </div>
+                        </label>
+
+                        <label>
+                            状态
+                            <div class="custom-select">
+                                <input type="hidden" name="status"
+                                       th:value="${resident.status != null ? resident.status : 'ACTIVE'}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false">
+                                    <span class="custom-select-trigger-text"
+                                          th:text="${resident.status == 'MOVED_OUT'} ? '已迁出' : '在住'">在住</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="ACTIVE" data-label="在住"
+                                        th:classappend="${resident.status == null or resident.status == 'ACTIVE'} ? ' is-selected'">在住
+                                        <span class="custom-select-option-badge" data-tone="success">正常</span></li>
+                                    <li class="custom-select-option" data-value="MOVED_OUT" data-label="已迁出"
+                                        th:classappend="${resident.status == 'MOVED_OUT'} ? ' is-selected'">已迁出
+                                        <span class="custom-select-option-badge" data-tone="warning">已结束</span></li>
+                                </ul>
+                            </div>
+                        </label>
+
 
                         <div class="form-actions">
                             <button class="btn primary" type="submit">保存</button>

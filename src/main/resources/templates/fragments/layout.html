@@ -12,9 +12,12 @@
                 <a class="nav-link" href="/">首页</a>
             </div>
             <div class="nav-right">
-                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).USER}" href="/admin/management?tab=work-orders">我的工单</a>
-                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).ADMIN}" href="/admin/management?tab=dashboard">管理后台</a>
-                <a class="nav-link nav-pill" th:if="${role == T(org.example.propertyms.user.model.Role).STAFF}" href="/admin/management?tab=work-orders">员工后台</a>
+                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).USER}"
+                   href="/admin/management?tab=work-orders">我的工单</a>
+                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).ADMIN}"
+                   href="/admin/management?tab=dashboard">管理后台</a>
+                <a class="nav-link nav-pill" th:if="${role == T(org.example.propertyms.user.model.Role).STAFF}"
+                   href="/admin/management?tab=work-orders">员工后台</a>
                 <a class="nav-link" th:if="${user == null}" href="/login">登录</a>
                 <a class="nav-link" th:if="${user == null}" href="/register">注册</a>
                 <a class="nav-link" th:if="${user != null}" href="/profile">个人中心</a>
@@ -23,84 +26,99 @@
     </header>
 </div>
 
-<header class="topbar" th:fragment="topbar(active)" th:with="current=${session.CURRENT_USER}">
-    <div class="topbar-left">
+<header class="topbar" th:fragment="topbar(active)"
+        th:with="current=${session.CURRENT_USER}, resolvedTab=${active == 'management' ? currentTab : active}, primarySection=${resolvedTab == 'units' or resolvedTab == 'residents' ? 'assets' : (resolvedTab == 'work-orders' or resolvedTab == 'bills' ? 'services' : (resolvedTab == 'users' ? 'system' : 'dashboard'))}">
+    <div class="topbar-main">
         <a class="brand" href="/admin/management?tab=dashboard">
            <span class="ico">
    <img src="/icons/logo-e.svg" alt="dashboard" class="brand-logo-img" style="width: 60px; height: 60px;">
 </span>
             <span>物业后台管理系统</span>
         </a>
-        <nav class="top-nav slide-tabs">
-            <!--/*@thymesVar id="currentTab" type=" "*/-->
-            <a href="/admin/management?tab=dashboard"
-               data-management-tab="dashboard"
-               th:classappend="${(active == 'management' and currentTab == 'dashboard') or active == 'dashboard'} ? ' is-active'">系统首页</a>
-            <a href="/admin/management?tab=units"
-               data-management-tab="units"
-               th:classappend="${(active == 'management' and currentTab == 'units') or active == 'units'} ? ' is-active'">房屋管理</a>
-            <a href="/admin/management?tab=residents"
-               data-management-tab="residents"
-               th:classappend="${(active == 'management' and currentTab == 'residents') or active == 'residents'} ? ' is-active'">住户档案</a>
-            <a href="/admin/management?tab=work-orders"
-               data-management-tab="work-orders"
-               th:classappend="${(active == 'management' and currentTab == 'work-orders') or active == 'work-orders'} ? ' is-active'">工单中心</a>
-            <a href="/admin/management?tab=bills"
-               data-management-tab="bills"
-               th:classappend="${(active == 'management' and currentTab == 'bills') or active == 'bills'} ? ' is-active'">费用账单</a>
-            <a href="/admin/management?tab=users"
-               data-management-tab="users"
-               th:classappend="${(active == 'management' and currentTab == 'users') or active == 'users'} ? ' is-active'">系统用户</a>
-            <span class="slide-underline" aria-hidden="true"></span>
-        </nav>
+        <div class="topbar-context">
+            <nav class="top-nav top-nav-primary slide-tabs" aria-label="后台主导航">
+                <a href="/admin/management?tab=dashboard"
+                   data-management-section="dashboard"
+                   th:classappend="${primarySection == 'dashboard'} ? ' is-active'">系统首页</a>
+                <a href="/admin/management?tab=units"
+                   data-management-section="assets"
+                   th:classappend="${primarySection == 'assets'} ? ' is-active'">资产档案</a>
+                <a href="/admin/management?tab=work-orders"
+                   data-management-section="services"
+                   th:classappend="${primarySection == 'services'} ? ' is-active'">服务中心</a>
+                <a href="/admin/management?tab=users"
+                   data-management-section="system"
+                   th:classappend="${primarySection == 'system'} ? ' is-active'">系统用户</a>
+                <span class="slide-underline" aria-hidden="true"></span>
+            </nav>
+        </div>
     </div>
     <div class="topbar-right" th:if="${current != null}" style="display: flex; gap: 24px; align-items: center;">
         <span class="ico"><img src="/icons/bell.svg" alt="bell" style="width:24px; height:24px;"></span>
-        <a class="" href="/profile"><span class="ico"><img src="/icons/user.svg" alt="用户中心" style="width:24px; height:24px;"></span></a>
+        <a class="" href="/profile"><span class="ico"><img src="/icons/user.svg" alt="用户中心"
+                                                           style="width:24px; height:24px;"></span></a>
     </div>
     <script src="/js/common/session-guard.js" defer></script>
     <script src="/js/common/nav-tabs.js" defer></script>
+    <script src="/js/common/validation-bubble.js?v=20260408-validation-top-toast" defer></script>
+    <script src="/js/common/custom-select.js?v=20260408-picker-validation-fix" defer></script>
 </header>
 
-<aside class="sidebar" th:fragment="sidebar(active)">
-    <nav class="side-nav">
-        <a href="/admin/management?tab=dashboard"
-           data-management-tab="dashboard"
-           th:classappend="${(active == 'management' and currentTab == 'dashboard') or active == 'dashboard'} ? ' is-active'">
-            <span class="ico"><img src="/icons/chart.svg" alt="dashboard"></span>
-            <span>概览看板</span>
-        </a>
-        <!--/*@thymesVar id="currentTab" type="java.lang.String"*/-->
-        <a href="/admin/management?tab=units"
-           data-management-tab="units"
-           th:classappend="${(active == 'management' and currentTab == 'units') or active == 'units'} ? ' is-active'">
-            <span class="ico"><img src="/icons/building.svg" alt="units"></span>
-            <span>房屋楼栋</span>
-        </a>
-        <a href="/admin/management?tab=residents"
-           data-management-tab="residents"
-           th:classappend="${(active == 'management' and currentTab == 'residents') or active == 'residents'} ? ' is-active'">
-            <span class="ico"><img src="/icons/resident.svg" alt="residents"></span>
-            <span>住户信息</span>
-        </a>
-        <a href="/admin/management?tab=work-orders"
-           data-management-tab="work-orders"
-           th:classappend="${(active == 'management' and currentTab == 'work-orders') or active == 'work-orders'} ? ' is-active'">
-            <span class="ico"><img src="/icons/repair.svg" alt="work-orders"></span>
-            <span>报修工单</span>
-        </a>
-        <a href="/admin/management?tab=bills"
-           data-management-tab="bills"
-           th:classappend="${(active == 'management' and currentTab == 'bills') or active == 'bills'} ? ' is-active'">
-            <span class="ico"><img src="/icons/bill.svg" alt="bills"></span>
-            <span>收费账单</span>
-        </a>
-        <a href="/admin/management?tab=users"
-           data-management-tab="users"
-           th:classappend="${(active == 'management' and currentTab == 'users') or active == 'users'} ? ' is-active'">
-            <span class="ico"><img src="/icons/user-mg.svg" alt="dashboard"></span>
-            <span>权限用户</span>
-        </a>
+<aside class="sidebar" th:fragment="sidebar(active)"
+       th:with="resolvedTab=${active == 'management' ? currentTab : active}, primarySection=${resolvedTab == 'units' or resolvedTab == 'residents' ? 'assets' : (resolvedTab == 'work-orders' or resolvedTab == 'bills' ? 'services' : (resolvedTab == 'users' ? 'system' : 'dashboard'))}">
+    <nav class="side-nav" aria-label="后台二级导航">
+        <section class="side-nav-group"
+                 data-management-section-panel="dashboard"
+                 th:classappend="${primarySection != 'dashboard'} ? ' is-hidden'">
+            <a class="side-nav-link" href="/admin/management?tab=dashboard"
+               data-management-tab="dashboard"
+               th:classappend="${resolvedTab == 'dashboard'} ? ' is-active'">
+                <span class="ico side-nav-icon side-nav-icon-chart" aria-hidden="true"></span>
+                <span class="side-nav-text">概览看板</span>
+            </a>
+        </section>
+        <section class="side-nav-group"
+                 data-management-section-panel="assets"
+                 th:classappend="${primarySection != 'assets'} ? ' is-hidden'">
+            <a class="side-nav-link" href="/admin/management?tab=units"
+               data-management-tab="units"
+               th:classappend="${resolvedTab == 'units'} ? ' is-active'">
+                <span class="ico side-nav-icon side-nav-icon-building" aria-hidden="true"></span>
+                <span class="side-nav-text">房屋楼栋</span>
+            </a>
+            <a class="side-nav-link" href="/admin/management?tab=residents"
+               data-management-tab="residents"
+               th:classappend="${resolvedTab == 'residents'} ? ' is-active'">
+                <span class="ico side-nav-icon side-nav-icon-resident" aria-hidden="true"></span>
+                <span class="side-nav-text">住户信息</span>
+            </a>
+        </section>
+        <section class="side-nav-group"
+                 data-management-section-panel="services"
+                 th:classappend="${primarySection != 'services'} ? ' is-hidden'">
+            <a class="side-nav-link" href="/admin/management?tab=work-orders"
+               data-management-tab="work-orders"
+               th:classappend="${resolvedTab == 'work-orders'} ? ' is-active'">
+                <span class="ico side-nav-icon side-nav-icon-repair" aria-hidden="true"></span>
+                <span class="side-nav-text">报修工单</span>
+            </a>
+            <a class="side-nav-link" href="/admin/management?tab=bills"
+               data-management-tab="bills"
+               th:classappend="${resolvedTab == 'bills'} ? ' is-active'">
+                <span class="ico side-nav-icon side-nav-icon-bill" aria-hidden="true"></span>
+                <span class="side-nav-text">收费账单</span>
+            </a>
+        </section>
+        <section class="side-nav-group"
+                 data-management-section-panel="system"
+                 th:classappend="${primarySection != 'system'} ? ' is-hidden'">
+            <a class="side-nav-link" href="/admin/management?tab=users"
+               data-management-tab="users"
+               th:classappend="${resolvedTab == 'users'} ? ' is-active'">
+                <span class="ico side-nav-icon side-nav-icon-user-mg" aria-hidden="true"></span>
+                <span class="side-nav-text">权限用户</span>
+            </a>
+        </section>
     </nav>
 </aside>
 
@@ -121,7 +139,8 @@
 
 <div th:fragment="confirmModal">
     <div class="confirm-modal" id="globalConfirmModal" aria-hidden="true">
-        <div class="confirm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmMessage">
+        <div class="confirm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle"
+             aria-describedby="globalConfirmMessage">
             <h3 class="confirm-modal-title" id="globalConfirmTitle">操作确认</h3>
             <p class="confirm-modal-message" id="globalConfirmMessage">确定要执行此操作吗？</p>
             <div class="confirm-modal-actions">
@@ -141,32 +160,39 @@
                 <h3 class="footer-title">物业综合管理平台</h3>
                 <p class="footer-copy">提供住户、工单、收费与运营数据的一体化管理能力。</p>
                 <p class="footer-meta">
-                    © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2026</span> Property Platform.
+                    © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2026</span> Property
+                    Platform.
                 </p>
             </section>
         </div>
     </footer>
 </div>
-<div th:fragment="pagination(pageResult, baseUrl, pageParamName)" th:if="${pageResult.totalPages > 0}" class="pagination-bar">
+<div th:fragment="pagination(pageResult, baseUrl, pageParamName)" th:if="${pageResult.totalPages > 0}"
+     class="pagination-bar">
     <span class="pagination-info">共 <!--/*@thymesVar id="totalPages" type=""*/-->
-    <strong th:text="${pageResult.totalPages}">1</strong> 页，当前第 <strong th:text="${pageResult.page}">1</strong> 页</span>
-    <nav class="pagination-nav">
-        <a class="page-link" th:if="${pageResult.hasPrev}" th:href="${baseUrl + '&' + pageParamName + '=1'}">首页</a>
+    <strong th:text="${pageResult.totalPages}">1</strong> 页，当前第 <strong
+                th:text="${pageResult.page}">1</strong> 页</span>
+    <nav class="pagination-nav" th:with="pageJoiner=${#strings.contains(baseUrl, '?') ? '&' : '?'}">
+        <a class="page-link" th:if="${pageResult.hasPrev}" th:href="${baseUrl + pageJoiner + pageParamName + '=1'}">首页</a>
         <span class="page-link disabled" th:unless="${pageResult.hasPrev}">首页</span>
 
-        <a class="page-link" th:if="${pageResult.hasPrev}" th:href="${baseUrl + '&' + pageParamName + '=' + (pageResult.page - 1)}">上一页</a>
+        <a class="page-link" th:if="${pageResult.hasPrev}"
+           th:href="${baseUrl + pageJoiner + pageParamName + '=' + (pageResult.page - 1)}">上一页</a>
         <span class="page-link disabled" th:unless="${pageResult.hasPrev}">上一页</span>
 
         <th:block th:each="p : ${pageResult.pageWindow}">
             <span class="page-link current" th:if="${p == pageResult.page}" th:text="${p}">1</span>
-            <a class="page-link" th:unless="${p == pageResult.page}" th:href="${baseUrl + '&' + pageParamName + '=' + p}" th:text="${p}">1</a>
+            <a class="page-link" th:unless="${p == pageResult.page}"
+               th:href="${baseUrl + pageJoiner + pageParamName + '=' + p}" th:text="${p}">1</a>
         </th:block>
 
-        <a class="page-link" th:if="${pageResult.hasNext}" th:href="${baseUrl + '&' + pageParamName + '=' + (pageResult.page + 1)}">下一页</a>
+        <a class="page-link" th:if="${pageResult.hasNext}"
+           th:href="${baseUrl + pageJoiner + pageParamName + '=' + (pageResult.page + 1)}">下一页</a>
         <span class="page-link disabled" th:unless="${pageResult.hasNext}">下一页</span>
 
         <!--/*@thymesVar id="hasNext" type=""*/-->
-        <a class="page-link" th:if="${pageResult.hasNext}" th:href="${baseUrl + '&' + pageParamName + '=' + pageResult.totalPages}">尾页</a>
+        <a class="page-link" th:if="${pageResult.hasNext}"
+           th:href="${baseUrl + pageJoiner + pageParamName + '=' + pageResult.totalPages}">尾页</a>
         <span class="page-link disabled" th:unless="${pageResult.hasNext}">尾页</span>
     </nav>
     <form class="pagination-jump"
@@ -174,7 +200,8 @@
         <span>跳转到</span>
         <label class="sr-only" th:for="|jump-page-${pageParamName}|">跳转页码</label>
         <label>
-            <input type="number" th:id="|jump-page-${pageParamName}|" name="jumpPage" min="1" th:max="${pageResult.totalPages}" class="page-jump-input" />
+            <input type="number" th:id="|jump-page-${pageParamName}|" name="jumpPage" min="1"
+                   th:max="${pageResult.totalPages}" class="page-jump-input"/>
         </label>
         <span>页</span>
         <button class="btn mini" type="submit">跳转</button>

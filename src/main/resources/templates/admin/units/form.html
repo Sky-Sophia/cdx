@@ -34,10 +34,22 @@
 
                 <label>
                     楼栋
-                    <select name="buildingId" required>
-                        <option value="">请选择楼栋</option>
-                        <option th:each="building : ${buildings}" th:value="${building.id}" th:text="${building.name}" th:selected="${unit.buildingId == building.id}"></option>
-                    </select>
+                    <div class="custom-select" data-required>
+                        <input type="hidden" name="buildingId" th:value="${unit.buildingId}" required />
+                        <button type="button" class="custom-select-trigger" aria-expanded="false">
+                            <span class="custom-select-trigger-text">请选择楼栋</span>
+                            <span class="custom-select-arrow" aria-hidden="true"></span>
+                        </button>
+                        <ul class="custom-select-panel">
+                            <li class="custom-select-option" data-value="" data-label="请选择楼栋"
+                                th:classappend="${unit.buildingId == null} ? ' is-selected'">请选择楼栋</li>
+                            <li th:each="building : ${buildings}"
+                                class="custom-select-option"
+                                th:attr="data-value=${building.id},data-label=${building.name}"
+                                th:classappend="${unit.buildingId == building.id} ? ' is-selected'"
+                                th:text="${building.name}"></li>
+                        </ul>
+                    </div>
                 </label>
 
                 <label>
@@ -67,11 +79,26 @@
 
                 <label>
                     使用状态
-                    <select name="occupancyStatus">
-                        <option value="OCCUPIED" th:selected="${unit.occupancyStatus == 'OCCUPIED'}">自住</option>
-                        <option value="RENTED" th:selected="${unit.occupancyStatus == 'RENTED'}">出租</option>
-                        <option value="VACANT" th:selected="${unit.occupancyStatus == 'VACANT'}">空置</option>
-                    </select>
+                    <div class="custom-select">
+                        <input type="hidden" name="occupancyStatus"
+                               th:value="${unit.occupancyStatus != null ? unit.occupancyStatus : 'OCCUPIED'}" />
+                        <button type="button" class="custom-select-trigger" aria-expanded="false">
+                            <span class="custom-select-trigger-text"
+                                  th:text="${unit.occupancyStatus == 'RENTED'} ? '出租' : (${unit.occupancyStatus == 'VACANT'} ? '空置' : '自住')">自住</span>
+                            <span class="custom-select-arrow" aria-hidden="true"></span>
+                        </button>
+                        <ul class="custom-select-panel">
+                            <li class="custom-select-option" data-value="OCCUPIED" data-label="自住"
+                                th:classappend="${unit.occupancyStatus == null or unit.occupancyStatus == 'OCCUPIED'} ? ' is-selected'">自住
+                                <span class="custom-select-option-badge" data-tone="success">在用</span></li>
+                            <li class="custom-select-option" data-value="RENTED" data-label="出租"
+                                th:classappend="${unit.occupancyStatus == 'RENTED'} ? ' is-selected'">出租
+                                <span class="custom-select-option-badge" data-tone="primary">租赁</span></li>
+                            <li class="custom-select-option" data-value="VACANT" data-label="空置"
+                                th:classappend="${unit.occupancyStatus == 'VACANT'} ? ' is-selected'">空置
+                                <span class="custom-select-option-badge" data-tone="muted">闲置</span></li>
+                        </ul>
+                    </div>
                 </label>
 
                         <div class="form-actions">

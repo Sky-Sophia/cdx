@@ -33,6 +33,11 @@
     border-color: var(--u-primary, #409eff);
 }
 
+.custom-select.is-invalid .custom-select-trigger {
+    border-color: var(--danger-ink, #f53f3f);
+    box-shadow: 0 0 0 4px rgba(245, 63, 63, 0.12);
+}
+
 .custom-select-trigger:focus,
 .custom-select.is-open .custom-select-trigger {
     border-color: var(--u-primary, #409eff);

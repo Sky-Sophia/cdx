@@ -6,7 +6,7 @@
     <title>统一管理 - 物业后台管理系统</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin-management.css" />
+    <link rel="stylesheet" href="/css/apps/admin-management.css?v=20260408-filter-action-buttons" />
 </head>
 <body>
 <div class="app-shell">
@@ -143,7 +143,7 @@
                 <article class="panel">
                     <div class="panel-head">
                         <h2>最新工单</h2>
-                        <a class="btn ghost mini" href="/admin/management?tab=work-orders" data-management-tab="work-orders">查看全部</a>
+                        <a class="btn ghost mini view-more-btn" href="/admin/management?tab=work-orders">查看全部</a>
                     </div>
                     <div class="table-wrap">
                         <table class="table">
@@ -179,7 +179,7 @@
                 <article class="panel">
                     <div class="panel-head">
                         <h2>近期应收账单</h2>
-                        <a class="btn ghost mini" href="/admin/management?tab=bills" data-management-tab="bills">查看全部</a>
+                        <a class="btn ghost mini view-more-btn" href="/admin/management?tab=bills">查看全部</a>
                     </div>
                     <div class="table-wrap">
                         <table class="table">
@@ -225,14 +225,14 @@
                     新增房屋</a>
             </section>
 
-            <form method="get" action="/admin/management" class="filter-row">
+            <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="units" />
                 <label>
                     <input name="unitKeyword" placeholder="房号 / 业主 / 手机号" th:value="${unitKeyword}" autocomplete="off" />
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="unitBuildingId" th:value="${unitBuildingId}" />
+                        <input type="hidden" name="unitBuildingId" th:value="${unitBuildingId}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text">全部楼栋</span>
                             <span class="custom-select-arrow" aria-hidden="true"></span>
@@ -250,7 +250,7 @@
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="unitStatus" th:value="${unitStatus}" />
+                        <input type="hidden" name="unitStatus" th:value="${unitStatus}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
                                   th:text="${unitStatus == 'OCCUPIED'} ? '自住' : (${unitStatus == 'RENTED'} ? '出租' : (${unitStatus == 'VACANT'} ? '空置' : '全部状态'))">全部状态</span>
@@ -271,14 +271,23 @@
                         </ul>
                     </div>
                 </label>
-                <button class="btn" type="submit">筛选</button>
-                <a class="btn ghost" href="/admin/management?tab=units">重置</a>
-                <a class="btn ghost"
-                   th:href="@{/admin/units/export(keyword=${unitKeyword},buildingId=${unitBuildingId},status=${unitStatus})}">导出 Excel</a>
+                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=units">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+                    </svg>
+                    <span>重置</span>
+                </a>
+                <a class="btn ghost filter-action-btn filter-action-export"
+                   th:href="@{/admin/units/export(keyword=${unitKeyword},buildingId=${unitBuildingId},status=${unitStatus})}">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
+                    </svg>
+                    <span>导出 Excel</span>
+                </a>
             </form>
 
             <div class="table-wrap">
-                <table class="table">
+                <table class="table table-units">
                     <thead>
                     <tr>
                         <th>楼栋</th>
@@ -316,7 +325,8 @@
                     </tbody>
                 </table>
             </div>
-            <div th:if="${unitPageResult != null}" th:replace="~{fragments/layout :: pagination(${unitPageResult}, '/admin/management?tab=units', 'unitPage')}"></div>
+            <div th:if="${unitPageResult != null}"
+                 th:replace="~{fragments/layout :: pagination(${unitPageResult}, ${unitPaginationBaseUrl}, 'unitPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-residents"
@@ -329,14 +339,14 @@
                     新增住户</a>
             </section>
 
-            <form method="get" action="/admin/management" class="filter-row">
+            <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="residents" />
                 <label>
                     <input name="residentKeyword" placeholder="姓名 / 手机号 / 房号" th:value="${residentKeyword}" autocomplete="off" />
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="residentStatus" th:value="${residentStatus}" />
+                        <input type="hidden" name="residentStatus" th:value="${residentStatus}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
                                   th:text="${residentStatus == 'ACTIVE'} ? '在住' : (${residentStatus == 'MOVED_OUT'} ? '已迁出' : '全部状态')">全部状态</span>
@@ -354,14 +364,23 @@
                         </ul>
                     </div>
                 </label>
-                <button class="btn" type="submit">筛选</button>
-                <a class="btn ghost" href="/admin/management?tab=residents">重置</a>
-                <a class="btn ghost"
-                   th:href="@{/admin/residents/export(keyword=${residentKeyword},status=${residentStatus})}">导出 Excel</a>
+                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=residents">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+                    </svg>
+                    <span>重置</span>
+                </a>
+                <a class="btn ghost filter-action-btn filter-action-export"
+                   th:href="@{/admin/residents/export(keyword=${residentKeyword},status=${residentStatus})}">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
+                    </svg>
+                    <span>导出 Excel</span>
+                </a>
             </form>
 
             <div class="table-wrap">
-                <table class="table">
+                <table class="table table-residents">
                     <thead>
                     <tr>
                         <th>姓名</th>
@@ -397,7 +416,8 @@
                     </tbody>
                 </table>
             </div>
-            <div th:if="${residentPageResult != null}" th:replace="~{fragments/layout :: pagination(${residentPageResult}, '/admin/management?tab=residents', 'residentPage')}"></div>
+            <div th:if="${residentPageResult != null}"
+                 th:replace="~{fragments/layout :: pagination(${residentPageResult}, ${residentPaginationBaseUrl}, 'residentPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-work-orders"
@@ -410,14 +430,14 @@
                     新建工单</a>
             </section>
 
-            <form method="get" action="/admin/management" class="filter-row">
+            <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="work-orders" />
                 <label>
                     <input name="workOrderKeyword" placeholder="工单号 / 房号" th:value="${workOrderKeyword}" autocomplete="off" />
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="workOrderStatus" th:value="${workOrderStatus}" />
+                        <input type="hidden" name="workOrderStatus" th:value="${workOrderStatus}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
                                   th:text="${workOrderStatus == 'OPEN'} ? '待受理' : (${workOrderStatus == 'IN_PROGRESS'} ? '处理中' : (${workOrderStatus == 'DONE'} ? '已完成' : (${workOrderStatus == 'CLOSED'} ? '已关闭' : '全部状态')))">全部状态</span>
@@ -443,7 +463,7 @@
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="workOrderPriority" th:value="${workOrderPriority}" />
+                        <input type="hidden" name="workOrderPriority" th:value="${workOrderPriority}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
                                   th:text="${workOrderPriority == 'HIGH'} ? '高' : (${workOrderPriority == 'MEDIUM'} ? '中' : (${workOrderPriority == 'LOW'} ? '低' : '全部优先级'))">全部优先级</span>
@@ -464,10 +484,19 @@
                         </ul>
                     </div>
                 </label>
-                <button class="btn" type="submit">筛选</button>
-                <a class="btn ghost" href="/admin/management?tab=work-orders">重置</a>
-                <a class="btn ghost"
-                   th:href="@{/admin/work-orders/export(keyword=${workOrderKeyword},status=${workOrderStatus},priority=${workOrderPriority})}">导出 Excel</a>
+                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=work-orders">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+                    </svg>
+                    <span>重置</span>
+                </a>
+                <a class="btn ghost filter-action-btn filter-action-export"
+                   th:href="@{/admin/work-orders/export(keyword=${workOrderKeyword},status=${workOrderStatus},priority=${workOrderPriority})}">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
+                    </svg>
+                    <span>导出 Excel</span>
+                </a>
             </form>
 
             <div class="table-wrap">
@@ -537,7 +566,8 @@
                     </tbody>
                 </table>
             </div>
-            <div th:if="${orderPageResult != null}" th:replace="~{fragments/layout :: pagination(${orderPageResult}, '/admin/management?tab=work-orders', 'orderPage')}"></div>
+            <div th:if="${orderPageResult != null}"
+                 th:replace="~{fragments/layout :: pagination(${orderPageResult}, ${workOrderPaginationBaseUrl}, 'orderPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-bills"
@@ -550,14 +580,14 @@
                     新增账单</a>
             </section>
 
-            <form method="get" action="/admin/management" class="filter-row">
+            <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="bills" />
                 <label>
                     <input name="billKeyword" placeholder="账单号 / 房号" th:value="${billKeyword}" autocomplete="off" />
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="billStatus" th:value="${billStatus}" />
+                        <input type="hidden" name="billStatus" th:value="${billStatus}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
                                   th:text="${billStatus == 'UNPAID'} ? '未缴' : (${billStatus == 'PARTIAL'} ? '部分已缴' : (${billStatus == 'OVERDUE'} ? '逾期' : (${billStatus == 'PAID'} ? '已缴清' : '全部状态')))">全部状态</span>
@@ -582,12 +612,21 @@
                     </div>
                 </label>
                 <label>
-                    <input type="month" name="billBillingMonth" th:value="${billBillingMonth}" />
+                    <input type="month" name="billBillingMonth" th:value="${billBillingMonth}" data-auto-submit-filter="true" data-ui-picker="month" />
                 </label>
-                <button class="btn" type="submit">筛选</button>
-                <a class="btn ghost" href="/admin/management?tab=bills">重置</a>
-                <a class="btn ghost"
-                   th:href="@{/admin/bills/export(keyword=${billKeyword},status=${billStatus},billingMonth=${billBillingMonth})}">导出 Excel</a>
+                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=bills">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+                    </svg>
+                    <span>重置</span>
+                </a>
+                <a class="btn ghost filter-action-btn filter-action-export"
+                   th:href="@{/admin/bills/export(keyword=${billKeyword},status=${billStatus},billingMonth=${billBillingMonth})}">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
+                    </svg>
+                    <span>导出 Excel</span>
+                </a>
             </form>
 
             <div class="table-wrap">
@@ -632,7 +671,8 @@
                     </tbody>
                 </table>
             </div>
-            <div th:if="${billPageResult != null}" th:replace="~{fragments/layout :: pagination(${billPageResult}, '/admin/management?tab=bills', 'billPage')}"></div>
+            <div th:if="${billPageResult != null}"
+                 th:replace="~{fragments/layout :: pagination(${billPageResult}, ${billPaginationBaseUrl}, 'billPage')}"></div>
         </section>
 
         <section class="mgmt-pane mgmt-pane-users"
@@ -645,14 +685,14 @@
                     新增用户</a>
             </section>
 
-            <form method="get" action="/admin/management" class="filter-row">
+            <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="users" />
                 <label>
                     <input name="userQ" placeholder="搜索用户名 / ID" th:value="${userQ}" autocomplete="off" />
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="userRole" th:value="${userRole}" />
+                        <input type="hidden" name="userRole" th:value="${userRole}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
                                   th:text="${userRole != null and userRole != ''} ? ${userRole.label} : '全部角色'">全部角色</span>
@@ -671,7 +711,7 @@
                 </label>
                 <label>
                     <div class="custom-select">
-                        <input type="hidden" name="userStatus" th:value="${userStatus}" />
+                        <input type="hidden" name="userStatus" th:value="${userStatus}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
                                   th:text="${userStatus == 'ACTIVE'} ? '启用' : (${userStatus == 'DISABLED'} ? '禁用' : '全部状态')">全部状态</span>
@@ -689,10 +729,19 @@
                         </ul>
                     </div>
                 </label>
-                <button class="btn" type="submit">筛选</button>
-                <a class="btn ghost" href="/admin/management?tab=users">重置</a>
-                <a class="btn ghost" id="exportUsersBtn"
-                   th:href="@{/admin/users/export(q=${userQ},role=${userRole},status=${userStatus})}">导出 Excel</a>
+                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=users">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+                    </svg>
+                    <span>重置</span>
+                </a>
+                <a class="btn ghost filter-action-btn filter-action-export" id="exportUsersBtn"
+                   th:href="@{/admin/users/export(q=${userQ},role=${userRole},status=${userStatus})}">
+                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
+                    </svg>
+                    <span>导出 Excel</span>
+                </a>
             </form>
 
             <div class="table-wrap">
@@ -729,7 +778,8 @@
                     </tbody>
                 </table>
             </div>
-            <div th:if="${userPageResult != null}" th:replace="~{fragments/layout :: pagination(${userPageResult}, '/admin/management?tab=users', 'userPage')}"></div>
+            <div th:if="${userPageResult != null}"
+                 th:replace="~{fragments/layout :: pagination(${userPageResult}, ${userPaginationBaseUrl}, 'userPage')}"></div>
         </section>
     </main>
 </div>
@@ -737,10 +787,9 @@
 <div th:replace="~{fragments/layout :: confirmModal}"></div>
 
 <script src="/js/common/pagination.js" defer></script>
-<script src="/js/common/custom-select.js" defer></script>
 <script src="/js/vendor/echarts.min.js" defer></script>
 <script src="/js/admin/management-dashboard.js" defer></script>
-<script src="/js/admin/management.js" defer></script>
+<script src="/js/admin/management.js?v=20260408-management-scroll-filter-fix" defer></script>
 <script src="/js/admin/user-table.js" defer></script>
 </body>
 </html>

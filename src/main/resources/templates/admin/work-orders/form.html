@@ -30,10 +30,22 @@
                     <form method="post" action="/admin/work-orders/save" class="form-grid">
                 <label>
                     报修房屋
-                    <select name="unitId" required>
-                        <option value="">请选择房屋</option>
-                        <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.unitNo}" th:selected="${workOrder.unitId == unit.id}"></option>
-                    </select>
+                    <div class="custom-select" data-required>
+                        <input type="hidden" name="unitId" th:value="${workOrder.unitId}" required />
+                        <button type="button" class="custom-select-trigger" aria-expanded="false">
+                            <span class="custom-select-trigger-text">请选择房屋</span>
+                            <span class="custom-select-arrow" aria-hidden="true"></span>
+                        </button>
+                        <ul class="custom-select-panel">
+                            <li class="custom-select-option" data-value="" data-label="请选择房屋"
+                                th:classappend="${workOrder.unitId == null} ? ' is-selected'">请选择房屋</li>
+                            <li th:each="unit : ${units}"
+                                class="custom-select-option"
+                                th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
+                                th:classappend="${workOrder.unitId == unit.id} ? ' is-selected'"
+                                th:text="${unit.unitNo}"></li>
+                        </ul>
+                    </div>
                 </label>
 
                 <label>
@@ -48,21 +60,49 @@
 
                 <label>
                     工单类别
-                    <select name="category">
-                        <option value="水电维修">水电维修</option>
-                        <option value="门禁设备">门禁设备</option>
-                        <option value="公区环境">公区环境</option>
-                        <option value="其他">其他</option>
-                    </select>
+                    <div class="custom-select">
+                        <input type="hidden" name="category"
+                               th:value="${workOrder.category != null and workOrder.category != '' ? workOrder.category : '水电维修'}" />
+                        <button type="button" class="custom-select-trigger" aria-expanded="false">
+                            <span class="custom-select-trigger-text"
+                                  th:text="${workOrder.category != null and workOrder.category != '' ? workOrder.category : '水电维修'}">水电维修</span>
+                            <span class="custom-select-arrow" aria-hidden="true"></span>
+                        </button>
+                        <ul class="custom-select-panel">
+                            <li class="custom-select-option" data-value="水电维修" data-label="水电维修"
+                                th:classappend="${workOrder.category == null or workOrder.category == '' or workOrder.category == '水电维修'} ? ' is-selected'">水电维修</li>
+                            <li class="custom-select-option" data-value="门禁设备" data-label="门禁设备"
+                                th:classappend="${workOrder.category == '门禁设备'} ? ' is-selected'">门禁设备</li>
+                            <li class="custom-select-option" data-value="公区环境" data-label="公区环境"
+                                th:classappend="${workOrder.category == '公区环境'} ? ' is-selected'">公区环境</li>
+                            <li class="custom-select-option" data-value="其他" data-label="其他"
+                                th:classappend="${workOrder.category == '其他'} ? ' is-selected'">其他</li>
+                        </ul>
+                    </div>
                 </label>
 
                 <label>
                     优先级
-                    <select name="priority">
-                        <option value="HIGH" th:selected="${workOrder.priority == 'HIGH'}">高</option>
-                        <option value="MEDIUM" th:selected="${workOrder.priority == 'MEDIUM'}">中</option>
-                        <option value="LOW" th:selected="${workOrder.priority == 'LOW'}">低</option>
-                    </select>
+                    <div class="custom-select">
+                        <input type="hidden" name="priority"
+                               th:value="${workOrder.priority != null ? workOrder.priority : 'HIGH'}" />
+                        <button type="button" class="custom-select-trigger" aria-expanded="false">
+                            <span class="custom-select-trigger-text"
+                                  th:text="${workOrder.priority == 'MEDIUM'} ? '中' : (${workOrder.priority == 'LOW'} ? '低' : '高')">高</span>
+                            <span class="custom-select-arrow" aria-hidden="true"></span>
+                        </button>
+                        <ul class="custom-select-panel">
+                            <li class="custom-select-option" data-value="HIGH" data-label="高"
+                                th:classappend="${workOrder.priority == null or workOrder.priority == 'HIGH'} ? ' is-selected'">高
+                                <span class="custom-select-option-badge" data-tone="danger">紧急</span></li>
+                            <li class="custom-select-option" data-value="MEDIUM" data-label="中"
+                                th:classappend="${workOrder.priority == 'MEDIUM'} ? ' is-selected'">中
+                                <span class="custom-select-option-badge" data-tone="warning">常规</span></li>
+                            <li class="custom-select-option" data-value="LOW" data-label="低"
+                                th:classappend="${workOrder.priority == 'LOW'} ? ' is-selected'">低
+                                <span class="custom-select-option-badge" data-tone="muted">排期</span></li>
+                        </ul>
+                    </div>
                 </label>
 
                 <label>
