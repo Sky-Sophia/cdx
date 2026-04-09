@@ -24,6 +24,7 @@
     --warning-soft: #fff7e8;
     --danger-soft: #fff1f0;
     --danger-ink: #f53f3f;
+    --viewport-scrollbar-width: 0px;
 }
 
 * {
@@ -57,12 +58,14 @@ a {
 .topbar {
     grid-column: 1 / -1;
     grid-row: 1;
+    width: calc(100% + var(--viewport-scrollbar-width, 0px));
     border-bottom: 1px solid var(--line);
     background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 24px;
+    padding: 0 calc(24px + var(--viewport-scrollbar-width, 0px)) 0 24px;
+    margin-right: calc(var(--viewport-scrollbar-width, 0px) * -1);
     position: sticky;
     top: 0;
     z-index: 30;
@@ -988,7 +991,7 @@ textarea:focus {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
-        padding: 14px;
+        padding: 14px calc(14px + var(--viewport-scrollbar-width, 0px)) 14px 14px;
     }
 
     .sidebar {

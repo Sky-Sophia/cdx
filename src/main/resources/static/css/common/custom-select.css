@@ -92,7 +92,7 @@
     left: 0;
     right: 0;
     margin: 0;
-    padding: 4px 0;
+    padding: 0;
     list-style: none;
     background: #fff;
     border: 1px solid var(--u-border-light, #ebeef5);
@@ -138,6 +138,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
     padding: 8px 14px;
     font-size: 14px;
     color: var(--u-text-secondary, #606266);
@@ -145,6 +146,8 @@
     transition: background-color 0.15s, color 0.15s;
     white-space: nowrap;
     min-height: 36px;
+    box-sizing: border-box;
+    background-clip: padding-box;
 }
 
 .custom-select-option:hover,
@@ -157,6 +160,20 @@
     color: var(--u-primary, #409eff);
     font-weight: 600;
     background-color: rgba(64, 158, 255, 0.06);
+}
+
+.custom-select-option:first-child:hover,
+.custom-select-option:first-child.is-highlighted,
+.custom-select-option:first-child.is-selected {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.custom-select-option:last-child:hover,
+.custom-select-option:last-child.is-highlighted,
+.custom-select-option:last-child.is-selected {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
 }
 
 .custom-select-option.is-selected::after {
@@ -185,12 +202,7 @@
 
 /* ── Option badge (optional) ── */
 .custom-select-option-badge {
-    margin-left: auto;
-    font-size: 12px;
-    padding: 1px 8px;
-    border-radius: 10px;
-    font-weight: 500;
-    flex-shrink: 0;
+    display: none;
 }
 
 .custom-select-option-badge[data-tone="success"] {

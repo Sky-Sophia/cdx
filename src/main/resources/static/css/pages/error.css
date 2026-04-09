@@ -1,0 +1,81 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --error-bg: #f7f8fa;
+    --error-text: #2d3748;
+    --error-muted: #718096;
+    --error-divider: #cbd5e0;
+    --error-icon-color: #64748b;
+    --error-code-color: #4a5568;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--error-bg);
+    color: var(--error-text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.wrap {
+    max-width: 460px;
+    width: 100%;
+    text-align: center;
+}
+
+.error-icon {
+    width: 80px;
+    height: 80px;
+    color: var(--error-icon-color);
+    margin: 0 auto 1.6rem;
+}
+
+.code {
+    font-size: 4.4rem;
+    font-weight: 900;
+    color: var(--error-code-color);
+    letter-spacing: -0.03em;
+}
+
+.divider {
+    width: 60px;
+    height: 2px;
+    background: var(--error-divider);
+    margin: 1.2rem auto;
+    opacity: 0.6;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0.8rem 0;
+}
+
+.desc {
+    font-size: 1rem;
+    color: var(--error-muted);
+    line-height: 1.6;
+}
+
+.error-page--403 {
+    --error-icon-color: #f97316;
+    --error-code-color: #dd6b20;
+}
+
+.error-page--404 {
+    --error-icon-color: #64748b;
+    --error-code-color: #4a5568;
+}
+
+.error-page--500 {
+    --error-icon-color: #ef4444;
+    --error-code-color: #c53030;
+}
+

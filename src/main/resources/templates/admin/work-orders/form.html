@@ -7,6 +7,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
+    <link rel="stylesheet" href="/css/apps/admin-archive-create.css" th:href="@{/css/apps/admin-archive-create.css}" />
 </head>
 <body>
 <div class="app-shell">
@@ -16,128 +17,119 @@
     <main class="app-main">
         <div th:replace="~{fragments/layout :: messages}"></div>
 
-        <section class="page-head compact form-page-head">
-            <div class="page-head-copy">
-                <h1>新建报修工单</h1>
-                <p>按房屋、报修人、优先级与描述统一创建工单，保证处理流程、指派记录和状态更新都能清晰追踪。</p>
-            </div>
-            <a class="btn ghost" href="/admin/work-orders">返回列表</a>
-        </section>
-
-        <section class="form-layout">
-            <div class="form-main">
-                <section class="panel form-panel">
-                    <form method="post" action="/admin/work-orders/save" class="form-grid">
-                <label>
-                    报修房屋
-                    <div class="custom-select" data-required>
-                        <input type="hidden" name="unitId" th:value="${workOrder.unitId}" required />
-                        <button type="button" class="custom-select-trigger" aria-expanded="false">
-                            <span class="custom-select-trigger-text">请选择房屋</span>
-                            <span class="custom-select-arrow" aria-hidden="true"></span>
-                        </button>
-                        <ul class="custom-select-panel">
-                            <li class="custom-select-option" data-value="" data-label="请选择房屋"
-                                th:classappend="${workOrder.unitId == null} ? ' is-selected'">请选择房屋</li>
-                            <li th:each="unit : ${units}"
-                                class="custom-select-option"
-                                th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
-                                th:classappend="${workOrder.unitId == unit.id} ? ' is-selected'"
-                                th:text="${unit.unitNo}"></li>
-                        </ul>
+        <section class="archive-create-page">
+            <form method="post" action="/admin/work-orders/save" class="archive-create-form">
+                <div class="archive-create-card">
+                    <div class="archive-top-bar"></div>
+                    <div class="archive-create-header">
+                        <div class="archive-create-sn">工单编号：__________</div>
+                        <div class="archive-create-stamp"><span>报修<br />工单</span></div>
+                        <h1>报修工单登记表</h1>
+                        <p class="subtitle">WORK ORDER REGISTRATION</p>
                     </div>
-                </label>
 
-                <label>
-                    报修人
-                    <input name="residentName" th:value="${workOrder.residentName}" required />
-                </label>
-
-                <label>
-                    联系电话
-                    <input name="phone" th:value="${workOrder.phone}" />
-                </label>
-
-                <label>
-                    工单类别
-                    <div class="custom-select">
-                        <input type="hidden" name="category"
-                               th:value="${workOrder.category != null and workOrder.category != '' ? workOrder.category : '水电维修'}" />
-                        <button type="button" class="custom-select-trigger" aria-expanded="false">
-                            <span class="custom-select-trigger-text"
-                                  th:text="${workOrder.category != null and workOrder.category != '' ? workOrder.category : '水电维修'}">水电维修</span>
-                            <span class="custom-select-arrow" aria-hidden="true"></span>
-                        </button>
-                        <ul class="custom-select-panel">
-                            <li class="custom-select-option" data-value="水电维修" data-label="水电维修"
-                                th:classappend="${workOrder.category == null or workOrder.category == '' or workOrder.category == '水电维修'} ? ' is-selected'">水电维修</li>
-                            <li class="custom-select-option" data-value="门禁设备" data-label="门禁设备"
-                                th:classappend="${workOrder.category == '门禁设备'} ? ' is-selected'">门禁设备</li>
-                            <li class="custom-select-option" data-value="公区环境" data-label="公区环境"
-                                th:classappend="${workOrder.category == '公区环境'} ? ' is-selected'">公区环境</li>
-                            <li class="custom-select-option" data-value="其他" data-label="其他"
-                                th:classappend="${workOrder.category == '其他'} ? ' is-selected'">其他</li>
-                        </ul>
-                    </div>
-                </label>
-
-                <label>
-                    优先级
-                    <div class="custom-select">
-                        <input type="hidden" name="priority"
-                               th:value="${workOrder.priority != null ? workOrder.priority : 'HIGH'}" />
-                        <button type="button" class="custom-select-trigger" aria-expanded="false">
-                            <span class="custom-select-trigger-text"
-                                  th:text="${workOrder.priority == 'MEDIUM'} ? '中' : (${workOrder.priority == 'LOW'} ? '低' : '高')">高</span>
-                            <span class="custom-select-arrow" aria-hidden="true"></span>
-                        </button>
-                        <ul class="custom-select-panel">
-                            <li class="custom-select-option" data-value="HIGH" data-label="高"
-                                th:classappend="${workOrder.priority == null or workOrder.priority == 'HIGH'} ? ' is-selected'">高
-                                <span class="custom-select-option-badge" data-tone="danger">紧急</span></li>
-                            <li class="custom-select-option" data-value="MEDIUM" data-label="中"
-                                th:classappend="${workOrder.priority == 'MEDIUM'} ? ' is-selected'">中
-                                <span class="custom-select-option-badge" data-tone="warning">常规</span></li>
-                            <li class="custom-select-option" data-value="LOW" data-label="低"
-                                th:classappend="${workOrder.priority == 'LOW'} ? ' is-selected'">低
-                                <span class="custom-select-option-badge" data-tone="muted">排期</span></li>
-                        </ul>
-                    </div>
-                </label>
-
-                <label>
-                    指派人员
-                    <input name="assignee" th:value="${workOrder.assignee}" placeholder="如：刘师傅" />
-                </label>
-
-                <label class="span-2">
-                    问题描述
-                    <textarea name="description" rows="4" th:text="${workOrder.description}" required></textarea>
-                </label>
-
-                        <div class="form-actions">
-                            <button class="btn primary" type="submit">创建工单</button>
-                            <a class="btn ghost" href="/admin/work-orders">取消</a>
+                    <div class="archive-create-body">
+                        <div class="archive-create-row-double">
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" id="work-order-unit-label">报修房屋</label>
+                                <div class="custom-select archive-create-control" data-required>
+                                    <input type="hidden" name="unitId" th:value="${workOrder.unitId}" required />
+                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                            aria-labelledby="work-order-unit-label work-order-unit-trigger-text">
+                                        <span class="custom-select-trigger-text" id="work-order-unit-trigger-text">请选择房屋</span>
+                                        <span class="custom-select-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="custom-select-panel">
+                                        <li class="custom-select-option" data-value="" data-label="请选择房屋"
+                                            th:classappend="${workOrder.unitId == null} ? ' is-selected'">请选择房屋</li>
+                                        <li th:each="unit : ${units}"
+                                            class="custom-select-option"
+                                            th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
+                                            th:classappend="${workOrder.unitId == unit.id} ? ' is-selected'"
+                                            th:text="${unit.unitNo}"></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="work-order-residentName">报 修 人</label>
+                                <input class="archive-create-control" id="work-order-residentName" name="residentName" th:value="${workOrder.residentName}" placeholder="请输入报修人姓名" required />
+                            </div>
                         </div>
-                    </form>
-                </section>
-            </div>
 
-            <aside class="form-aside">
-                <section class="form-note-card">
-                    <span class="note-kicker">工单说明</span>
-                    <h3>优先级决定处理时效</h3>
-                    <p>高优先级适用于停水停电、门禁失效等紧急问题；中低优先级更适合常规维修和环境处理。</p>
-                </section>
-                <section class="form-note-card">
-                    <h3>描述建议</h3>
-                    <ul>
-                        <li>尽量写清具体位置、故障现象和发生时间。</li>
-                        <li>若已指定处理人，可直接填写师傅姓名。</li>
-                        <li>描述越完整，后续流转与回访越高效。</li>
-                    </ul>
-                </section>
-            </aside>
+                        <div class="archive-create-row-double">
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="work-order-phone">联系电话</label>
+                                <input class="archive-create-control" id="work-order-phone" name="phone" th:value="${workOrder.phone}" placeholder="请输入联系电话" />
+                            </div>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" id="work-order-category-label">工单类别</label>
+                                <div class="custom-select archive-create-control">
+                                    <input type="hidden" name="category"
+                                           th:value="${workOrder.category != null and workOrder.category != '' ? workOrder.category : '水电维修'}" />
+                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                            aria-labelledby="work-order-category-label work-order-category-trigger-text">
+                                        <span class="custom-select-trigger-text" id="work-order-category-trigger-text"
+                                              th:text="${workOrder.category != null and workOrder.category != '' ? workOrder.category : '水电维修'}">水电维修</span>
+                                        <span class="custom-select-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="custom-select-panel">
+                                        <li class="custom-select-option" data-value="水电维修" data-label="水电维修"
+                                            th:classappend="${workOrder.category == null or workOrder.category == '' or workOrder.category == '水电维修'} ? ' is-selected'">水电维修</li>
+                                        <li class="custom-select-option" data-value="门禁设备" data-label="门禁设备"
+                                            th:classappend="${workOrder.category == '门禁设备'} ? ' is-selected'">门禁设备</li>
+                                        <li class="custom-select-option" data-value="公区环境" data-label="公区环境"
+                                            th:classappend="${workOrder.category == '公区环境'} ? ' is-selected'">公区环境</li>
+                                        <li class="custom-select-option" data-value="其他" data-label="其他"
+                                            th:classappend="${workOrder.category == '其他'} ? ' is-selected'">其他</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="archive-create-row-double">
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" id="work-order-priority-label">优 先 级</label>
+                                <div class="custom-select archive-create-control">
+                                    <input type="hidden" name="priority"
+                                           th:value="${workOrder.priority != null ? workOrder.priority : 'HIGH'}" />
+                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                            aria-labelledby="work-order-priority-label work-order-priority-trigger-text">
+                                        <span class="custom-select-trigger-text" id="work-order-priority-trigger-text"
+                                              th:text="${workOrder.priority == 'MEDIUM'} ? '中' : (${workOrder.priority == 'LOW'} ? '低' : '高')">高</span>
+                                        <span class="custom-select-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="custom-select-panel">
+                                        <li class="custom-select-option" data-value="HIGH" data-label="高"
+                                            th:classappend="${workOrder.priority == null or workOrder.priority == 'HIGH'} ? ' is-selected'">高</li>
+                                        <li class="custom-select-option" data-value="MEDIUM" data-label="中"
+                                            th:classappend="${workOrder.priority == 'MEDIUM'} ? ' is-selected'">中</li>
+                                        <li class="custom-select-option" data-value="LOW" data-label="低"
+                                            th:classappend="${workOrder.priority == 'LOW'} ? ' is-selected'">低</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="work-order-assignee">指派人员</label>
+                                <input class="archive-create-control" id="work-order-assignee" name="assignee" th:value="${workOrder.assignee}" placeholder="如：刘师傅" />
+                            </div>
+                        </div>
+
+                        <div class="archive-create-row-single is-textarea">
+                            <label class="archive-create-label" for="work-order-description">问题描述</label>
+                            <textarea class="archive-create-control" id="work-order-description" name="description" rows="4" placeholder="请填写报修详情" th:text="${workOrder.description}" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="archive-create-footer">
+                        <span class="archive-create-time"
+                              th:text="${'登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
+                        <div class="archive-create-actions">
+                            <a class="archive-create-action archive-create-action--cancel" href="/admin/work-orders">取　消</a>
+                            <button class="archive-create-action archive-create-action--save" type="submit">创建工单</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </section>
     </main>
 </div>

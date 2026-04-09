@@ -1,3 +1,8 @@
+.confirm-modal-root,
+html {
+    scrollbar-gutter: stable;
+}
+
 .confirm-modal-open {
     overflow: hidden;
 }

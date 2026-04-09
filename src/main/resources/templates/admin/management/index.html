@@ -260,14 +260,11 @@
                             <li class="custom-select-option" data-value="" data-label="全部状态"
                                 th:classappend="${unitStatus == null or unitStatus == ''} ? ' is-selected'">全部状态</li>
                             <li class="custom-select-option" data-value="OCCUPIED" data-label="自住"
-                                th:classappend="${unitStatus == 'OCCUPIED'} ? ' is-selected'">自住
-                                <span class="custom-select-option-badge" data-tone="success">在用</span></li>
+                                th:classappend="${unitStatus == 'OCCUPIED'} ? ' is-selected'">自住</li>
                             <li class="custom-select-option" data-value="RENTED" data-label="出租"
-                                th:classappend="${unitStatus == 'RENTED'} ? ' is-selected'">出租
-                                <span class="custom-select-option-badge" data-tone="primary">租赁</span></li>
+                                th:classappend="${unitStatus == 'RENTED'} ? ' is-selected'">出租</li>
                             <li class="custom-select-option" data-value="VACANT" data-label="空置"
-                                th:classappend="${unitStatus == 'VACANT'} ? ' is-selected'">空置
-                                <span class="custom-select-option-badge" data-tone="muted">闲置</span></li>
+                                th:classappend="${unitStatus == 'VACANT'} ? ' is-selected'">空置</li>
                         </ul>
                     </div>
                 </label>
@@ -356,11 +353,9 @@
                             <li class="custom-select-option" data-value="" data-label="全部状态"
                                 th:classappend="${residentStatus == null or residentStatus == ''} ? ' is-selected'">全部状态</li>
                             <li class="custom-select-option" data-value="ACTIVE" data-label="在住"
-                                th:classappend="${residentStatus == 'ACTIVE'} ? ' is-selected'">在住
-                                <span class="custom-select-option-badge" data-tone="success">正常</span></li>
+                                th:classappend="${residentStatus == 'ACTIVE'} ? ' is-selected'">在住</li>
                             <li class="custom-select-option" data-value="MOVED_OUT" data-label="已迁出"
-                                th:classappend="${residentStatus == 'MOVED_OUT'} ? ' is-selected'">已迁出
-                                <span class="custom-select-option-badge" data-tone="warning">已结束</span></li>
+                                th:classappend="${residentStatus == 'MOVED_OUT'} ? ' is-selected'">已迁出</li>
                         </ul>
                     </div>
                 </label>
@@ -447,17 +442,13 @@
                             <li class="custom-select-option" data-value="" data-label="全部状态"
                                 th:classappend="${workOrderStatus == null or workOrderStatus == ''} ? ' is-selected'">全部状态</li>
                             <li class="custom-select-option" data-value="OPEN" data-label="待受理"
-                                th:classappend="${workOrderStatus == 'OPEN'} ? ' is-selected'">待受理
-                                <span class="custom-select-option-badge" data-tone="warning">等待</span></li>
+                                th:classappend="${workOrderStatus == 'OPEN'} ? ' is-selected'">待受理</li>
                             <li class="custom-select-option" data-value="IN_PROGRESS" data-label="处理中"
-                                th:classappend="${workOrderStatus == 'IN_PROGRESS'} ? ' is-selected'">处理中
-                                <span class="custom-select-option-badge" data-tone="primary">进行</span></li>
+                                th:classappend="${workOrderStatus == 'IN_PROGRESS'} ? ' is-selected'">处理中</li>
                             <li class="custom-select-option" data-value="DONE" data-label="已完成"
-                                th:classappend="${workOrderStatus == 'DONE'} ? ' is-selected'">已完成
-                                <span class="custom-select-option-badge" data-tone="success">完成</span></li>
+                                th:classappend="${workOrderStatus == 'DONE'} ? ' is-selected'">已完成</li>
                             <li class="custom-select-option" data-value="CLOSED" data-label="已关闭"
-                                th:classappend="${workOrderStatus == 'CLOSED'} ? ' is-selected'">已关闭
-                                <span class="custom-select-option-badge" data-tone="muted">归档</span></li>
+                                th:classappend="${workOrderStatus == 'CLOSED'} ? ' is-selected'">已关闭</li>
                         </ul>
                     </div>
                 </label>
@@ -473,14 +464,11 @@
                             <li class="custom-select-option" data-value="" data-label="全部优先级"
                                 th:classappend="${workOrderPriority == null or workOrderPriority == ''} ? ' is-selected'">全部优先级</li>
                             <li class="custom-select-option" data-value="HIGH" data-label="高"
-                                th:classappend="${workOrderPriority == 'HIGH'} ? ' is-selected'">高
-                                <span class="custom-select-option-badge" data-tone="danger">紧急</span></li>
+                                th:classappend="${workOrderPriority == 'HIGH'} ? ' is-selected'">高</li>
                             <li class="custom-select-option" data-value="MEDIUM" data-label="中"
-                                th:classappend="${workOrderPriority == 'MEDIUM'} ? ' is-selected'">中
-                                <span class="custom-select-option-badge" data-tone="warning">一般</span></li>
+                                th:classappend="${workOrderPriority == 'MEDIUM'} ? ' is-selected'">中</li>
                             <li class="custom-select-option" data-value="LOW" data-label="低"
-                                th:classappend="${workOrderPriority == 'LOW'} ? ' is-selected'">低
-                                <span class="custom-select-option-badge" data-tone="muted">低级</span></li>
+                                th:classappend="${workOrderPriority == 'LOW'} ? ' is-selected'">低</li>
                         </ul>
                     </div>
                 </label>
@@ -597,17 +585,13 @@
                             <li class="custom-select-option" data-value="" data-label="全部状态"
                                 th:classappend="${billStatus == null or billStatus == ''} ? ' is-selected'">全部状态</li>
                             <li class="custom-select-option" data-value="UNPAID" data-label="未缴"
-                                th:classappend="${billStatus == 'UNPAID'} ? ' is-selected'">未缴
-                                <span class="custom-select-option-badge" data-tone="warning">待缴</span></li>
+                                th:classappend="${billStatus == 'UNPAID'} ? ' is-selected'">未缴</li>
                             <li class="custom-select-option" data-value="PARTIAL" data-label="部分已缴"
-                                th:classappend="${billStatus == 'PARTIAL'} ? ' is-selected'">部分已缴
-                                <span class="custom-select-option-badge" data-tone="primary">部分</span></li>
+                                th:classappend="${billStatus == 'PARTIAL'} ? ' is-selected'">部分已缴</li>
                             <li class="custom-select-option" data-value="OVERDUE" data-label="逾期"
-                                th:classappend="${billStatus == 'OVERDUE'} ? ' is-selected'">逾期
-                                <span class="custom-select-option-badge" data-tone="danger">逾期</span></li>
+                                th:classappend="${billStatus == 'OVERDUE'} ? ' is-selected'">逾期</li>
                             <li class="custom-select-option" data-value="PAID" data-label="已缴清"
-                                th:classappend="${billStatus == 'PAID'} ? ' is-selected'">已缴清
-                                <span class="custom-select-option-badge" data-tone="success">完成</span></li>
+                                th:classappend="${billStatus == 'PAID'} ? ' is-selected'">已缴清</li>
                         </ul>
                     </div>
                 </label>
@@ -721,11 +705,9 @@
                             <li class="custom-select-option" data-value="" data-label="全部状态"
                                 th:classappend="${userStatus == null or userStatus == ''} ? ' is-selected'">全部状态</li>
                             <li class="custom-select-option" data-value="ACTIVE" data-label="启用"
-                                th:classappend="${userStatus == 'ACTIVE'} ? ' is-selected'">启用
-                                <span class="custom-select-option-badge" data-tone="success">正常</span></li>
+                                th:classappend="${userStatus == 'ACTIVE'} ? ' is-selected'">启用</li>
                             <li class="custom-select-option" data-value="DISABLED" data-label="禁用"
-                                th:classappend="${userStatus == 'DISABLED'} ? ' is-selected'">禁用
-                                <span class="custom-select-option-badge" data-tone="muted">停用</span></li>
+                                th:classappend="${userStatus == 'DISABLED'} ? ' is-selected'">禁用</li>
                         </ul>
                     </div>
                 </label>

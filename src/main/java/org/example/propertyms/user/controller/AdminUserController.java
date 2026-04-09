@@ -110,6 +110,7 @@ public class AdminUserController {
     public String save(@RequestParam String username,
                        @RequestParam String password,
                        @RequestParam Role role,
+                       @RequestParam(defaultValue = "ACTIVE") String status,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
@@ -120,11 +121,15 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", "后台只允许创建管理员/员工/财务账号。");
             return "redirect:/admin/users/new";
         }
+        if (status == null || !VALID_STATUS.contains(status.toUpperCase())) {
+            redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
+            return "redirect:/admin/users/new";
+        }
 
         try {
             User user = userService.register(username.trim(), password);
             userService.updateRole(user.getId(), role);
-            userService.updateStatus(user.getId(), "ACTIVE");
+            userService.updateStatus(user.getId(), status.toUpperCase());
             redirectAttributes.addFlashAttribute("success", "用户已创建。");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());

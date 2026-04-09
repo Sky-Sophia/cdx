@@ -129,7 +129,7 @@ public class AdminManagementController {
     private String buildUnitPaginationBaseUrl(String unitKeyword, Long unitBuildingId, String unitStatus) {
         UriComponentsBuilder builder = baseManagementUrl("units");
         addStringQueryParam(builder, "unitKeyword", unitKeyword);
-        addObjectQueryParam(builder, "unitBuildingId", unitBuildingId);
+        addObjectQueryParam(builder, unitBuildingId);
         addStringQueryParam(builder, "unitStatus", unitStatus);
         return builder.build().encode().toUriString();
     }
@@ -178,9 +178,9 @@ public class AdminManagementController {
         }
     }
 
-    private void addObjectQueryParam(UriComponentsBuilder builder, String name, Object value) {
+    private void addObjectQueryParam(UriComponentsBuilder builder, Object value) {
         if (value != null) {
-            builder.queryParam(name, value);
+            builder.queryParam("unitBuildingId", value);
         }
     }
 

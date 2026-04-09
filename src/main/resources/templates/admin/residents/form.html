@@ -7,6 +7,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css?v=20260408-all-date-pickers" />
+    <link rel="stylesheet" href="/css/apps/admin-archive-create.css" th:href="@{/css/apps/admin-archive-create.css}" />
 </head>
 <body>
 <div class="app-shell">
@@ -16,149 +17,143 @@
     <main class="app-main">
         <div th:replace="~{fragments/layout :: messages}"></div>
 
-        <section class="page-head compact form-page-head">
-            <div class="page-head-copy">
-                <h1 th:text="${editing} ? '编辑住户档案' : '新增住户档案'">住户档案</h1>
-                <p>统一记录住户身份、联系方式与入住状态，让住户信息与房屋档案、工单和费用模块保持关联一致。</p>
-            </div>
-            <a class="btn ghost" href="/admin/residents">返回列表</a>
-        </section>
+        <section class="archive-create-page">
+            <form method="post" action="/admin/residents/save" class="archive-create-form"
+                  th:attr="data-confirm-message=${editing ? '确认保存对该住户档案的修改吗？' : ''},
+                           data-confirm-confirm-text=${editing ? '确认保存' : ''}">
+                <input type="hidden" name="id" th:value="${resident.id}" />
 
-        <section class="form-layout">
-            <div class="form-main">
-                <section class="panel form-panel">
-                    <form method="post" action="/admin/residents/save" class="form-grid"
-                          th:attr="data-confirm-message=${editing ? '确认保存对该住户档案的修改吗？' : null},
-                                   data-confirm-confirm-text=${editing ? '确认保存' : null}">
-                        <input type="hidden" name="id" th:value="${resident.id}" />
+                <div class="archive-create-card">
+                    <div class="archive-top-bar"></div>
+                    <div class="archive-create-header">
+                        <div class="archive-create-sn"
+                             th:text="${editing and resident.id != null ? '住户编号：' + resident.id : '住户编号：待生成'}">住户编号：__________</div>
+                        <div class="archive-create-stamp"><span>住户<br />档案</span></div>
+                        <h1>住户档案登记表</h1>
+                        <p class="subtitle">RESIDENT RECORD REGISTRATION</p>
+                    </div>
 
-                        <label>
-                            所属房屋
-                            <div class="custom-select" data-required>
-                                <input type="hidden" name="unitId" th:value="${resident.unitId}" required />
-                                <button type="button" class="custom-select-trigger" aria-expanded="false">
-                                    <span class="custom-select-trigger-text">请选择房屋</span>
-                                    <span class="custom-select-arrow" aria-hidden="true"></span>
-                                </button>
-                                <ul class="custom-select-panel">
-                                    <li class="custom-select-option" data-value="" data-label="请选择房屋"
-                                        th:classappend="${resident.unitId == null} ? ' is-selected'">请选择房屋</li>
-                                    <li th:each="unit : ${units}"
-                                        class="custom-select-option"
-                                        th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
-                                        th:classappend="${resident.unitId == unit.id} ? ' is-selected'"
-                                        th:text="${unit.unitNo}"></li>
-                                </ul>
+                    <div class="archive-create-body">
+                        <div class="archive-create-row-double">
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" id="resident-unit-label">所属房屋</label>
+                                <div class="custom-select archive-create-control" data-required>
+                                    <input type="hidden" name="unitId" th:value="${resident.unitId}" required />
+                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                            aria-labelledby="resident-unit-label resident-unit-trigger-text">
+                                        <span class="custom-select-trigger-text" id="resident-unit-trigger-text">请选择房屋</span>
+                                        <span class="custom-select-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="custom-select-panel">
+                                        <li class="custom-select-option" data-value="" data-label="请选择房屋"
+                                            th:classappend="${resident.unitId == null} ? ' is-selected'">请选择房屋</li>
+                                        <li th:each="unit : ${units}"
+                                            class="custom-select-option"
+                                            th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
+                                            th:classappend="${resident.unitId == unit.id} ? ' is-selected'"
+                                            th:text="${unit.unitNo}"></li>
+                                    </ul>
+                                </div>
                             </div>
-                        </label>
-
-                        <label>
-                            姓名
-                            <input name="name" th:value="${resident.name}" required />
-                        </label>
-
-                        <label>
-                            手机号
-                            <input name="phone" th:value="${resident.phone}" />
-                        </label>
-
-                        <label>
-                            证件号
-                            <input name="identityNo" th:value="${resident.identityNo}" />
-                        </label>
-
-                        <label>
-                            入住日期
-                            <input type="date" name="moveInDate" th:value="${resident.moveInDate}" data-ui-picker="date" />
-                        </label>
-
-                        <label>
-                            迁出日期
-                            <input type="date" name="moveOutDate" th:value="${resident.moveOutDate}" data-ui-picker="date" />
-                        </label>
-
-                        <label>
-                            住户类型
-                            <div class="custom-select">
-                                <input type="hidden" name="residentType"
-                                       th:value="${resident.residentType != null ? resident.residentType : 'OWNER'}" />
-                                <button type="button" class="custom-select-trigger" aria-expanded="false">
-                                    <span class="custom-select-trigger-text"
-                                          th:text="${resident.residentType == 'TENANT'} ? '租户' : (${resident.residentType == 'FAMILY'} ? '家属' : '业主')">业主</span>
-                                    <span class="custom-select-arrow" aria-hidden="true"></span>
-                                </button>
-                                <ul class="custom-select-panel">
-                                    <li class="custom-select-option" data-value="OWNER" data-label="业主"
-                                        th:classappend="${resident.residentType == null or resident.residentType == 'OWNER'} ? ' is-selected'">业主</li>
-                                    <li class="custom-select-option" data-value="TENANT" data-label="租户"
-                                        th:classappend="${resident.residentType == 'TENANT'} ? ' is-selected'">租户</li>
-                                    <li class="custom-select-option" data-value="FAMILY" data-label="家属"
-                                        th:classappend="${resident.residentType == 'FAMILY'} ? ' is-selected'">家属</li>
-                                </ul>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="resident-name">姓　　名</label>
+                                <input class="archive-create-control" id="resident-name" name="name" th:value="${resident.name}" placeholder="请输入姓名" required />
                             </div>
-                        </label>
-
-                        <label>
-                            状态
-                            <div class="custom-select">
-                                <input type="hidden" name="status"
-                                       th:value="${resident.status != null ? resident.status : 'ACTIVE'}" />
-                                <button type="button" class="custom-select-trigger" aria-expanded="false">
-                                    <span class="custom-select-trigger-text"
-                                          th:text="${resident.status == 'MOVED_OUT'} ? '已迁出' : '在住'">在住</span>
-                                    <span class="custom-select-arrow" aria-hidden="true"></span>
-                                </button>
-                                <ul class="custom-select-panel">
-                                    <li class="custom-select-option" data-value="ACTIVE" data-label="在住"
-                                        th:classappend="${resident.status == null or resident.status == 'ACTIVE'} ? ' is-selected'">在住
-                                        <span class="custom-select-option-badge" data-tone="success">正常</span></li>
-                                    <li class="custom-select-option" data-value="MOVED_OUT" data-label="已迁出"
-                                        th:classappend="${resident.status == 'MOVED_OUT'} ? ' is-selected'">已迁出
-                                        <span class="custom-select-option-badge" data-tone="warning">已结束</span></li>
-                                </ul>
-                            </div>
-                        </label>
-
-
-                        <div class="form-actions">
-                            <button class="btn primary" type="submit">保存</button>
-                            <a class="btn ghost" href="/admin/residents">取消</a>
                         </div>
-                    </form>
 
-                    <section class="embedded-danger-panel" th:if="${editing and resident.id != null}">
-                        <div class="embedded-danger-copy">
-                            <span class="note-kicker">危险操作</span>
-                            <h3>删除当前住户档案</h3>
-                            <p>删除后不可恢复。若该住户仍关联账单、工单或房屋在住信息，请先处理关联数据后再删除。</p>
+                        <div class="archive-create-row-double">
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="resident-phone">手机号码</label>
+                                <input class="archive-create-control" id="resident-phone" name="phone" th:value="${resident.phone}" placeholder="请输入联系电话" />
+                            </div>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="resident-identityNo">证件号码</label>
+                                <input class="archive-create-control" id="resident-identityNo" name="identityNo" th:value="${resident.identityNo}" placeholder="请输入证件号" />
+                            </div>
                         </div>
-                        <form th:action="@{'/admin/residents/delete/' + ${resident.id}}"
-                              method="post"
-                              class="embedded-danger-actions"
-                              data-confirm-message="确认删除该住户吗？删除后将无法恢复"
-                              data-confirm-confirm-text="确认删除"
-                              data-confirm-tone="danger">
-                            <button class="btn danger" type="submit">删除住户档案</button>
-                        </form>
-                    </section>
-                </section>
-            </div>
 
-            <aside class="form-aside">
-                <section class="form-note-card">
-                    <span class="note-kicker">档案联动</span>
-                    <h3>住户资料将同步影响多个模块</h3>
-                    <p>住户姓名、手机号与所属房屋会在工单中心和住户查询中直接展示，建议优先保证基础资料准确。</p>
-                </section>
-                <section class="form-note-card">
-                    <h3>录入提醒</h3>
-                    <ul>
-                        <li>入住日期建议与实际交付时间保持一致。</li>
-                        <li>若已迁出，请补充迁出日期并更新状态。</li>
-                        <li>证件号与手机号建议完整录入，便于后续核验。</li>
-                    </ul>
-                </section>
-            </aside>
+                        <div class="archive-create-row-double">
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="resident-moveInDate">入住日期</label>
+                                <input class="archive-create-control" id="resident-moveInDate" type="date" name="moveInDate" th:value="${resident.moveInDate}" data-ui-picker="date" />
+                            </div>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" for="resident-moveOutDate">迁出日期</label>
+                                <input class="archive-create-control" id="resident-moveOutDate" type="date" name="moveOutDate" th:value="${resident.moveOutDate}" data-ui-picker="date" />
+                            </div>
+                        </div>
+
+                        <div class="archive-create-row-double">
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" id="resident-type-label">住户类型</label>
+                                <div class="custom-select archive-create-control">
+                                    <input type="hidden" name="residentType"
+                                           th:value="${resident.residentType != null ? resident.residentType : 'OWNER'}" />
+                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                            aria-labelledby="resident-type-label resident-type-trigger-text">
+                                        <span class="custom-select-trigger-text" id="resident-type-trigger-text"
+                                              th:text="${resident.residentType == 'TENANT'} ? '租户' : (${resident.residentType == 'FAMILY'} ? '家属' : '业主')">业主</span>
+                                        <span class="custom-select-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="custom-select-panel">
+                                        <li class="custom-select-option" data-value="OWNER" data-label="业主"
+                                            th:classappend="${resident.residentType == null or resident.residentType == 'OWNER'} ? ' is-selected'">业主</li>
+                                        <li class="custom-select-option" data-value="TENANT" data-label="租户"
+                                            th:classappend="${resident.residentType == 'TENANT'} ? ' is-selected'">租户</li>
+                                        <li class="custom-select-option" data-value="FAMILY" data-label="家属"
+                                            th:classappend="${resident.residentType == 'FAMILY'} ? ' is-selected'">家属</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label" id="resident-status-label">当前状态</label>
+                                <div class="custom-select archive-create-control">
+                                    <input type="hidden" name="status"
+                                           th:value="${resident.status != null ? resident.status : 'ACTIVE'}" />
+                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                            aria-labelledby="resident-status-label resident-status-trigger-text">
+                                        <span class="custom-select-trigger-text" id="resident-status-trigger-text"
+                                              th:text="${resident.status == 'MOVED_OUT'} ? '已迁出' : '在住'">在住</span>
+                                        <span class="custom-select-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="custom-select-panel">
+                                        <li class="custom-select-option" data-value="ACTIVE" data-label="在住"
+                                            th:classappend="${resident.status == null or resident.status == 'ACTIVE'} ? ' is-selected'">在住</li>
+                                        <li class="custom-select-option" data-value="MOVED_OUT" data-label="已迁出"
+                                            th:classappend="${resident.status == 'MOVED_OUT'} ? ' is-selected'">已迁出</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="archive-create-footer">
+                        <span class="archive-create-time"
+                              th:text="${editing and resident.updatedAt != null ? '最近更新 ' + #temporals.format(resident.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
+                        <div class="archive-create-actions">
+                            <a class="archive-create-action archive-create-action--cancel" href="/admin/residents">取　消</a>
+                            <button class="archive-create-action archive-create-action--save" type="submit"
+                                    th:text="${editing} ? '保存修改' : '保存归档'">保存归档</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <section class="embedded-danger-panel" th:if="${editing and resident.id != null}">
+                <div class="embedded-danger-copy">
+                    <span class="note-kicker">危险操作</span>
+                    <h3>删除当前住户档案</h3>
+                    <p>删除后不可恢复。若该住户仍关联账单、工单或房屋在住信息，请先处理关联数据后再删除。</p>
+                </div>
+                <form th:action="@{/admin/residents/delete/{id}(id=${resident.id})}"
+                      method="post"
+                      class="embedded-danger-actions"
+                      data-confirm-message="确认删除该住户吗？删除后将无法恢复"
+                      data-confirm-confirm-text="确认删除"
+                      data-confirm-tone="danger">
+                    <button class="btn danger" type="submit">删除住户档案</button>
+                </form>
+            </section>
         </section>
     </main>
 </div>

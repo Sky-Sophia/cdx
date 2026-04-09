@@ -1,0 +1,341 @@
+:root {
+    --archive-paper: #ffffff;
+    --archive-ink: #2d2d2d;
+    --archive-ink-light: #666666;
+    --archive-red: #b8232a;
+    --archive-line: #d0d0d0;
+    --archive-line-light: #e5e5e5;
+    --archive-blue-ink: #1a3a6e;
+    --archive-shadow-card: 0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
+.archive-create-page {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.archive-create-form {
+    margin: 0;
+}
+
+.archive-create-card {
+    width: 100%;
+    background: var(--archive-paper);
+    border-radius: 12px;
+    box-shadow: var(--archive-shadow-card);
+    overflow: hidden;
+    position: relative;
+    font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+
+.archive-create-card .archive-top-bar {
+    height: 5px;
+    background: linear-gradient(90deg, #c9373d, #b8232a);
+}
+
+.archive-create-header {
+    text-align: center;
+    padding: 32px 32px 20px;
+    border-bottom: 1px solid var(--archive-line-light);
+    position: relative;
+}
+
+.archive-create-sn {
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    font-size: 12px;
+    color: var(--archive-ink-light);
+}
+
+.archive-create-stamp {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border: 2px solid rgba(184, 35, 42, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-8deg);
+}
+
+.archive-create-stamp span {
+    font-size: 11px;
+    color: #b8232a;
+    opacity: 0.7;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.archive-create-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--archive-ink);
+    letter-spacing: 8px;
+    margin: 0 0 6px;
+}
+
+.archive-create-header .subtitle {
+    margin: 0;
+    font-size: 12px;
+    color: var(--archive-ink-light);
+    letter-spacing: 1px;
+}
+
+.archive-create-body {
+    padding: 30px 36px;
+}
+
+.archive-create-row-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--archive-line-light);
+}
+
+.archive-create-row-single {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+}
+
+.archive-create-row-single.is-textarea {
+    align-items: flex-start;
+}
+
+.archive-create-cell {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: 14px 0;
+}
+
+.archive-create-cell:first-child {
+    padding-right: 24px;
+}
+
+.archive-create-cell:last-child {
+    padding-left: 24px;
+    border-left: 1px solid var(--archive-line-light);
+}
+
+.archive-create-label {
+    width: 92px;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--archive-ink);
+}
+
+.archive-create-control,
+.archive-create-card .custom-select {
+    flex: 1;
+    min-width: 0;
+}
+
+.archive-create-card input:not([type="hidden"]),
+.archive-create-card select,
+.archive-create-card textarea,
+.archive-create-card .custom-select-trigger {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--archive-blue-ink);
+}
+
+.archive-create-card input:not([type="hidden"]),
+.archive-create-card select,
+.archive-create-card .custom-select-trigger {
+    height: 36px;
+    padding: 0;
+    border-bottom: none;
+}
+
+.archive-create-card select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23999' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 16px;
+}
+
+.archive-create-card select option {
+    padding: 10px;
+    background: #fff;
+    color: #333;
+}
+
+.archive-create-card textarea {
+    min-height: 84px;
+    padding: 4px 0;
+    resize: none;
+    line-height: 1.6;
+    border-bottom: 1px solid var(--archive-line-light);
+}
+
+.archive-create-card input:not([type="hidden"])::placeholder,
+.archive-create-card textarea::placeholder {
+    color: #aaa;
+    font-size: 13px;
+}
+
+.archive-create-card input:not([type="hidden"]):focus,
+.archive-create-card select:focus,
+.archive-create-card textarea:focus,
+.archive-create-card .custom-select-trigger:focus,
+.archive-create-card .custom-select.is-open .custom-select-trigger,
+.archive-create-card .custom-select.is-invalid .custom-select-trigger {
+    outline: none;
+    border-color: var(--archive-red);
+    box-shadow: none;
+}
+
+.archive-create-card .custom-select-trigger {
+    min-height: 36px;
+    padding-right: 18px;
+    border-radius: 0;
+}
+
+.archive-create-card .custom-select-trigger:hover {
+    background: transparent;
+    border-color: transparent;
+}
+
+.archive-create-card .custom-select-trigger-text {
+    color: inherit;
+}
+
+.archive-create-card .custom-select-arrow {
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    color: #999;
+}
+
+.archive-create-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 32px 26px;
+    border-top: 1px solid var(--archive-line-light);
+}
+
+.archive-create-time {
+    font-size: 12px;
+    color: var(--archive-ink-light);
+}
+
+.archive-create-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.archive-create-action {
+    min-height: 38px;
+    padding: 9px 24px;
+    border-radius: 6px;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.24s ease;
+}
+
+.archive-create-action--cancel {
+    background: #f5f7f9;
+    color: var(--archive-ink-light);
+}
+
+.archive-create-action--cancel:hover {
+    background: #eef2f5;
+}
+
+.archive-create-action--save {
+    background: var(--archive-red);
+    color: #fff;
+}
+
+.archive-create-action--save:hover {
+    background: #a31f25;
+}
+
+.archive-create-page--user .archive-create-row-single {
+    margin-top: 12px;
+}
+
+@media (max-width: 767px) {
+    .archive-create-page {
+        max-width: 100%;
+    }
+
+    .archive-create-header,
+    .archive-create-body {
+        padding: 24px;
+    }
+
+    .archive-create-header {
+        display: grid;
+        justify-items: center;
+        gap: 8px;
+    }
+
+    .archive-create-sn,
+    .archive-create-stamp {
+        position: static;
+    }
+
+    .archive-create-header h1 {
+        font-size: 20px;
+        letter-spacing: 4px;
+    }
+
+    .archive-create-row-double {
+        grid-template-columns: 1fr;
+    }
+
+    .archive-create-cell,
+    .archive-create-row-single {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .archive-create-cell:first-child,
+    .archive-create-cell:last-child {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .archive-create-cell:last-child {
+        border-left: none;
+    }
+
+    .archive-create-label {
+        width: auto;
+    }
+
+    .archive-create-footer {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .archive-create-actions {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+

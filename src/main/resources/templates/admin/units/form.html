@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="${editing} ? '编辑房屋' : '新增房屋'">房屋表单</title>
+    <title th:text="${editing ? '编辑房屋' : '新增房屋'}">房屋表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin.css" />
+    <link rel="stylesheet" href="/css/apps/admin.css" th:href="@{/css/apps/admin.css}" />
+    <link rel="stylesheet" href="/css/apps/admin-unit-form.css" th:href="@{/css/apps/admin-unit-form.css}" />
 </head>
 <body>
 <div class="app-shell">
@@ -16,130 +17,123 @@
     <main class="app-main">
         <div th:replace="~{fragments/layout :: messages}"></div>
 
-        <section class="page-head compact form-page-head">
-            <div class="page-head-copy">
-                <h1 th:text="${editing} ? '编辑房屋档案' : '新增房屋档案'"></h1>
-                <p>统一维护楼栋、房号、业主与使用状态信息，保持房屋资料与住户档案的基础数据一致。</p>
-            </div>
-            <a class="btn ghost" href="/admin/units">返回列表</a>
-        </section>
-
-        <section class="form-layout">
-            <div class="form-main">
-                <section class="panel form-panel">
-                    <form method="post" action="/admin/units/save" class="form-grid"
-                          th:attr="data-confirm-message=${editing ? '确认保存对该房屋档案的修改吗？' : null},
-                                   data-confirm-confirm-text=${editing ? '确认保存' : null}">
+        <section class="unit-archive-page unit-archive-page--create">
+            <form method="post" action="/admin/units/save" class="unit-archive-form"
+                  th:attr="data-confirm-message=${editing ? '确认保存对该房屋档案的修改吗？' : ''},
+                           data-confirm-confirm-text=${editing ? '确认保存' : ''}">
                 <input type="hidden" name="id" th:value="${unit.id}" />
 
-                <label>
-                    楼栋
-                    <div class="custom-select" data-required>
-                        <input type="hidden" name="buildingId" th:value="${unit.buildingId}" required />
-                        <button type="button" class="custom-select-trigger" aria-expanded="false">
-                            <span class="custom-select-trigger-text">请选择楼栋</span>
-                            <span class="custom-select-arrow" aria-hidden="true"></span>
-                        </button>
-                        <ul class="custom-select-panel">
-                            <li class="custom-select-option" data-value="" data-label="请选择楼栋"
-                                th:classappend="${unit.buildingId == null} ? ' is-selected'">请选择楼栋</li>
-                            <li th:each="building : ${buildings}"
-                                class="custom-select-option"
-                                th:attr="data-value=${building.id},data-label=${building.name}"
-                                th:classappend="${unit.buildingId == building.id} ? ' is-selected'"
-                                th:text="${building.name}"></li>
-                        </ul>
+                <div class="unit-archive-card">
+                    <div class="unit-archive-header">
+                        <span class="doc-number"
+                              th:if="${editing and unit.id != null}"
+                              th:text="|档案编号: ${unit.id}|">档案编号：1</span>
+                        <span class="doc-number" th:unless="${editing and unit.id != null}">档案编号：__________</span>
+                        <div class="stamp"><span>房屋<br />档案</span></div>
+                        <h1>房屋档案登记表</h1>
+                        <p class="subtitle">HOUSE RECORD REGISTRATION</p>
                     </div>
-                </label>
 
-                <label>
-                    房号
-                    <input name="unitNo" th:value="${unit.unitNo}" required />
-                </label>
+                    <div class="unit-archive-body">
+                        <div class="field-row-double">
+                            <div class="field-cell">
+                                <label class="field-label" id="unit-building-label">楼　　栋</label>
+                                <div class="custom-select" data-required>
+                                    <input type="hidden" id="unit-building" name="buildingId" th:value="${unit.buildingId}" required />
+                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                            aria-labelledby="unit-building-label unit-building-trigger-text">
+                                        <span class="custom-select-trigger-text" id="unit-building-trigger-text">请选择楼栋</span>
+                                        <span class="custom-select-arrow" aria-hidden="true"></span>
+                                    </button>
+                                    <ul class="custom-select-panel">
+                                        <li class="custom-select-option" data-value="" data-label="请选择楼栋"
+                                            th:classappend="${unit.buildingId == null} ? ' is-selected'">请选择楼栋</li>
+                                        <li th:each="building : ${buildings}"
+                                            class="custom-select-option"
+                                            th:attr="data-value=${building.id},data-label=${building.name}"
+                                            th:classappend="${unit.buildingId == building.id} ? ' is-selected'"
+                                            th:text="${building.name}">1号楼</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="field-cell">
+                                <label class="field-label" for="unit-unitNo">房　　号</label>
+                                <input id="unit-unitNo" type="text" name="unitNo" th:value="${unit.unitNo}" placeholder="请填写" required />
+                            </div>
+                        </div>
 
-                <label>
-                    楼层
-                    <input type="number" name="floorNo" th:value="${unit.floorNo}" min="1" />
-                </label>
+                        <div class="field-row-double">
+                            <div class="field-cell">
+                                <label class="field-label" for="unit-floorNo">楼　　层</label>
+                                <input id="unit-floorNo" type="number" name="floorNo" th:value="${unit.floorNo}" min="1" placeholder="请填写" />
+                            </div>
+                            <div class="field-cell">
+                                <label class="field-label" for="unit-areaM2">建筑面积</label>
+                                <input id="unit-areaM2" type="number" name="areaM2" th:value="${unit.areaM2}" step="0.01" min="0" placeholder="㎡" />
+                            </div>
+                        </div>
 
-                <label>
-                    建筑面积(m2)
-                    <input type="number" name="areaM2" th:value="${unit.areaM2}" step="0.01" min="0" />
-                </label>
+                        <div class="field-row-double">
+                            <div class="field-cell">
+                                <label class="field-label" for="unit-ownerName">业主姓名</label>
+                                <input id="unit-ownerName" type="text" name="ownerName" th:value="${unit.ownerName}" placeholder="请填写" />
+                            </div>
+                            <div class="field-cell">
+                                <label class="field-label" for="unit-ownerPhone">联系电话</label>
+                                <input id="unit-ownerPhone" type="tel" name="ownerPhone" th:value="${unit.ownerPhone}" placeholder="请填写" />
+                            </div>
+                        </div>
 
-                <label>
-                    业主姓名
-                    <input name="ownerName" th:value="${unit.ownerName}" />
-                </label>
-
-                <label>
-                    联系电话
-                    <input name="ownerPhone" th:value="${unit.ownerPhone}" />
-                </label>
-
-                <label>
-                    使用状态
-                    <div class="custom-select">
-                        <input type="hidden" name="occupancyStatus"
-                               th:value="${unit.occupancyStatus != null ? unit.occupancyStatus : 'OCCUPIED'}" />
-                        <button type="button" class="custom-select-trigger" aria-expanded="false">
-                            <span class="custom-select-trigger-text"
-                                  th:text="${unit.occupancyStatus == 'RENTED'} ? '出租' : (${unit.occupancyStatus == 'VACANT'} ? '空置' : '自住')">自住</span>
-                            <span class="custom-select-arrow" aria-hidden="true"></span>
-                        </button>
-                        <ul class="custom-select-panel">
-                            <li class="custom-select-option" data-value="OCCUPIED" data-label="自住"
-                                th:classappend="${unit.occupancyStatus == null or unit.occupancyStatus == 'OCCUPIED'} ? ' is-selected'">自住
-                                <span class="custom-select-option-badge" data-tone="success">在用</span></li>
-                            <li class="custom-select-option" data-value="RENTED" data-label="出租"
-                                th:classappend="${unit.occupancyStatus == 'RENTED'} ? ' is-selected'">出租
-                                <span class="custom-select-option-badge" data-tone="primary">租赁</span></li>
-                            <li class="custom-select-option" data-value="VACANT" data-label="空置"
-                                th:classappend="${unit.occupancyStatus == 'VACANT'} ? ' is-selected'">空置
-                                <span class="custom-select-option-badge" data-tone="muted">闲置</span></li>
-                        </ul>
+                        <div class="field-row-single">
+                            <label class="field-label" id="unit-occupancyStatus-label">使用状态</label>
+                            <div class="custom-select">
+                                <input type="hidden" id="unit-occupancyStatus" name="occupancyStatus"
+                                       th:value="${unit.occupancyStatus != null ? unit.occupancyStatus : 'OCCUPIED'}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                        aria-labelledby="unit-occupancyStatus-label unit-occupancyStatus-trigger-text">
+                                    <span class="custom-select-trigger-text" id="unit-occupancyStatus-trigger-text"
+                                          th:text="${unit.occupancyStatus == 'RENTED'} ? '出租' : (${unit.occupancyStatus == 'VACANT'} ? '空置' : '自住')">自住</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="OCCUPIED" data-label="自住"
+                                        th:classappend="${unit.occupancyStatus == null or unit.occupancyStatus == 'OCCUPIED'} ? ' is-selected'">自住</li>
+                                    <li class="custom-select-option" data-value="RENTED" data-label="出租"
+                                        th:classappend="${unit.occupancyStatus == 'RENTED'} ? ' is-selected'">出租</li>
+                                    <li class="custom-select-option" data-value="VACANT" data-label="空置"
+                                        th:classappend="${unit.occupancyStatus == 'VACANT'} ? ' is-selected'">空置</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                </label>
 
-                        <div class="form-actions">
-                            <button class="btn primary" type="submit">保存</button>
-                            <a class="btn ghost" href="/admin/units">取消</a>
+                    <div class="unit-archive-footer">
+                        <span class="timestamp"
+                              th:text="${editing and unit.updatedAt != null ? '最近更新 ' + #temporals.format(unit.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
+                        <div class="actions">
+                            <a class="btn btn-cancel" href="/admin/units">取　消</a>
+                            <button class="btn btn-save" type="submit"
+                                    th:text="${editing ? '保存修改' : '保存归档'}">保存归档</button>
                         </div>
-                    </form>
+                    </div>
+                </div>
+            </form>
 
-                    <section class="embedded-danger-panel" th:if="${editing and unit.id != null}">
-                        <div class="embedded-danger-copy">
-                            <span class="note-kicker">危险操作</span>
-                            <h3>删除当前房屋档案</h3>
-                            <p>删除后不可恢复。若该房屋仍关联住户、账单或工单，系统会阻止删除并提示先处理关联数据。</p>
-                        </div>
-                        <form th:action="@{'/admin/units/delete/' + ${unit.id}}"
-                              method="post"
-                              class="embedded-danger-actions"
-                              data-confirm-message="确认删除该房屋吗？删除后将无法恢复"
-                              data-confirm-confirm-text="确认删除"
-                              data-confirm-tone="danger">
-                            <button class="btn danger" type="submit">删除房屋档案</button>
-                        </form>
-                    </section>
-                </section>
-            </div>
-
-            <aside class="form-aside">
-                <section class="form-note-card">
-                    <span class="note-kicker">填写建议</span>
-                    <h3>先维护基础信息</h3>
-                    <p>建议先确认楼栋、房号与面积，再补充业主和联系方式，避免后续账单与住户关联错误。</p>
-                </section>
-                <section class="form-note-card">
-                    <h3>状态说明</h3>
-                    <ul>
-                        <li><strong>自住</strong>：业主本人入住。</li>
-                        <li><strong>出租</strong>：房屋已对外出租。</li>
-                        <li><strong>空置</strong>：暂无住户，可用于后续入驻分配。</li>
-                    </ul>
-                </section>
-            </aside>
+            <section class="unit-archive-danger" th:if="${editing and unit.id != null}">
+                <div class="unit-archive-danger-copy">
+                    <span class="note-kicker">危险操作</span>
+                    <h3>删除当前房屋档案</h3>
+                    <p>删除后不可恢复。若该房屋仍关联住户、账单或工单，系统会阻止删除并提示先处理关联数据。</p>
+                </div>
+                <form th:action="@{/admin/units/delete/{id}(id=${unit.id})}"
+                      method="post"
+                      class="unit-archive-danger-actions"
+                      data-confirm-message="确认删除该房屋吗？删除后将无法恢复"
+                      data-confirm-confirm-text="确认删除"
+                      data-confirm-tone="danger">
+                    <button class="btn btn-danger" type="submit">删除房屋档案</button>
+                </form>
+            </section>
         </section>
     </main>
 </div>

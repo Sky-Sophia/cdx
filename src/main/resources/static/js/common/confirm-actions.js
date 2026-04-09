@@ -8,6 +8,38 @@
     let confirmBtn;
     let activePayload = null;
 
+    function supportsStableScrollbarGutter() {
+        return typeof CSS !== "undefined" && typeof CSS.supports === "function"
+            && CSS.supports("scrollbar-gutter: stable");
+    }
+
+    function lockBodyScroll() {
+        const body = document.body;
+        if (body.classList.contains("confirm-modal-open")) {
+            return;
+        }
+        if (!supportsStableScrollbarGutter()) {
+            body.dataset.confirmModalOriginalPaddingRight = body.style.paddingRight || "";
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            if (scrollbarWidth > 0) {
+                const computedPaddingRight = Number.parseFloat(window.getComputedStyle(body).paddingRight) || 0;
+                body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`;
+            }
+        }
+        body.classList.add("confirm-modal-open");
+    }
+
+    function unlockBodyScroll() {
+        const body = document.body;
+        body.classList.remove("confirm-modal-open");
+        if (Object.prototype.hasOwnProperty.call(body.dataset, "confirmModalOriginalPaddingRight")) {
+            body.style.paddingRight = body.dataset.confirmModalOriginalPaddingRight;
+            delete body.dataset.confirmModalOriginalPaddingRight;
+        } else {
+            body.style.removeProperty("padding-right");
+        }
+    }
+
     function ensureModal() {
         if (modal) {
             return true;
@@ -56,7 +88,7 @@
         }
         modal.classList.add("is-open");
         modal.setAttribute("aria-hidden", "false");
-        document.body.classList.add("confirm-modal-open");
+        lockBodyScroll();
         window.setTimeout(() => confirmBtn?.focus(), 0);
         return true;
     }
@@ -67,7 +99,7 @@
         }
         modal.classList.remove("is-open");
         modal.setAttribute("aria-hidden", "true");
-        document.body.classList.remove("confirm-modal-open");
+        unlockBodyScroll();
         activePayload = null;
     }
 

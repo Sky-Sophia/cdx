@@ -89,5 +89,9 @@ class AuthControllerTest {
 
         verify(userService).resetPassword(7L, "password123");
     }
+
+    public LoginRateLimiter getRateLimiter() {
+        return rateLimiter;
+    }
 }
 
