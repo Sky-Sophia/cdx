@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import lombok.Getter;
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.auth.service.LoginRateLimiter;
 import org.example.propertyms.common.constant.SessionKeys;
@@ -31,6 +32,7 @@ class AuthControllerTest {
     @Mock
     private UserService userService;
 
+    @Getter
     @Mock
     private LoginRateLimiter rateLimiter;
 
@@ -61,7 +63,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void forgotPassword_shouldKeepModalOpenWhenUsernameMissing() throws Exception {
+    void forgotPassword_shouldKeepPanelOpenOnVerifyStepWhenUsernameMissing() throws Exception {
         mockMvc.perform(post("/forgot-password")
                         .param("username", " ")
                         .param("newPassword", "password123")
@@ -69,7 +71,8 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("auth/login"))
                 .andExpect(model().attribute("tab", "login"))
-                .andExpect(model().attribute("forgotModalOpen", true))
+                .andExpect(model().attribute("forgotPanelOpen", true))
+                .andExpect(model().attribute("forgotStep", "verify"))
                 .andExpect(model().attribute("error", "请输入用户名。"));
     }
 
@@ -90,8 +93,5 @@ class AuthControllerTest {
         verify(userService).resetPassword(7L, "password123");
     }
 
-    public LoginRateLimiter getRateLimiter() {
-        return rateLimiter;
-    }
 }
 

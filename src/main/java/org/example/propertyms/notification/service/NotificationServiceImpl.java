@@ -1,0 +1,229 @@
+package org.example.propertyms.notification.service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+import org.example.propertyms.auth.dto.UserSession;
+import org.example.propertyms.notification.mapper.NotificationAudienceMapper;
+import org.example.propertyms.notification.mapper.NotificationMapper;
+import org.example.propertyms.notification.model.NotificationDepartment;
+import org.example.propertyms.notification.model.NotificationDispatchResult;
+import org.example.propertyms.notification.model.NotificationItem;
+import org.example.propertyms.notification.model.NotificationMessage;
+import org.example.propertyms.notification.model.NotificationSendPayload;
+import org.example.propertyms.notification.model.NotificationTargetType;
+import org.example.propertyms.user.model.User;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class NotificationServiceImpl implements NotificationService {
+    private static final int DEFAULT_LIMIT = 30;
+    private static final DateTimeFormatter BATCH_TS = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+
+    private final NotificationMapper notificationMapper;
+    private final NotificationAudienceMapper notificationAudienceMapper;
+
+    public NotificationServiceImpl(NotificationMapper notificationMapper,
+                                   NotificationAudienceMapper notificationAudienceMapper) {
+        this.notificationMapper = notificationMapper;
+        this.notificationAudienceMapper = notificationAudienceMapper;
+    }
+
+    @Override
+    public List<NotificationItem> loadInbox(Long receiverId, int limit) {
+        int safeLimit = limit > 0 ? Math.min(limit, 100) : DEFAULT_LIMIT;
+        return notificationMapper.findInbox(receiverId, safeLimit).stream()
+                .map(this::toItem)
+                .toList();
+    }
+
+    @Override
+    public int countUnread(Long receiverId) {
+        return notificationMapper.countUnread(receiverId);
+    }
+
+    @Override
+    @Transactional
+    public List<NotificationDispatchResult> send(UserSession sender, NotificationSendPayload payload) {
+        if (sender == null) {
+            throw new IllegalArgumentException("当前会话已失效，请重新登录。");
+        }
+        if (payload == null) {
+            throw new IllegalArgumentException("通知内容不能为空。");
+        }
+
+        String msgType = trim(payload.getMsgType());
+        String content = trim(payload.getContent());
+        String rawReceiver = trim(payload.getReceiver());
+        NotificationTargetType targetType = NotificationTargetType.from(payload.getTargetType());
+
+        if (msgType == null) {
+            throw new IllegalArgumentException("消息类型不能为空。");
+        }
+        if (content == null) {
+            throw new IllegalArgumentException("消息内容不能为空。");
+        }
+
+        List<User> recipients = resolveRecipients(sender, targetType, rawReceiver);
+        if (recipients.isEmpty()) {
+            throw new IllegalArgumentException("没有匹配到可接收该通知的系统用户。");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        String batchNo = nextBatchNo(now);
+        List<NotificationDispatchResult> results = new ArrayList<>();
+
+        for (User recipient : recipients) {
+            NotificationMessage message = new NotificationMessage();
+            message.setBatchNo(batchNo);
+            message.setMsgType(msgType);
+            message.setContent(content);
+            message.setSenderId(sender.getId());
+            message.setSenderName(sender.getUsername());
+            message.setReceiverId(recipient.getId());
+            message.setReceiverName(recipient.getUsername());
+            message.setSendTime(now);
+            message.setIsRead(0);
+            message.setIsDeleted(0);
+            message.setTargetType(targetType.name());
+            message.setTargetValue(rawReceiver);
+            message.setCreatedAt(now);
+            message.setUpdatedAt(now);
+            notificationMapper.insert(message);
+            results.add(new NotificationDispatchResult(recipient.getId(), toItem(message)));
+        }
+
+        return results;
+    }
+
+    @Override
+    @Transactional
+    public NotificationItem markRead(Long receiverId, Long notificationId) {
+        NotificationMessage current = requireOwnedNotification(receiverId, notificationId);
+        if (current.getIsDeleted() != null && current.getIsDeleted() == 1) {
+            throw new IllegalArgumentException("通知已被删除。");
+        }
+        if (current.getIsRead() == null || current.getIsRead() == 0) {
+            notificationMapper.markRead(notificationId, receiverId);
+            current = requireOwnedNotification(receiverId, notificationId);
+        }
+        return toItem(current);
+    }
+
+    @Override
+    @Transactional
+    public List<Long> markAllRead(Long receiverId) {
+        List<Long> unreadIds = notificationMapper.findUnreadIds(receiverId);
+        if (!unreadIds.isEmpty()) {
+            notificationMapper.markAllRead(receiverId);
+        }
+        return unreadIds;
+    }
+
+    @Override
+    @Transactional
+    public Long softDelete(Long receiverId, Long notificationId) {
+        NotificationMessage current = requireOwnedNotification(receiverId, notificationId);
+        if (current.getIsDeleted() != null && current.getIsDeleted() == 1) {
+            return notificationId;
+        }
+        notificationMapper.softDelete(notificationId, receiverId);
+        return notificationId;
+    }
+
+    private NotificationMessage requireOwnedNotification(Long receiverId, Long notificationId) {
+        if (receiverId == null || notificationId == null) {
+            throw new IllegalArgumentException("通知参数不完整。");
+        }
+        NotificationMessage message = notificationMapper.findByIdForReceiver(notificationId, receiverId);
+        if (message == null) {
+            throw new IllegalArgumentException("通知不存在或无权操作。");
+        }
+        return message;
+    }
+
+    private List<User> resolveRecipients(UserSession sender, NotificationTargetType targetType, String rawReceiver) {
+        return deduplicateById(switch (targetType) {
+            case SINGLE -> resolveSingleRecipient(rawReceiver);
+            case ALL -> notificationAudienceMapper.findAllActiveUsers(sender.getId());
+            case DEPARTMENT -> resolveDepartmentRecipients(sender.getId(), rawReceiver);
+            case BUILDING -> resolveBuildingRecipients(sender.getId(), rawReceiver);
+            case DUE_BILL -> notificationAudienceMapper.findActiveUsersByDueBill(sender.getId());
+            case WORK_ORDER_DONE -> notificationAudienceMapper.findActiveUsersByCompletedWorkOrder(sender.getId());
+        });
+    }
+
+    private List<User> resolveSingleRecipient(String rawReceiver) {
+        if (rawReceiver == null) {
+            throw new IllegalArgumentException("请输入接收人 ID 或用户名。");
+        }
+        User target;
+        if (rawReceiver.chars().allMatch(Character::isDigit)) {
+            target = notificationAudienceMapper.findActiveUserById(Long.parseLong(rawReceiver));
+        } else {
+            target = notificationAudienceMapper.findActiveUserByUsername(rawReceiver.toLowerCase(Locale.ROOT));
+        }
+        if (target == null) {
+            throw new IllegalArgumentException("接收人不存在或账号未启用。");
+        }
+        return List.of(target);
+    }
+
+    private List<User> resolveDepartmentRecipients(Long senderId, String rawReceiver) {
+        NotificationDepartment department = NotificationDepartment.from(rawReceiver);
+        return notificationAudienceMapper.findActiveUsersByDepartment(
+                department.getCode(),
+                department.getFallbackRole(),
+                senderId);
+    }
+
+    private List<User> resolveBuildingRecipients(Long senderId, String rawReceiver) {
+        if (rawReceiver == null) {
+            throw new IllegalArgumentException("请选择楼栋。");
+        }
+        return notificationAudienceMapper.findActiveUsersByBuilding(rawReceiver, senderId);
+    }
+
+    private List<User> deduplicateById(List<User> users) {
+        Map<Long, User> unique = new LinkedHashMap<>();
+        for (User user : users) {
+            if (user != null && user.getId() != null) {
+                unique.putIfAbsent(user.getId(), user);
+            }
+        }
+        return new ArrayList<>(unique.values());
+    }
+
+    private NotificationItem toItem(NotificationMessage message) {
+        NotificationItem item = new NotificationItem();
+        item.setId(message.getId());
+        item.setMsgType(message.getMsgType());
+        item.setContent(message.getContent());
+        item.setSender(message.getSenderName());
+        item.setReceiver(message.getReceiverName());
+        item.setTargetType(message.getTargetType());
+        item.setTargetValue(message.getTargetValue());
+        item.setSendTime(message.getSendTime());
+        item.setRead(message.getIsRead() != null && message.getIsRead() == 1);
+        item.setReadTime(message.getReadTime());
+        return item;
+    }
+
+    private String trim(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String nextBatchNo(LocalDateTime now) {
+        return "NT" + BATCH_TS.format(now) + String.format("%02d", ThreadLocalRandom.current().nextInt(100));
+    }
+}

@@ -77,6 +77,13 @@ class AdminFormTemplateRenderingTest {
     }
 
     @Test
+    void residentCreateForm_shouldRenderSuccessfully() throws Exception {
+        mockMvc.perform(get("/admin/residents/new").session(adminSession))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("住户档案登记表")));
+    }
+
+    @Test
     void residentEditForm_shouldRenderSuccessfully() throws Exception {
         Resident resident = new Resident();
         resident.setId(1L);
@@ -93,6 +100,13 @@ class AdminFormTemplateRenderingTest {
         mockMvc.perform(get("/admin/residents/edit/1").session(adminSession))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("住户档案登记表")));
+    }
+
+    @Test
+    void billCreateForm_shouldRenderSuccessfully() throws Exception {
+        mockMvc.perform(get("/admin/bills/new").session(adminSession))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("费用账单登记表")));
     }
 
     @Test
@@ -114,6 +128,13 @@ class AdminFormTemplateRenderingTest {
         mockMvc.perform(get("/admin/bills/edit/2").session(adminSession))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("费用账单登记表")));
+    }
+
+    @Test
+    void userCreateForm_shouldRenderSuccessfully() throws Exception {
+        mockMvc.perform(get("/admin/users/new").session(adminSession))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("系统用户档案")));
     }
 
     @Test

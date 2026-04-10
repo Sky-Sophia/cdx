@@ -1,0 +1,85 @@
+ .validation-bubble {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1600;
+    max-width: min(320px, calc(100vw - 24px));
+    padding: 10px 12px;
+    border: 1px solid #f3d1d5;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #7a2432;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, 8px, 0);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+
+.validation-bubble.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate3d(0, 0, 0);
+}
+
+.validation-bubble[data-placement="top"] {
+    transform: translate3d(0, -8px, 0);
+}
+
+.validation-bubble[data-placement="top"].is-visible {
+    transform: translate3d(0, 0, 0);
+}
+
+.validation-bubble-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-left: 1px solid #f3d1d5;
+    border-top: 1px solid #f3d1d5;
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.validation-bubble[data-placement="bottom"] .validation-bubble-arrow {
+    top: -7px;
+}
+
+.validation-bubble[data-placement="top"] .validation-bubble-arrow {
+    bottom: -7px;
+    transform: translateX(-50%) rotate(225deg);
+}
+
+.validation-bubble-content {
+    display: grid;
+    gap: 4px;
+}
+
+.validation-bubble-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #b42318;
+}
+
+.validation-bubble-message {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #7a2432;
+    word-break: break-word;
+}
+
+input.validation-bubble-field-invalid,
+textarea.validation-bubble-field-invalid,
+select.validation-bubble-field-invalid,
+.custom-select-trigger.validation-bubble-field-invalid,
+.ui-picker-trigger.validation-bubble-field-invalid {
+    border-color: #f56c6c;
+    box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.14);
+}
+
+.auth-portal-input-wrap input.validation-bubble-field-invalid {
+    border-color: #f56c6c;
+    box-shadow: 0 0 0 3px rgba(245, 108, 108, 0.16);
+}
+

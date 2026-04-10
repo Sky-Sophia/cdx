@@ -1,0 +1,242 @@
+.topbar {
+    overflow: visible;
+}
+
+.topbar-right {
+    position: relative;
+    overflow: visible;
+}
+
+.notice-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.notice-trigger {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.notice-trigger:hover {
+    background: #f2f3f5;
+}
+
+.notice-trigger:focus-visible {
+    outline: none;
+    background: #f0f5ff;
+    box-shadow: 0 0 0 3px rgba(47, 84, 235, 0.16);
+}
+
+.notice-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    min-width: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #ff3b30;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(255, 59, 48, 0.24);
+}
+
+.notice-badge[hidden] {
+    display: none;
+}
+
+.notice-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: min(340px, calc(100vw - 32px));
+    border: 1px solid #edf2f7;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.14);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+    z-index: 90;
+}
+
+.notice-panel.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notice-panel-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.notice-panel-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.notice-mark-all {
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: #1677ff;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.notice-mark-all:hover,
+.notice-mark-all:focus-visible {
+    color: #0958d9;
+}
+
+.notice-mark-all:disabled {
+    color: #b7bfcc;
+    cursor: default;
+}
+
+.notice-list {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.notice-item {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 12px 40px 12px 24px;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    display: block;
+    transition: background-color 0.15s ease;
+}
+
+.notice-item[hidden] {
+    display: none !important;
+}
+
+.notice-item:hover,
+.notice-item:focus-visible {
+    background: #f5f6f8;
+    outline: none;
+}
+
+.notice-item + .notice-item {
+    border-top: 1px solid #f0f1f3;
+}
+
+.notice-item.unread {
+    background: #effaf6;
+}
+
+.notice-item.unread::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #30b87a;
+}
+
+.notice-item.unread .notice-content {
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.notice-item:not(.unread) .notice-content {
+    color: #9b9a97;
+}
+
+.notice-item:not(.unread) .notice-time {
+    color: #c4c4c0;
+}
+
+.notice-time {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    color: #8c8c8c;
+}
+
+.notice-content {
+    display: -webkit-box;
+    overflow: hidden;
+    color: #333333;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.notice-delete {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #b8b8b8;
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.notice-item:hover .notice-delete,
+.notice-item:focus-visible .notice-delete {
+    opacity: 1;
+}
+
+.notice-delete:hover {
+    background: #ebecef;
+    color: #5c5c5c;
+}
+
+.notice-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #b8b8b8;
+    font-size: 13px;
+}
+
+.notice-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.notice-list::-webkit-scrollbar-thumb {
+    background: #e5e6eb;
+    border-radius: 3px;
+}
+
+@media (max-width: 760px) {
+    .notice-panel {
+        right: -6px;
+        width: min(340px, calc(100vw - 24px));
+    }
+}

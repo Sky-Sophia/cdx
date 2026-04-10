@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="${editing} ? '编辑住户' : '新增住户'">住户表单</title>
+    <title th:text="${editing ? '编辑住户' : '新增住户'}">住户表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css?v=20260408-all-date-pickers" />
@@ -19,8 +19,8 @@
 
         <section class="archive-create-page">
             <form method="post" action="/admin/residents/save" class="archive-create-form"
-                  th:attr="data-confirm-message=${editing ? '确认保存对该住户档案的修改吗？' : ''},
-                           data-confirm-confirm-text=${editing ? '确认保存' : ''}">
+                  th:attr="data-confirm-message=${editing ? '确认保存对该住户档案的修改吗？' : null},
+                           data-confirm-confirm-text=${editing ? '确认保存' : null}">
                 <input type="hidden" name="id" th:value="${resident.id}" />
 
                 <div class="archive-create-card">
@@ -46,11 +46,11 @@
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li class="custom-select-option" data-value="" data-label="请选择房屋"
-                                            th:classappend="${resident.unitId == null} ? ' is-selected'">请选择房屋</li>
+                                            th:classappend="${resident.unitId == null ? ' is-selected' : ''}">请选择房屋</li>
                                         <li th:each="unit : ${units}"
                                             class="custom-select-option"
                                             th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
-                                            th:classappend="${resident.unitId == unit.id} ? ' is-selected'"
+                                            th:classappend="${resident.unitId == unit.id ? ' is-selected' : ''}"
                                             th:text="${unit.unitNo}"></li>
                                     </ul>
                                 </div>
@@ -92,16 +92,16 @@
                                     <button type="button" class="custom-select-trigger" aria-expanded="false"
                                             aria-labelledby="resident-type-label resident-type-trigger-text">
                                         <span class="custom-select-trigger-text" id="resident-type-trigger-text"
-                                              th:text="${resident.residentType == 'TENANT'} ? '租户' : (${resident.residentType == 'FAMILY'} ? '家属' : '业主')">业主</span>
+                                              th:text="${resident.residentType == 'TENANT' ? '租户' : (resident.residentType == 'FAMILY' ? '家属' : '业主')}">业主</span>
                                         <span class="custom-select-arrow" aria-hidden="true"></span>
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li class="custom-select-option" data-value="OWNER" data-label="业主"
-                                            th:classappend="${resident.residentType == null or resident.residentType == 'OWNER'} ? ' is-selected'">业主</li>
+                                            th:classappend="${resident.residentType == null or resident.residentType == 'OWNER' ? ' is-selected' : ''}">业主</li>
                                         <li class="custom-select-option" data-value="TENANT" data-label="租户"
-                                            th:classappend="${resident.residentType == 'TENANT'} ? ' is-selected'">租户</li>
+                                            th:classappend="${resident.residentType == 'TENANT' ? ' is-selected' : ''}">租户</li>
                                         <li class="custom-select-option" data-value="FAMILY" data-label="家属"
-                                            th:classappend="${resident.residentType == 'FAMILY'} ? ' is-selected'">家属</li>
+                                            th:classappend="${resident.residentType == 'FAMILY' ? ' is-selected' : ''}">家属</li>
                                     </ul>
                                 </div>
                             </div>
@@ -113,14 +113,14 @@
                                     <button type="button" class="custom-select-trigger" aria-expanded="false"
                                             aria-labelledby="resident-status-label resident-status-trigger-text">
                                         <span class="custom-select-trigger-text" id="resident-status-trigger-text"
-                                              th:text="${resident.status == 'MOVED_OUT'} ? '已迁出' : '在住'">在住</span>
+                                              th:text="${resident.status == 'MOVED_OUT' ? '已迁出' : '在住'}">在住</span>
                                         <span class="custom-select-arrow" aria-hidden="true"></span>
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li class="custom-select-option" data-value="ACTIVE" data-label="在住"
-                                            th:classappend="${resident.status == null or resident.status == 'ACTIVE'} ? ' is-selected'">在住</li>
+                                            th:classappend="${resident.status == null or resident.status == 'ACTIVE' ? ' is-selected' : ''}">在住</li>
                                         <li class="custom-select-option" data-value="MOVED_OUT" data-label="已迁出"
-                                            th:classappend="${resident.status == 'MOVED_OUT'} ? ' is-selected'">已迁出</li>
+                                            th:classappend="${resident.status == 'MOVED_OUT' ? ' is-selected' : ''}">已迁出</li>
                                     </ul>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@
                         <div class="archive-create-actions">
                             <a class="archive-create-action archive-create-action--cancel" href="/admin/residents">取　消</a>
                             <button class="archive-create-action archive-create-action--save" type="submit"
-                                    th:text="${editing} ? '保存修改' : '保存归档'">保存归档</button>
+                                    th:text="${editing ? '保存修改' : '保存归档'}">保存归档</button>
                         </div>
                     </div>
                 </div>

@@ -3,7 +3,7 @@
 :root {
     --surface: #ffffff;
     --surface-muted: #f8fbff;
-    --page-bg: #F5F7FA;
+    --page-bg: #f0f2f5;
     --page-bg-strong: #eaf1ff;
     --ink: #1e293b;
     --muted: #64748b;
@@ -58,22 +58,21 @@ a {
 .topbar {
     grid-column: 1 / -1;
     grid-row: 1;
-    width: calc(100% + var(--viewport-scrollbar-width, 0px));
-    border-bottom: 1px solid var(--line);
+    width: 100%;
+    border-bottom: 1px solid #e5e7eb;
     background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 calc(24px + var(--viewport-scrollbar-width, 0px)) 0 24px;
-    margin-right: calc(var(--viewport-scrollbar-width, 0px) * -1);
+    padding: 0 24px;
     position: sticky;
     top: 0;
     z-index: 30;
-    box-shadow: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
     height: 60px;      /* 固定合理高度，你也可以改成 50px/55px */
     min-height: unset; /* 取消最小高度限制 */
-    overflow: hidden;  /* 防止内容撑高 */
+    overflow: hidden;
 }
 
 .topbar-main {
@@ -259,14 +258,13 @@ a {
 .sidebar {
     grid-row: 2;
     align-self: start;
-    border-right: 1px solid rgba(216, 228, 255, 0.6);
     background: #ffffff;
     padding: 20px 14px;
     position: sticky;
     top: 60px;
     height: calc(100vh - 60px);
     overflow-y: auto;
-    box-shadow: none;
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.04);
 }
 
 .side-nav {
@@ -882,26 +880,28 @@ textarea:focus {
     width: fit-content;
     max-width: 100%;
     min-height: 40px;
-    padding: 10px 16px;
+    padding: 8px 16px;
     border: none;
-    border-radius: var(--radius);
-    background: var(--info-soft);
-    color: var(--info-ink);
-    font-size: 0.92rem;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.88);
+    color: #ffffff;
+    font-size: 14px;
     font-weight: 500;
     line-height: 1.5;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity var(--msg-dismiss-duration, 320ms) ease,
-                transform var(--msg-dismiss-duration, 320ms) ease;
+    text-align: left;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity var(--msg-dismiss-duration, 220ms) cubic-bezier(0.2, 0.9, 0.3, 1),
+                transform var(--msg-dismiss-duration, 220ms) cubic-bezier(0.2, 0.9, 0.3, 1);
     pointer-events: auto;
 }
 
 .messages-wrap {
     position: fixed;
-    top: 20px;
+    top: 24px;
     left: 50%;
     transform: translateX(-50%);
     display: grid;
@@ -913,20 +913,24 @@ textarea:focus {
 }
 
 
+.msg.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
 .msg.is-closing {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
 }
 
 
 .msg.success {
-    background: var(--success-soft);
-    color: var(--success-ink);
+    background: rgba(16, 185, 129, 0.88);
 }
 
 .msg.error {
-    background: var(--danger-soft);
-    color: var(--danger-ink);
+    background: rgba(239, 68, 68, 0.88);
 }
 
 .badge {
@@ -991,13 +995,13 @@ textarea:focus {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
-        padding: 14px calc(14px + var(--viewport-scrollbar-width, 0px)) 14px 14px;
+        padding: 14px;
     }
 
     .sidebar {
         grid-row: 2;
         border-right: none;
-        border-bottom: 1px solid var(--line);
+        border-bottom: 1px solid #e5e7eb;
         padding: 8px 10px;
         position: static;
         top: auto;

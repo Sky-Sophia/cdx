@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains>
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>21</version>
+            <vendor>jetbrains</vendor>
+        </provides>
+        <configuration>
+            <jdkHome>D:\WindowsApp\IntelliJ IDEA 2025.3.3\jbr</jdkHome>
+        </configuration>
+    </toolchain>
+</toolchains>
+

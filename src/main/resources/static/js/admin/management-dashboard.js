@@ -28,17 +28,30 @@
         });
     }
 
+    function createChart(container) {
+        const existing = echarts.getInstanceByDom(container);
+        if (existing) {
+            existing.dispose();
+        }
+        return echarts.init(container);
+    }
+
     /* ================================================================
      *  配色常量（与 CSS 变量保持一致）
      * ================================================================ */
 
     const COLORS = Object.freeze({
-        primary:  "#409eff",
-        soft:     "#d9e4ff",
-        positive: "#0f9d58",
-        warning:  "#faad14",
-        danger:   "#ff4d4f",
-        neutral:  "#409eff",
+        primary:  "#2d7ff9",
+        soft:     "#e8f3ff",
+        positive: "#00b42a",
+        warning:  "#ff7d00",
+        danger:   "#f53f3f",
+        teal:     "#36cfc9",
+        neutral:  "#2d7ff9",
+        text:     "#1d2129",
+        text2:    "#4e5969",
+        text3:    "#86909c",
+        border:   "#e5e6eb",
     });
 
     /* ================================================================
@@ -47,10 +60,11 @@
 
     function createDonutChart(container) {
         const rate     = toNumber(container.dataset.rate);
+        const rateLabel = Math.round(rate);
         const received = toNumber(container.dataset.received);
         const pending  = toNumber(container.dataset.pending);
 
-        const chart = echarts.init(container);
+        const chart = createChart(container);
 
         chart.setOption({
             tooltip: {
@@ -61,28 +75,28 @@
             series: [
                 {
                     type: "pie",
-                    radius: ["58%", "80%"],
+                    radius: ["66%", "82%"],
                     center: ["50%", "50%"],
                     avoidLabelOverlap: false,
                     itemStyle: {
-                        borderRadius: 6,
+                        borderRadius: 10,
                         borderColor: "#fff",
                         borderWidth: 2,
                     },
                     label: {
                         show: true,
                         position: "center",
-                        formatter: () => `{rate|${rate}%}\n{desc|收缴完成}`,
+                        formatter: () => `{rate|${rateLabel}%}\n{desc|收缴完成}`,
                         rich: {
                             rate: {
-                                fontSize: 26,
+                                fontSize: 34,
                                 fontWeight: "bold",
-                                color: "#183b8c",
-                                lineHeight: 36,
+                                color: COLORS.text,
+                                lineHeight: 42,
                             },
                             desc: {
                                 fontSize: 13,
-                                color: "#7184a1",
+                                color: COLORS.text3,
                                 lineHeight: 22,
                             },
                         },
@@ -93,7 +107,7 @@
                     },
                     data: [
                         { value: received, name: "已收缴", itemStyle: { color: COLORS.primary } },
-                        { value: pending,  name: "待收缴", itemStyle: { color: COLORS.soft } },
+                        { value: pending,  name: "待收缴", itemStyle: { color: "#f2f3f5" } },
                     ],
                     animationType: "scale",
                     animationEasing: "cubicOut",
@@ -106,74 +120,151 @@
     }
 
     /* ================================================================
-     *  今日运营分布 — 水平条形图
+     *  今日运营分布 — HTML 进度条
      * ================================================================ */
 
-    function createBarChart(container) {
-        const items = [
-            { name: "在管房屋",   sub: "户室资源总量", value: toNumber(container.dataset.units),     color: COLORS.neutral },
-            { name: "活跃住户",   sub: "当前实际在住", value: toNumber(container.dataset.residents), color: COLORS.positive },
-            { name: "待处理工单", sub: "服务响应压力", value: toNumber(container.dataset.orders),    color: COLORS.warning },
-            { name: "待缴账单",   sub: "费用收缴压力", value: toNumber(container.dataset.bills),     color: COLORS.danger },
-        ];
+    function initDistributionBars(container) {
+        if (!container) {
+            return;
+        }
 
-        // ECharts y 轴顺序从下到上，需反转
-        const reversed = [...items].reverse();
+        const values = {
+            units: toNumber(container.dataset.units),
+            residents: toNumber(container.dataset.residents),
+            orders: toNumber(container.dataset.orders),
+            bills: toNumber(container.dataset.bills),
+        };
 
-        const chart = echarts.init(container);
+        const max = Math.max(values.units, values.residents, values.orders, values.bills, 1);
+
+        container.querySelectorAll("[data-stat-key]").forEach((item) => {
+            const key = item.dataset.statKey;
+            const fill = item.querySelector("[data-stat-fill]");
+            if (!fill || !Object.prototype.hasOwnProperty.call(values, key)) {
+                return;
+            }
+            const value = values[key];
+            const width = value <= 0 ? 0 : (value / max) * 100;
+            fill.style.width = `${width}%`;
+        });
+    }
+
+    /* ================================================================
+     *  近 7 日投诉趋势 — 双折线图（静态占位数据）
+     * ================================================================ */
+
+    function createTrendChart(container) {
+        const chart = createChart(container);
+        const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+        const createdSeries = [16, 18, 14, 19, 17, 20, 18];
+        const resolvedSeries = [11, 12, 10, 13, 14, 16, 15];
 
         chart.setOption({
+            animationDuration: 900,
+            color: [COLORS.primary, COLORS.teal],
             tooltip: {
                 trigger: "axis",
-                axisPointer: { type: "shadow" },
-                formatter: (params) => {
-                    const p = params[0];
-                    const item = reversed[p.dataIndex];
-                    return `<strong>${item.name}</strong><br/>${item.sub}：${p.value}`;
+                backgroundColor: "rgba(29, 33, 41, 0.92)",
+                borderWidth: 0,
+                textStyle: {
+                    color: "#fff",
                 },
             },
-            grid: {
-                left: 110,
-                right: 50,
-                top: 12,
-                bottom: 12,
-                containLabel: false,
-            },
-            xAxis: {
-                type: "value",
+            legend: {
                 show: false,
             },
-            yAxis: {
+            grid: {
+                left: 28,
+                right: 18,
+                top: 10,
+                bottom: 20,
+                containLabel: true,
+            },
+            xAxis: {
                 type: "category",
-                data: reversed.map((i) => i.name),
-                axisLine: { show: false },
-                axisTick: { show: false },
+                boundaryGap: false,
+                data: days,
+                axisLine: {
+                    lineStyle: {
+                        color: "#d1d5db",
+                    },
+                },
+                axisTick: {
+                    show: false,
+                },
                 axisLabel: {
-                    fontSize: 13,
-                    color: "#202020",
-                    fontWeight: 500,
+                    color: COLORS.text3,
+                    fontSize: 11,
+                    margin: 14,
+                },
+            },
+            yAxis: {
+                type: "value",
+                min: 0,
+                max: 25,
+                interval: 5,
+                axisLine: {
+                    show: false,
+                },
+                axisTick: {
+                    show: false,
+                },
+                axisLabel: {
+                    color: COLORS.text3,
+                    fontSize: 11,
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: COLORS.border,
+                    },
                 },
             },
             series: [
                 {
-                    type: "bar",
-                    barWidth: 14,
-                    data: reversed.map((i) => ({
-                        value: i.value,
-                        itemStyle: {
-                            color: i.color,
-                            borderRadius: [0, 7, 7, 0],
-                        },
-                    })),
-                    label: {
-                        show: true,
-                        position: "right",
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: "#1f3f86",
+                    name: "新增投诉",
+                    type: "line",
+                    smooth: true,
+                    symbol: "circle",
+                    symbolSize: 8,
+                    lineStyle: {
+                        width: 3,
+                        color: COLORS.primary,
                     },
-                    animationDuration: 900,
-                    animationEasing: "cubicOut",
+                    itemStyle: {
+                        color: "#ffffff",
+                        borderColor: COLORS.primary,
+                        borderWidth: 2,
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgba(45, 127, 249, 0.12)" },
+                            { offset: 1, color: "rgba(45, 127, 249, 0.01)" },
+                        ]),
+                    },
+                    data: createdSeries,
+                },
+                {
+                    name: "已处理完结",
+                    type: "line",
+                    smooth: true,
+                    symbol: "circle",
+                    symbolSize: 8,
+                    lineStyle: {
+                        width: 3,
+                        color: COLORS.teal,
+                    },
+                    itemStyle: {
+                        color: "#ffffff",
+                        borderColor: COLORS.teal,
+                        borderWidth: 2,
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgba(54, 207, 201, 0.12)" },
+                            { offset: 1, color: "rgba(54, 207, 201, 0.01)" },
+                        ]),
+                    },
+                    data: resolvedSeries,
                 },
             ],
         });
@@ -186,6 +277,11 @@
      * ================================================================ */
 
     function init() {
+        const distributionEl = document.querySelector(".dashboard-distribution[data-units]");
+        if (distributionEl) {
+            initDistributionBars(distributionEl);
+        }
+
         if (typeof echarts === "undefined") {
             console.warn("[Dashboard] ECharts 未加载，图表初始化已跳过。请检查 /js/vendor/echarts.min.js 是否可访问。");
             return;
@@ -193,14 +289,15 @@
 
         const charts = [];
 
+
         const donutEl = document.getElementById("chart-collection-donut");
         if (donutEl) {
             charts.push(createDonutChart(donutEl));
         }
 
-        const barEl = document.getElementById("chart-distribution-bar");
-        if (barEl) {
-            charts.push(createBarChart(barEl));
+        const trendEl = document.getElementById("chart-dashboard-trend");
+        if (trendEl) {
+            charts.push(createTrendChart(trendEl));
         }
 
         if (charts.length === 0) {

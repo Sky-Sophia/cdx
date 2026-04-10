@@ -10,7 +10,8 @@ public class User {
     private String password;
     private Role role;
     private String status;
+    private Long unitId;
+    private String departmentCode;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-

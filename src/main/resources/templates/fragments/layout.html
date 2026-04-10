@@ -54,15 +54,137 @@
         </div>
     </div>
     <div class="topbar-right" th:if="${current != null}" style="display: flex; gap: 24px; align-items: center;">
-        <span class="ico"><img src="/icons/bell.svg" alt="bell" style="width:24px; height:24px;"></span>
+        <a class="" href=""><span class="ico"><img src="/icons/inform.svg" alt="通知"
+                                                           style="width:24px; height:24px;"></span></a>
+        <button class="notice-compose-trigger" type="button"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="topbarComposeModal"
+                aria-label="打开发送消息弹窗"
+                data-compose-open>
+            <span class="ico"><img src="/icons/inform.svg" alt="" style="width:24px; height:24px;"></span>
+        </button>
+        <div class="notice-dropdown" data-notification-dropdown th:attr="data-ws-url=@{/ws/notifications}">
+            <button class="notice-trigger" type="button"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="topbarNoticePanel"
+                    aria-label="打开通知面板"
+                    data-notice-toggle>
+                <span class="ico"><img src="/icons/bell.svg" alt="" style="width:24px; height:24px;"></span>
+                <span class="notice-badge" data-notice-badge aria-hidden="true" hidden></span>
+            </button>
+            <section class="notice-panel" id="topbarNoticePanel" data-notice-panel role="dialog"
+                     aria-modal="false" aria-labelledby="topbarNoticeTitle">
+                <div class="notice-panel-head">
+                    <h3 class="notice-panel-title" id="topbarNoticeTitle">通知</h3>
+                    <button class="notice-mark-all" type="button" data-notice-read-all>全部已读</button>
+                </div>
+                <div class="notice-list" data-notice-list>
+                    <button class="notice-item unread" type="button" data-notice-item data-age-days="0" data-order="1">
+                        <span class="notice-time">今天 10:25</span>
+                        <span class="notice-content">你的账号已成功登录，如非本人操作请及时修改密码。</span>
+                    </button>
+                    <button class="notice-item unread" type="button" data-notice-item data-age-days="0" data-order="2">
+                        <span class="notice-time">今天 09:10</span>
+                        <span class="notice-content">系统将于今晚 23:00 进行维护，预计持续 30 分钟。</span>
+                    </button>
+                    <button class="notice-item" type="button" data-notice-item data-age-days="1" data-order="3">
+                        <span class="notice-time">昨天 18:40</span>
+                        <span class="notice-content">你有一条新的消息待查看，点击前往查看详情。</span>
+                    </button>
+                    <button class="notice-item unread" type="button" data-notice-item data-age-days="1" data-order="4">
+                        <span class="notice-time">昨天 11:30</span>
+                        <span class="notice-content">安全提醒：您的账号在新设备上进行了登录操作。</span>
+                    </button>
+                    <button class="notice-item" type="button" data-notice-item data-age-days="3" data-order="5">
+                        <span class="notice-time">3天前</span>
+                        <span class="notice-content">系统更新完成，优化了多项使用体验。</span>
+                    </button>
+                    <button class="notice-item" type="button" data-notice-item data-age-days="9" data-order="6">
+                        <span class="notice-time">9天前</span>
+                        <span class="notice-content">这是一条超过一周的旧消息，不会被显示。</span>
+                    </button>
+                    <button class="notice-item unread" type="button" data-notice-item data-age-days="11" data-order="7">
+                        <span class="notice-time">11天前</span>
+                        <span class="notice-content">这条也超过一周了，同样会被隐藏。</span>
+                    </button>
+                </div>
+                <div class="notice-empty" data-notice-empty hidden>暂无最近通知</div>
+            </section>
+        </div>
         <a class="" href="/profile"><span class="ico"><img src="/icons/user.svg" alt="用户中心"
                                                            style="width:24px; height:24px;"></span></a>
     </div>
+    <div class="compose-modal-overlay"
+         id="topbarComposeModal"
+         data-compose-modal
+         hidden
+         aria-hidden="true"
+         th:attr="data-compose-sender=${current != null and current.username != null ? current.username : '物业管理员'}">
+        <div class="compose-modal" role="dialog" aria-modal="true" aria-labelledby="topbarComposeTitle">
+            <div class="compose-modal-head">
+                <h3 class="compose-modal-title" id="topbarComposeTitle">发送消息</h3>
+                <button class="compose-modal-close" type="button" aria-label="关闭弹窗" data-compose-close>×</button>
+            </div>
+
+            <form class="compose-modal-form" data-compose-form novalidate>
+                <div class="compose-modal-body">
+                    <div class="compose-form-item">
+                        <label class="compose-form-label" for="composeMsgType">消息类型</label>
+                        <select class="compose-form-select" id="composeMsgType" name="msg_type">
+                            <option value="通知">通知</option>
+                            <option value="公告">公告</option>
+                            <option value="提醒">提醒</option>
+                            <option value="预警">预警</option>
+                            <option value="due_bill">鍙戠粨鏈即璐圭敤</option>
+                            <option value="work_order_done">鍙戠粨宸插畬鎴愬伐鍗?/option>
+                        </select>
+                    </div>
+
+                    <div class="compose-form-item">
+                        <label class="compose-form-label" for="composeTargetType">目标类型</label>
+                        <select class="compose-form-select" id="composeTargetType" name="target_type" data-compose-target-type>
+                            <option value="single">发给单人</option>
+                            <option value="all">发给全体</option>
+                            <option value="building">发给楼栋</option>
+                            <option value="department">发给部门</option>
+                        </select>
+                    </div>
+
+                    <div class="compose-form-item">
+                        <label class="compose-form-label" id="composeReceiverLabel" for="composeReceiver"
+                               data-compose-receiver-label>接收人ID</label>
+                        <div class="compose-receiver-container" data-compose-receiver-container>
+                            <input type="text" id="composeReceiver" name="receiver" class="compose-form-input"
+                                   placeholder="请输入用户ID" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="compose-form-item">
+                        <label class="compose-form-label" for="composeContent">消息内容</label>
+                        <textarea class="compose-form-textarea" id="composeContent" name="content"
+                                  placeholder="请输入消息内容"></textarea>
+                    </div>
+                </div>
+
+                <div class="compose-modal-foot">
+                    <button class="compose-modal-btn compose-modal-btn-secondary" type="button" data-compose-close>取消</button>
+                    <button class="compose-modal-btn compose-modal-btn-primary" type="submit">确认发送</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script src="/js/common/session-guard.js" defer></script>
     <script src="/js/common/nav-tabs.js" defer></script>
-    <script src="/js/common/validation-bubble.js?v=20260408-validation-top-toast" defer></script>
+    <script src="/js/common/validation-bubble.js?v=20260409-validation-top-toast-refine" defer></script>
     <script src="/js/common/custom-select.js?v=20260408-picker-validation-fix" defer></script>
-    <script src="/js/common/layout-scrollbar.js?v=20260409-topbar-scrollbar-fix" defer></script>
+    <script th:src="@{/js/common/notification-popup.js(v='20260410-topbar-notice-dropdown')}"
+            src="/js/common/notification-popup.js?v=20260410-topbar-notice-dropdown" defer></script>
+    <script th:src="@{/js/common/notice-compose-modal.js(v='20260410-topbar-compose-modal')}"
+            src="/js/common/notice-compose-modal.js?v=20260410-topbar-compose-modal" defer></script>
+    <script th:src="@{/js/common/notification-center.js(v='20260410-topbar-notice-websocket')}"
+            src="/js/common/notification-center.js?v=20260410-topbar-notice-websocket" defer></script>
 </header>
 
 <aside class="sidebar" th:fragment="sidebar(active)"
@@ -128,7 +250,7 @@
      class="messages-wrap"
      data-auto-dismiss="true"
      data-dismiss-delay="3000"
-     data-dismiss-duration="320"
+     data-dismiss-duration="220"
      aria-live="polite"
      aria-atomic="true">
     <!--/*@thymesVar id="success" type="java.lang.String"*/-->

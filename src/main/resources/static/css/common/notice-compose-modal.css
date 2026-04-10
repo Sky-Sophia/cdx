@@ -1,0 +1,215 @@
+.topbar-right > a[href=""] {
+    display: none;
+}
+
+.notice-compose-trigger {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.notice-compose-trigger:hover {
+    background: #f2f3f5;
+}
+
+.notice-compose-trigger:focus-visible {
+    outline: none;
+    background: #f0f5ff;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.16);
+}
+
+body.compose-modal-open {
+    overflow: hidden;
+}
+
+.compose-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 220;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s ease, visibility 0.18s ease;
+}
+
+.compose-modal-overlay[hidden] {
+    display: none;
+}
+
+.compose-modal-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.compose-modal {
+    width: min(500px, 100%);
+    max-width: 95vw;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.18s ease;
+}
+
+.compose-modal-overlay.is-open .compose-modal {
+    transform: translateY(0) scale(1);
+}
+
+.compose-modal-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f2f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.compose-modal-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111111;
+}
+
+.compose-modal-close {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 20px;
+    line-height: 1;
+    color: #999999;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.compose-modal-close:hover,
+.compose-modal-close:focus-visible {
+    color: #333333;
+    outline: none;
+}
+
+.compose-modal-body {
+    padding: 20px;
+}
+
+.compose-form-item {
+    margin-bottom: 16px;
+}
+
+.compose-form-item:last-child {
+    margin-bottom: 0;
+}
+
+.compose-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333333;
+}
+
+.compose-form-input,
+.compose-form-select,
+.compose-form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e5e6eb;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 14px;
+    color: #333333;
+    background: #ffffff;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.compose-form-input,
+.compose-form-select {
+    min-height: 42px;
+}
+
+.compose-form-input:focus,
+.compose-form-select:focus,
+.compose-form-textarea:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+.compose-form-input[readonly] {
+    background: #f7f8fa;
+    color: #666666;
+    cursor: default;
+    pointer-events: none;
+    user-select: none;
+}
+
+.compose-form-textarea {
+    min-height: 100px;
+    max-height: 140px;
+    resize: none;
+    line-height: 1.45;
+}
+
+.compose-modal-foot {
+    padding: 14px 16px;
+    border-top: 1px solid #f0f2f5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.compose-modal-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.compose-modal-btn:hover {
+    opacity: 0.9;
+}
+
+.compose-modal-btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.14);
+}
+
+.compose-modal-btn-secondary {
+    background: #f7f8fa;
+    color: #666666;
+}
+
+.compose-modal-btn-primary {
+    background: #0066cc;
+    color: #ffffff;
+}
+
+@media (max-width: 560px) {
+    .compose-modal-overlay {
+        padding: 16px;
+    }
+
+    .compose-modal-body {
+        padding: 18px 16px;
+    }
+
+    .compose-modal-foot {
+        padding: 14px 16px 16px;
+    }
+}

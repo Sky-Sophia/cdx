@@ -1,0 +1,14 @@
+2026-04-07 22:12:20,027 INFO o.a.j.u.JMeterUtils: Setting Locale to zh_CN
+2026-04-07 22:12:20,070 INFO o.a.j.JMeter: Loading user properties from: D:\Java Code\IdeaProjects\spring-boot-management-system\tools\apache-jmeter-5.6.3\apache-jmeter-5.6.3\bin\user.properties
+2026-04-07 22:12:20,072 INFO o.a.j.JMeter: Loading system properties from: D:\Java Code\IdeaProjects\spring-boot-management-system\tools\apache-jmeter-5.6.3\apache-jmeter-5.6.3\bin\system.properties
+2026-04-07 22:12:20,073 INFO o.a.j.JMeter: Setting JMeter property: threads=3
+2026-04-07 22:12:20,073 INFO o.a.j.JMeter: Setting JMeter property: rampUp=3
+2026-04-07 22:12:20,073 INFO o.a.j.JMeter: Setting JMeter property: duration=10
+2026-04-07 22:12:20,073 INFO o.a.j.JMeter: Setting JMeter property: host=127
+2026-04-07 22:12:20,074 ERROR o.a.j.JMeter: An error occurred: 
+java.lang.IllegalArgumentException: Unknown arg: .0.0.1
+	at org.apache.jmeter.JMeter.initializeProperties(JMeter.java:796) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.start(JMeter.java:379) [ApacheJMeter_core.jar:5.6.3]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
+	at org.apache.jmeter.NewDriver.main(NewDriver.java:259) [ApacheJMeter.jar:5.6.3]

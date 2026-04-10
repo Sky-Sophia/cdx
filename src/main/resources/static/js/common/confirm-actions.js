@@ -15,6 +15,7 @@
 
     function lockBodyScroll() {
         const body = document.body;
+        const root = document.documentElement;
         if (body.classList.contains("confirm-modal-open")) {
             return;
         }
@@ -26,11 +27,14 @@
                 body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`;
             }
         }
+        root.classList.add("confirm-modal-open");
         body.classList.add("confirm-modal-open");
     }
 
     function unlockBodyScroll() {
         const body = document.body;
+        const root = document.documentElement;
+        root.classList.remove("confirm-modal-open");
         body.classList.remove("confirm-modal-open");
         if (Object.prototype.hasOwnProperty.call(body.dataset, "confirmModalOriginalPaddingRight")) {
             body.style.paddingRight = body.dataset.confirmModalOriginalPaddingRight;

@@ -38,8 +38,15 @@ public class AuthController {
         if (session.getAttribute(SessionKeys.CURRENT_USER) != null) {
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
-        model.addAttribute("tab", "register".equalsIgnoreCase(tab) ? "register" : "login");
-        model.addAttribute("forgotModalOpen", false);
+        if (!model.containsAttribute("tab")) {
+            model.addAttribute("tab", "register".equalsIgnoreCase(tab) ? "register" : "login");
+        }
+        if (!model.containsAttribute("forgotPanelOpen")) {
+            model.addAttribute("forgotPanelOpen", false);
+        }
+        if (!model.containsAttribute("forgotStep")) {
+            model.addAttribute("forgotStep", "verify");
+        }
         return "auth/login";
     }
 
@@ -54,7 +61,8 @@ public class AuthController {
         String attemptKey = rateLimiter.buildAttemptKey(httpServletRequest, username);
 
         model.addAttribute("tab", "login");
-        model.addAttribute("forgotModalOpen", false);
+        model.addAttribute("forgotPanelOpen", false);
+        model.addAttribute("forgotStep", "verify");
         model.addAttribute("loginUsername", username);
 
         if (rateLimiter.isBlocked(attemptKey, model)) {
@@ -88,7 +96,8 @@ public class AuthController {
                            RedirectAttributes redirectAttributes) {
         String username = request.getUsername() == null ? "" : request.getUsername().trim();
         model.addAttribute("tab", "register");
-        model.addAttribute("forgotModalOpen", false);
+        model.addAttribute("forgotPanelOpen", false);
+        model.addAttribute("forgotStep", "verify");
         model.addAttribute("registerUsername", username);
 
         if (bindingResult.hasErrors() || username.isEmpty()) {
@@ -125,9 +134,11 @@ public class AuthController {
                                  RedirectAttributes redirectAttributes) {
         String trimmedUsername = username == null ? "" : username.trim();
         model.addAttribute("tab", "login");
-        model.addAttribute("forgotModalOpen", true);
+        model.addAttribute("forgotPanelOpen", true);
         model.addAttribute("forgotUsername", trimmedUsername);
+        model.addAttribute("forgotStep", "reset");
         if (trimmedUsername.isBlank()) {
+            model.addAttribute("forgotStep", "verify");
             model.addAttribute("error", "请输入用户名。");
             return "auth/login";
         }
@@ -141,12 +152,17 @@ public class AuthController {
         }
         User user = userService.findByUsername(trimmedUsername);
         if (user == null) {
+            model.addAttribute("forgotStep", "verify");
             model.addAttribute("error", "用户不存在，请检查用户名。");
             return "auth/login";
         }
         try {
             userService.resetPassword(user.getId(), newPassword);
             redirectAttributes.addFlashAttribute("success", "密码重置成功，请使用新密码登录。");
+            redirectAttributes.addFlashAttribute("forgotPanelOpen", true);
+            redirectAttributes.addFlashAttribute("forgotStep", "success");
+            redirectAttributes.addFlashAttribute("forgotUsername", trimmedUsername);
+            redirectAttributes.addFlashAttribute("tab", "login");
             return RedirectUrls.LOGIN;
         } catch (IllegalArgumentException ex) {
             model.addAttribute("error", ex.getMessage());

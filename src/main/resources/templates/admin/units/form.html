@@ -19,8 +19,8 @@
 
         <section class="unit-archive-page unit-archive-page--create">
             <form method="post" action="/admin/units/save" class="unit-archive-form"
-                  th:attr="data-confirm-message=${editing ? '确认保存对该房屋档案的修改吗？' : ''},
-                           data-confirm-confirm-text=${editing ? '确认保存' : ''}">
+                  th:attr="data-confirm-message=${editing ? '确认保存对该房屋档案的修改吗？' : null},
+                           data-confirm-confirm-text=${editing ? '确认保存' : null}">
                 <input type="hidden" name="id" th:value="${unit.id}" />
 
                 <div class="unit-archive-card">
@@ -47,11 +47,11 @@
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li class="custom-select-option" data-value="" data-label="请选择楼栋"
-                                            th:classappend="${unit.buildingId == null} ? ' is-selected'">请选择楼栋</li>
+                                            th:classappend="${unit.buildingId == null ? ' is-selected' : ''}">请选择楼栋</li>
                                         <li th:each="building : ${buildings}"
                                             class="custom-select-option"
                                             th:attr="data-value=${building.id},data-label=${building.name}"
-                                            th:classappend="${unit.buildingId == building.id} ? ' is-selected'"
+                                            th:classappend="${unit.buildingId == building.id ? ' is-selected' : ''}"
                                             th:text="${building.name}">1号楼</li>
                                     </ul>
                                 </div>
@@ -97,11 +97,11 @@
                                 </button>
                                 <ul class="custom-select-panel">
                                     <li class="custom-select-option" data-value="OCCUPIED" data-label="自住"
-                                        th:classappend="${unit.occupancyStatus == null or unit.occupancyStatus == 'OCCUPIED'} ? ' is-selected'">自住</li>
+                                        th:classappend="${unit.occupancyStatus == null or unit.occupancyStatus == 'OCCUPIED' ? ' is-selected' : ''}">自住</li>
                                     <li class="custom-select-option" data-value="RENTED" data-label="出租"
-                                        th:classappend="${unit.occupancyStatus == 'RENTED'} ? ' is-selected'">出租</li>
+                                        th:classappend="${unit.occupancyStatus == 'RENTED' ? ' is-selected' : ''}">出租</li>
                                     <li class="custom-select-option" data-value="VACANT" data-label="空置"
-                                        th:classappend="${unit.occupancyStatus == 'VACANT'} ? ' is-selected'">空置</li>
+                                        th:classappend="${unit.occupancyStatus == 'VACANT' ? ' is-selected' : ''}">空置</li>
                                 </ul>
                             </div>
                         </div>

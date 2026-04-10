@@ -6,7 +6,7 @@
     <title>统一管理 - 物业后台管理系统</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin-management.css?v=20260408-filter-action-buttons" />
+    <link rel="stylesheet" href="/css/apps/admin-management.css?v=20260410-dashboard-list-table-ui" />
 </head>
 <body>
 <div class="app-shell">
@@ -19,18 +19,11 @@
         <section class="mgmt-pane mgmt-pane-dashboard"
                  data-pane-tab="dashboard"
                  th:classappend="${currentTab != 'dashboard'} ? ' is-hidden'">
-            <section class="page-head">
-                <div>
-                    <h1>今日运营概览</h1>
-                    <p>集中查看楼栋房屋、住户服务与费用收缴状态。</p>
-                </div>
-            </section>
 
             <section class="dashboard-strip">
                 <article class="dashboard-metric" data-tone="neutral">
                     <div class="dashboard-metric-head">
                         <h3>在管楼栋</h3>
-                        <span>资源基础</span>
                     </div>
                     <div class="dashboard-metric-main">
                         <strong th:text="${stats.buildingCount}">0</strong>
@@ -41,7 +34,6 @@
                 <article class="dashboard-metric" data-tone="neutral">
                     <div class="dashboard-metric-head">
                         <h3>在管房屋</h3>
-                        <span>户室总数</span>
                     </div>
                     <div class="dashboard-metric-main">
                         <strong th:text="${stats.unitCount}">0</strong>
@@ -52,33 +44,31 @@
                 <article class="dashboard-metric" data-tone="positive">
                     <div class="dashboard-metric-head">
                         <h3>入住户室</h3>
-                        <span th:text="|入住率 ${stats.unitCount > 0 ? #numbers.formatDecimal(stats.occupiedUnitCount * 100.0 / stats.unitCount, 1, 2) : '0.00'}%|">入住率 0.00%</span>
                     </div>
                     <div class="dashboard-metric-main">
                         <strong th:text="${stats.occupiedUnitCount}">0</strong>
-                        <small>当前已入住</small>
+                        <small>已入住</small>
                     </div>
-                    <p th:text="${'按存在活跃住户的房屋统计；当前活跃住户 ' + stats.residentCount + ' 人'}">按存在活跃住户的房屋统计；当前活跃住户 0 人</p>
+                    <div class="dashboard-metric-meta"
+                         th:text="|入住率 ${stats.unitCount > 0 ? #numbers.formatDecimal(stats.occupiedUnitCount * 100.0 / stats.unitCount, 1, 2) : '0.00'}%|">入住率 0.00%</div>
                 </article>
                 <article class="dashboard-metric" data-tone="warning">
                     <div class="dashboard-metric-head">
                         <h3>待处理工单</h3>
-                        <span>需重点跟进</span>
                     </div>
                     <div class="dashboard-metric-main">
                         <strong th:text="${stats.openOrderCount}">0</strong>
-                        <small>待受理 / 处理中</small>
+                        <small>处理中</small>
                     </div>
-                    <p>工单中心仍在流转中的维修任务</p>
+                    <p>工单中心仍在流转的维修任务</p>
                 </article>
                 <article class="dashboard-metric" data-tone="danger">
                     <div class="dashboard-metric-head">
                         <h3>待缴账单</h3>
-                        <span>收缴提醒</span>
                     </div>
                     <div class="dashboard-metric-main">
                         <strong th:text="${stats.dueBillCount}">0</strong>
-                        <small>未缴 / 部分已缴 / 逾期</small>
+                        <small>未缴</small>
                     </div>
                     <p>需要继续催缴与跟踪的账单数量</p>
                 </article>
@@ -99,22 +89,22 @@
                                       data-received=${stats.totalReceived},
                                       data-pending=${stats.totalReceivable.subtract(stats.totalReceived)}">
                         </div>
-                        <div class="dashboard-legend">
+                        <div class="dashboard-collection-summary">
                             <div class="dashboard-legend-item">
-                                <span class="dashboard-dot dashboard-dot-solid"></span>
-                                <div>
+                                <div class="dashboard-legend-item-label">
+                                    <span class="dashboard-dot dashboard-dot-solid"></span>
                                     <strong>已收缴</strong>
-                                    <p th:text="${#numbers.formatDecimal(stats.totalReceived, 1, 'COMMA', 2, 'POINT')}">0.00</p>
                                 </div>
+                                <p th:text="${#numbers.formatDecimal(stats.totalReceived, 1, 'COMMA', 2, 'POINT')}">0.00</p>
                             </div>
                             <div class="dashboard-legend-item">
-                                <span class="dashboard-dot"></span>
-                                <div>
+                                <div class="dashboard-legend-item-label">
+                                    <span class="dashboard-dot"></span>
                                     <strong>待收缴</strong>
-                                    <p th:text="${#numbers.formatDecimal(stats.totalReceivable.subtract(stats.totalReceived), 1, 'COMMA', 2, 'POINT')}">0.00</p>
                                 </div>
+                                <p th:text="${#numbers.formatDecimal(stats.totalReceivable.subtract(stats.totalReceived), 1, 'COMMA', 2, 'POINT')}">0.00</p>
                             </div>
-                            <div class="dashboard-collection-meta">
+                            <div class="dashboard-collection-total">
                                 <span>应收总额</span>
                                 <strong th:text="${#numbers.formatDecimal(stats.totalReceivable, 1, 'COMMA', 2, 'POINT')}">0.00</strong>
                             </div>
@@ -122,31 +112,80 @@
                     </div>
                 </article>
 
-                <article class="dashboard-distribution">
+                <article class="dashboard-distribution"
+                         th:attr="data-units=${stats.unitCount},
+                                  data-residents=${stats.residentCount},
+                                  data-orders=${stats.openOrderCount},
+                                  data-bills=${stats.dueBillCount}">
                     <div class="dashboard-section-head">
                         <div>
                             <h2>今日运营分布</h2>
                             <p>使用统一比例，快速比较核心指标</p>
                         </div>
                     </div>
-                    <div id="chart-distribution-bar"
-                         class="chart-container chart-bar"
-                         th:attr="data-units=${stats.unitCount},
-                                  data-residents=${stats.residentCount},
-                                  data-orders=${stats.openOrderCount},
-                                  data-bills=${stats.dueBillCount}">
+                    <div class="dashboard-bar-list">
+                        <div class="dashboard-bar-item" data-stat-key="units">
+                            <div class="dashboard-bar-label">在管房屋</div>
+                            <div class="dashboard-bar-meter">
+                                <div class="dashboard-bar-track">
+                                    <div class="dashboard-bar-fill dashboard-bar-fill-primary" data-stat-fill></div>
+                                </div>
+                                <div class="dashboard-bar-value" th:text="${stats.unitCount}">0</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-bar-item" data-stat-key="residents">
+                            <div class="dashboard-bar-label">活跃住户</div>
+                            <div class="dashboard-bar-meter">
+                                <div class="dashboard-bar-track">
+                                    <div class="dashboard-bar-fill dashboard-bar-fill-success" data-stat-fill></div>
+                                </div>
+                                <div class="dashboard-bar-value" th:text="${stats.residentCount}">0</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-bar-item" data-stat-key="orders">
+                            <div class="dashboard-bar-label">待处理工单</div>
+                            <div class="dashboard-bar-meter">
+                                <div class="dashboard-bar-track">
+                                    <div class="dashboard-bar-fill dashboard-bar-fill-warning" data-stat-fill></div>
+                                </div>
+                                <div class="dashboard-bar-value" th:text="${stats.openOrderCount}">0</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-bar-item" data-stat-key="bills">
+                            <div class="dashboard-bar-label">待缴账单</div>
+                            <div class="dashboard-bar-meter">
+                                <div class="dashboard-bar-track">
+                                    <div class="dashboard-bar-fill dashboard-bar-fill-danger" data-stat-fill></div>
+                                </div>
+                                <div class="dashboard-bar-value" th:text="${stats.dueBillCount}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-trend">
+                        <div class="dashboard-trend-title">近7日投诉 · 新增 &amp; 处理量趋势</div>
+                        <div class="dashboard-trend-legend" aria-hidden="true">
+                            <div class="dashboard-trend-legend-item">
+                                <span class="dashboard-trend-legend-line dashboard-trend-legend-line-primary"></span>
+                                <span>新增投诉</span>
+                            </div>
+                            <div class="dashboard-trend-legend-item">
+                                <span class="dashboard-trend-legend-line dashboard-trend-legend-line-teal"></span>
+                                <span>已处理完结</span>
+                            </div>
+                        </div>
+                        <div id="chart-dashboard-trend" class="chart-container chart-line"></div>
                     </div>
                 </article>
             </section>
 
-            <section class="panel-grid">
-                <article class="panel">
-                    <div class="panel-head">
+            <section class="panel-grid dashboard-summary-grid">
+                <article class="panel dashboard-list-panel">
+                    <div class="panel-head dashboard-list-head">
                         <h2>最新工单</h2>
                         <a class="btn ghost mini view-more-btn" href="/admin/management?tab=work-orders">查看全部</a>
                     </div>
-                    <div class="table-wrap">
-                        <table class="table">
+                    <div class="table-wrap dashboard-list-table-wrap">
+                        <table class="table dashboard-list-table">
                             <thead>
                             <tr>
                                 <th>工单号</th>
@@ -161,12 +200,12 @@
                                 <td colspan="5" class="empty">暂无工单。</td>
                             </tr>
                             <tr th:each="item : ${recentOrders}">
-                                <td th:text="${item.orderNo}"></td>
-                                <td th:text="${item.unitNo}"></td>
+                                <td class="dashboard-list-id" th:text="${item.orderNo}"></td>
+                                <td class="dashboard-list-room" th:text="${item.unitNo}"></td>
                                 <td th:text="${item.category}"></td>
-                                <td th:text="${item.priority == 'HIGH' ? '高' : (item.priority == 'MEDIUM' ? '中' : '低')}"></td>
+                                <td class="dashboard-list-priority" th:text="${item.priority == 'HIGH' ? '高' : (item.priority == 'MEDIUM' ? '中' : '低')}"></td>
                                 <td>
-                                    <span class="badge"
+                                    <span class="badge dashboard-list-badge"
                                           th:attr="data-status=${item.status}"
                                           th:text="${item.status == 'OPEN' ? '待受理' : (item.status == 'IN_PROGRESS' ? '处理中' : (item.status == 'DONE' ? '已完成' : '已关闭'))}">待受理</span>
                                 </td>
@@ -176,13 +215,13 @@
                     </div>
                 </article>
 
-                <article class="panel">
-                    <div class="panel-head">
+                <article class="panel dashboard-list-panel">
+                    <div class="panel-head dashboard-list-head">
                         <h2>近期应收账单</h2>
                         <a class="btn ghost mini view-more-btn" href="/admin/management?tab=bills">查看全部</a>
                     </div>
-                    <div class="table-wrap">
-                        <table class="table">
+                    <div class="table-wrap dashboard-list-table-wrap">
+                        <table class="table dashboard-list-table">
                             <thead>
                             <tr>
                                 <th>账单号</th>
@@ -197,13 +236,13 @@
                                 <td colspan="5" class="empty">暂无账单。</td>
                             </tr>
                             <tr th:each="bill : ${dueBills}">
-                                <td th:text="${bill.billNo}"></td>
-                                <td th:text="${bill.unitNo}"></td>
+                                <td class="dashboard-list-id" th:text="${bill.billNo}"></td>
+                                <td class="dashboard-list-room" th:text="${bill.unitNo}"></td>
                                 <!--/*@thymesVar id="billingMonth" type=""*/-->
-                                <td th:text="${bill.billingMonth}"></td>
-                                <td th:text="${#numbers.formatDecimal(bill.amount, 1, 'COMMA', 2, 'POINT')}"></td>
+                                <td class="dashboard-list-period" th:text="${bill.billingMonth}"></td>
+                                <td class="dashboard-list-amount" th:text="${#numbers.formatDecimal(bill.amount, 1, 'COMMA', 2, 'POINT')}"></td>
                                 <td>
-                                    <span class="badge"
+                                    <span class="badge dashboard-list-badge"
                                           th:attr="data-status=${bill.status}"
                                           th:text="${bill.status == 'UNPAID' ? '未缴' : (bill.status == 'PARTIAL' ? '部分已缴' : (bill.status == 'OVERDUE' ? '逾期' : '已缴清'))}">未缴</span>
                                 </td>
@@ -218,12 +257,7 @@
         <section class="mgmt-pane mgmt-pane-units"
                  data-pane-tab="units"
                  th:classappend="${currentTab != 'units'} ? ' is-hidden'">
-            <section class="page-head compact">
-                <h1>房屋档案</h1>
-                <a class="btn primary" href="/admin/units/new">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增房屋</a>
-            </section>
+
 
             <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="units" />
@@ -281,6 +315,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
+                <a class="btn primary" href="/admin/residents/new" style="margin-left: auto;">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增住户</a>
             </form>
 
             <div class="table-wrap">
@@ -329,13 +366,6 @@
         <section class="mgmt-pane mgmt-pane-residents"
                  data-pane-tab="residents"
                  th:classappend="${currentTab != 'residents'} ? ' is-hidden'">
-            <section class="page-head compact">
-                <h1>住户档案</h1>
-                <a class="btn primary" href="/admin/residents/new">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增住户</a>
-            </section>
-
             <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="residents" />
                 <label>
@@ -372,6 +402,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
+                <a class="btn primary" href="/admin/residents/new" style="margin-left: auto;">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增住户</a>
             </form>
 
             <div class="table-wrap">
@@ -418,13 +451,6 @@
         <section class="mgmt-pane mgmt-pane-work-orders"
                  data-pane-tab="work-orders"
                  th:classappend="${currentTab != 'work-orders'} ? ' is-hidden'">
-            <section class="page-head compact">
-                <h1>报修工单</h1>
-                <a class="btn primary" href="/admin/work-orders/new">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新建工单</a>
-            </section>
-
             <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="work-orders" />
                 <label>
@@ -485,6 +511,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
+                <a class="btn primary" href="/admin/work-orders/new" style="margin-left: auto">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新建工单</a>
             </form>
 
             <div class="table-wrap">
@@ -561,13 +590,6 @@
         <section class="mgmt-pane mgmt-pane-bills"
                  data-pane-tab="bills"
                  th:classappend="${currentTab != 'bills'} ? ' is-hidden'">
-            <section class="page-head compact">
-                <h1>费用账单</h1>
-                <a class="btn primary" href="/admin/bills/new">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增账单</a>
-            </section>
-
             <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="bills" />
                 <label>
@@ -611,6 +633,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
+                <a class="btn primary" href="/admin/bills/new" style="margin-left: auto;">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增账单</a>
             </form>
 
             <div class="table-wrap">
@@ -662,13 +687,6 @@
         <section class="mgmt-pane mgmt-pane-users"
                  data-pane-tab="users"
                  th:classappend="${currentTab != 'users'} ? ' is-hidden'">
-            <section class="page-head compact">
-                <h1>系统用户与权限</h1>
-                <a class="btn primary" href="/admin/users/new">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增用户</a>
-            </section>
-
             <form method="get" action="/admin/management" class="filter-row" data-auto-submit-filters="true">
                 <input type="hidden" name="tab" value="users" />
                 <label>
@@ -724,6 +742,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
+                <a class="btn primary" href="/admin/users/new" style="margin-left: auto;">
+                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+                    新增用户</a>
             </form>
 
             <div class="table-wrap">
@@ -770,7 +791,7 @@
 
 <script src="/js/common/pagination.js" defer></script>
 <script src="/js/vendor/echarts.min.js" defer></script>
-<script src="/js/admin/management-dashboard.js" defer></script>
+<script src="/js/admin/management-dashboard.js?v=20260410-dashboard-ui-refresh" defer></script>
 <script src="/js/admin/management.js?v=20260408-management-scroll-filter-fix" defer></script>
 <script src="/js/admin/user-table.js" defer></script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="${editing} ? '登记账单收款' : '新增账单'">费用账单表单</title>
+    <title th:text="${editing ? '登记账单收款' : '新增账单'}">费用账单表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css?v=20260408-all-date-pickers" />
@@ -17,12 +17,16 @@
     <main class="app-main">
         <div th:replace="~{fragments/layout :: messages}"></div>
 
-        <section class="archive-create-page" th:unless="${editing}">
-            <form method="post" action="/admin/bills/save" class="archive-create-form">
+        <section class="archive-create-page">
+            <form method="post" class="archive-create-form"
+                  th:attr="action=${editing ? '/admin/bills/' + bill.id + '/pay' : '/admin/bills/save'},
+                           data-confirm-message=${editing and bill.status != 'PAID' ? '确认登记这笔账单的缴费信息吗？' : null},
+                           data-confirm-confirm-text=${editing and bill.status != 'PAID' ? '确认登记' : null}">
                 <div class="archive-create-card">
                     <div class="archive-top-bar"></div>
                     <div class="archive-create-header">
-                        <div class="archive-create-sn">账单编号：__________</div>
+                        <div class="archive-create-sn"
+                             th:text="${editing and bill.billNo != null ? '账单编号：' + bill.billNo : '账单编号：待生成'}">账单编号：__________</div>
                         <div class="archive-create-stamp"><span>费用<br />账单</span></div>
                         <h1>费用账单登记表</h1>
                         <p class="subtitle">FEE BILL REGISTRATION</p>
@@ -32,7 +36,7 @@
                         <div class="archive-create-row-double">
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" id="bill-unit-label">房　　屋</label>
-                                <div class="custom-select archive-create-control" data-required>
+                                <div class="custom-select archive-create-control" data-required th:unless="${editing}">
                                     <input type="hidden" name="unitId" th:value="${bill.unitId}" required />
                                     <button type="button" class="custom-select-trigger" aria-expanded="false"
                                             aria-labelledby="bill-unit-label bill-unit-trigger-text">
@@ -41,114 +45,56 @@
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li class="custom-select-option" data-value="" data-label="请选择房屋"
-                                            th:classappend="${bill.unitId == null} ? ' is-selected'">请选择房屋</li>
+                                            th:classappend="${bill.unitId == null ? ' is-selected' : ''}">请选择房屋</li>
                                         <li th:each="unit : ${units}"
                                             class="custom-select-option"
                                             th:attr="data-value=${unit.id},data-label=${unit.unitNo}"
-                                            th:classappend="${bill.unitId == unit.id} ? ' is-selected'"
+                                            th:classappend="${bill.unitId == unit.id ? ' is-selected' : ''}"
                                             th:text="${unit.unitNo}"></li>
                                     </ul>
                                 </div>
+                                <input class="archive-create-control" th:if="${editing}" th:value="${bill.unitNo}" readonly />
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" for="bill-billingMonth">账　　期</label>
-                                <input class="archive-create-control" id="bill-billingMonth" type="month" name="billingMonth" th:value="${bill.billingMonth}" required data-ui-picker="month" />
+                                <input class="archive-create-control" id="bill-billingMonth" th:unless="${editing}"
+                                       type="month" name="billingMonth" th:value="${bill.billingMonth}" required data-ui-picker="month" />
+                                <input class="archive-create-control" id="bill-view-billingMonth" th:if="${editing}"
+                                       type="text" th:value="${bill.billingMonth}" readonly />
                             </div>
                         </div>
 
                         <div class="archive-create-row-double">
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" for="bill-amount">应收金额</label>
-                                <input class="archive-create-control" id="bill-amount" type="number" name="amount" th:value="${bill.amount}" step="0.01" min="0" placeholder="请输入金额" required />
+                                <input class="archive-create-control" id="bill-amount" th:unless="${editing}"
+                                       type="number" name="amount" th:value="${bill.amount}" step="0.01" min="0" placeholder="请输入金额" required />
+                                <input class="archive-create-control" id="bill-view-amount" th:if="${editing}"
+                                       type="text" th:value="${bill.amount}" readonly />
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" id="bill-status-label">账单状态</label>
-                                <div class="custom-select archive-create-control">
+                                <div class="custom-select archive-create-control" th:unless="${editing}">
                                     <input type="hidden" name="status"
                                            th:value="${bill.status != null ? bill.status : 'UNPAID'}" />
                                     <button type="button" class="custom-select-trigger" aria-expanded="false"
                                             aria-labelledby="bill-status-label bill-status-trigger-text">
                                         <span class="custom-select-trigger-text" id="bill-status-trigger-text"
-                                              th:text="${bill.status == 'PARTIAL'} ? '部分已缴' : (${bill.status == 'OVERDUE'} ? '逾期' : (${bill.status == 'PAID'} ? '已缴清' : '未缴'))">未缴</span>
+                                              th:text="${bill.status == 'PARTIAL' ? '部分已缴' : (bill.status == 'OVERDUE' ? '逾期' : (bill.status == 'PAID' ? '已缴清' : '未缴'))}">未缴</span>
                                         <span class="custom-select-arrow" aria-hidden="true"></span>
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li class="custom-select-option" data-value="UNPAID" data-label="未缴"
-                                            th:classappend="${bill.status == null or bill.status == 'UNPAID'} ? ' is-selected'">未缴</li>
+                                            th:classappend="${bill.status == null or bill.status == 'UNPAID' ? ' is-selected' : ''}">未缴</li>
                                         <li class="custom-select-option" data-value="PARTIAL" data-label="部分已缴"
-                                            th:classappend="${bill.status == 'PARTIAL'} ? ' is-selected'">部分已缴</li>
+                                            th:classappend="${bill.status == 'PARTIAL' ? ' is-selected' : ''}">部分已缴</li>
                                         <li class="custom-select-option" data-value="OVERDUE" data-label="逾期"
-                                            th:classappend="${bill.status == 'OVERDUE'} ? ' is-selected'">逾期</li>
+                                            th:classappend="${bill.status == 'OVERDUE' ? ' is-selected' : ''}">逾期</li>
                                         <li class="custom-select-option" data-value="PAID" data-label="已缴清"
-                                            th:classappend="${bill.status == 'PAID'} ? ' is-selected'">已缴清</li>
+                                            th:classappend="${bill.status == 'PAID' ? ' is-selected' : ''}">已缴清</li>
                                     </ul>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="archive-create-row-double">
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="bill-paidAmount">实收金额</label>
-                                <input class="archive-create-control" id="bill-paidAmount" type="number" name="paidAmount" th:value="${bill.paidAmount}" step="0.01" min="0" placeholder="请输入金额" />
-                            </div>
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="bill-dueDate">到期日期</label>
-                                <input class="archive-create-control" id="bill-dueDate" type="date" name="dueDate" th:value="${bill.dueDate}" data-ui-picker="date" />
-                            </div>
-                        </div>
-
-                        <div class="archive-create-row-single is-textarea">
-                            <label class="archive-create-label" for="bill-remarks">备　　注</label>
-                            <textarea class="archive-create-control" id="bill-remarks" name="remarks" rows="3" placeholder="请输入备注信息" th:text="${bill.remarks}"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="archive-create-footer">
-                        <span class="archive-create-time"
-                              th:text="${'登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
-                        <div class="archive-create-actions">
-                            <a class="archive-create-action archive-create-action--cancel" href="/admin/bills">取　消</a>
-                            <button class="archive-create-action archive-create-action--save" type="submit">保存归档</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </section>
-
-        <section class="archive-create-page" th:if="${editing}">
-            <form th:action="@{/admin/bills/{id}/pay(id=${bill.id})}" method="post" class="archive-create-form"
-                  th:attr="data-confirm-message=${bill.status != 'PAID' ? '确认登记这笔账单的缴费信息吗？' : ''},
-                           data-confirm-confirm-text=${bill.status != 'PAID' ? '确认登记' : ''}">
-                <div class="archive-create-card">
-                    <div class="archive-top-bar"></div>
-                    <div class="archive-create-header">
-                        <div class="archive-create-sn"
-                             th:text="${bill.billNo != null ? '账单编号：' + bill.billNo : '账单编号：待生成'}">账单编号：__________</div>
-                        <div class="archive-create-stamp"><span>费用<br />账单</span></div>
-                        <h1>费用账单登记表</h1>
-                        <p class="subtitle">FEE BILL REGISTRATION</p>
-                    </div>
-
-                    <div class="archive-create-body">
-                        <div class="archive-create-row-double">
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="bill-view-unitNo">房　　屋</label>
-                                <input class="archive-create-control" id="bill-view-unitNo" th:value="${bill.unitNo}" readonly />
-                            </div>
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="bill-view-billingMonth">账　　期</label>
-                                <input class="archive-create-control" id="bill-view-billingMonth" th:value="${bill.billingMonth}" readonly />
-                            </div>
-                        </div>
-
-                        <div class="archive-create-row-double">
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="bill-view-amount">应收金额</label>
-                                <input class="archive-create-control" id="bill-view-amount" th:value="${bill.amount}" readonly />
-                            </div>
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="bill-view-status">账单状态</label>
-                                <input class="archive-create-control" id="bill-view-status"
+                                <input class="archive-create-control" th:if="${editing}"
                                        th:value="${bill.status == 'UNPAID' ? '未缴' : (bill.status == 'PARTIAL' ? '部分已缴' : (bill.status == 'OVERDUE' ? '逾期' : '已缴清'))}"
                                        readonly />
                             </div>
@@ -156,52 +102,63 @@
 
                         <div class="archive-create-row-double">
                             <div class="archive-create-cell">
+                                <label class="archive-create-label"
+                                       th:for="${editing ? (bill.status == 'PAID' ? 'bill-paid-locked' : 'bill-pay-amount') : 'bill-paidAmount'}"
+                                       th:text="${editing ? '本次收款' : '实收金额'}">实收金额</label>
+                                <input class="archive-create-control" id="bill-paidAmount" th:unless="${editing}"
+                                       type="number" name="paidAmount" th:value="${bill.paidAmount}" step="0.01" min="0" placeholder="请输入金额" />
+                                <input class="archive-create-control" id="bill-pay-amount" th:if="${editing and bill.status != 'PAID'}"
+                                       type="number" name="paidAmount" step="0.01" min="0.01"
+                                       th:attr="max=${remainingAmount}" placeholder="请输入本次到账金额" required />
+                                <input class="archive-create-control" id="bill-paid-locked" th:if="${editing and bill.status == 'PAID'}"
+                                       value="账单已缴清" readonly />
+                            </div>
+                            <div class="archive-create-cell">
+                                <label class="archive-create-label"
+                                       th:for="${editing ? 'bill-view-remaining' : 'bill-dueDate'}"
+                                       th:text="${editing ? '待收金额' : '到期日期'}">到期日期</label>
+                                <input class="archive-create-control" id="bill-dueDate" th:unless="${editing}"
+                                       type="date" name="dueDate" th:value="${bill.dueDate}" data-ui-picker="date" />
+                                <input class="archive-create-control" id="bill-view-remaining" th:if="${editing}"
+                                       th:value="${remainingAmount}" readonly />
+                            </div>
+                        </div>
+
+                        <div class="archive-create-row-double" th:if="${editing}">
+                            <div class="archive-create-cell">
                                 <label class="archive-create-label" for="bill-view-paidAmount">累计实收</label>
                                 <input class="archive-create-control" id="bill-view-paidAmount" th:value="${bill.paidAmount}" readonly />
                             </div>
                             <div class="archive-create-cell">
-                                <label class="archive-create-label" for="bill-view-remaining">待收金额</label>
-                                <input class="archive-create-control" id="bill-view-remaining" th:value="${remainingAmount}" readonly />
-                            </div>
-                        </div>
-
-                        <div class="archive-create-row-double">
-                            <div class="archive-create-cell">
                                 <label class="archive-create-label" for="bill-view-dueDate">到期日期</label>
                                 <input class="archive-create-control" id="bill-view-dueDate" th:value="${bill.dueDate}" readonly />
-                            </div>
-                            <div class="archive-create-cell" th:if="${bill.status != 'PAID'}">
-                                <label class="archive-create-label" for="bill-pay-amount">本次收款</label>
-                                <input class="archive-create-control" id="bill-pay-amount" type="number" name="paidAmount" step="0.01" min="0.01"
-                                       th:attr="max=${remainingAmount}"
-                                       placeholder="请输入本次到账金额" required />
-                            </div>
-                            <div class="archive-create-cell" th:if="${bill.status == 'PAID'}">
-                                <label class="archive-create-label" for="bill-pay-locked">本次收款</label>
-                                <input class="archive-create-control" id="bill-pay-locked" value="账单已缴清" readonly />
                             </div>
                         </div>
 
                         <div class="archive-create-row-single is-textarea">
-                            <label class="archive-create-label" for="bill-view-remarks">备　　注</label>
-                            <textarea class="archive-create-control" id="bill-view-remarks" rows="3" th:text="${bill.remarks}" readonly></textarea>
+                            <label class="archive-create-label" th:for="${editing ? 'bill-view-remarks' : 'bill-remarks'}">备　　注</label>
+                            <textarea class="archive-create-control" id="bill-remarks" th:unless="${editing}"
+                                      name="remarks" rows="3" placeholder="请输入备注信息" th:text="${bill.remarks}"></textarea>
+                            <textarea class="archive-create-control" id="bill-view-remarks" th:if="${editing}"
+                                      rows="3" th:text="${bill.remarks}" readonly></textarea>
                         </div>
                     </div>
 
                     <div class="archive-create-footer">
                         <span class="archive-create-time"
-                              th:text="${bill.updatedAt != null ? '最近更新 ' + #temporals.format(bill.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
+                              th:text="${editing and bill.updatedAt != null ? '最近更新 ' + #temporals.format(bill.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
                         <div class="archive-create-actions">
-                            <a class="archive-create-action archive-create-action--cancel" href="/admin/bills">返　回</a>
+                            <a class="archive-create-action archive-create-action--cancel" href="/admin/bills"
+                               th:text="${editing ? '返　回' : '取　消'}">取　消</a>
                             <button class="archive-create-action archive-create-action--save" type="submit"
-                                    th:disabled="${bill.status == 'PAID'}"
-                                    th:text="${bill.status == 'PAID'} ? '已完成收款' : '登记缴费'">登记缴费</button>
+                                    th:disabled="${editing and bill.status == 'PAID'}"
+                                    th:text="${editing ? (bill.status == 'PAID' ? '已完成收款' : '登记缴费') : '保存归档'}">保存归档</button>
                         </div>
                     </div>
                 </div>
             </form>
 
-            <section class="embedded-support-panel">
+            <section class="embedded-support-panel" th:if="${editing}">
                 <div class="embedded-support-copy">
                     <span class="note-kicker" th:text="${bill.status == 'PAID' ? '收款结果' : '缴费提醒'}">缴费提醒</span>
                     <h3 th:text="${bill.status == 'PAID' ? '该账单已完成收款' : '先核对账单信息，再登记收款'}">先核对账单信息，再登记收款</h3>

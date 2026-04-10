@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="${editing} ? '编辑用户' : '新增用户'">系统用户表单</title>
+    <title th:text="${editing ? '编辑系统用户' : '新增系统用户'}">系统用户表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
     <link rel="stylesheet" href="/css/apps/admin.css" />
@@ -17,12 +17,16 @@
     <main class="app-main">
         <div th:replace="~{fragments/layout :: messages}"></div>
 
-        <section class="archive-create-page archive-create-page--user" th:unless="${editing}">
-            <form method="post" action="/admin/users/save" class="archive-create-form">
+        <section class="archive-create-page archive-create-page--user">
+            <form method="post" class="archive-create-form"
+                  th:attr="action=${editing ? '/admin/users/' + managedUser.id + '/manage' : '/admin/users/save'},
+                           data-confirm-message=${editing ? '确认保存对该用户的设置修改吗？' : null},
+                           data-confirm-confirm-text=${editing ? '确认保存' : null}">
                 <div class="archive-create-card">
                     <div class="archive-top-bar"></div>
                     <div class="archive-create-header">
-                        <div class="archive-create-sn">账号编号：__________</div>
+                        <div class="archive-create-sn"
+                             th:text="${editing and managedUser.id != null ? '账号编号：' + managedUser.id : '账号编号：待生成'}">账号编号：__________</div>
                         <div class="archive-create-stamp"><span>系统<br />用户</span></div>
                         <h1>系统用户档案</h1>
                         <p class="subtitle">USER PROFILE</p>
@@ -33,12 +37,18 @@
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" for="managed-username">登录账号</label>
                                 <input class="archive-create-control" id="managed-username" name="username" type="text"
-                                       th:value="${managedUser.username}" placeholder="请设置登录账号" required />
+                                       th:value="${managedUser.username}" placeholder="请设置登录账号"
+                                       th:attr="readonly=${editing ? true : null}, required=${editing ? null : true}" />
                             </div>
                             <div class="archive-create-cell">
-                                <label class="archive-create-label" for="managed-password">登录密码</label>
-                                <input class="archive-create-control" id="managed-password" name="password" type="password"
-                                       placeholder="请设置登录密码" required />
+                                <label class="archive-create-label"
+                                       th:for="${editing ? 'managed-createdAt' : 'managed-password'}"
+                                       th:text="${editing ? '创建时间' : '登录密码'}">登录密码</label>
+                                <input class="archive-create-control" id="managed-password" name="password" th:unless="${editing}"
+                                       type="password" placeholder="请设置登录密码" required />
+                                <input class="archive-create-control" id="managed-createdAt" th:if="${editing}"
+                                       th:value="${managedUser.createdAt != null ? #temporals.format(managedUser.createdAt, 'yyyy-MM-dd HH:mm') : '暂无记录'}"
+                                       readonly />
                             </div>
                         </div>
 
@@ -58,63 +68,10 @@
                                         <li th:if="${roles != null}" th:each="item : ${roles}"
                                             class="custom-select-option"
                                             th:attr="data-value=${item.name()},data-label=${item.label}"
-                                            th:classappend="${managedUser.role == null ? item.name() == 'ADMIN' : managedUser.role == item} ? ' is-selected'"
+                                            th:classappend="${(managedUser.role == null ? item.name() == 'ADMIN' : managedUser.role == item) ? ' is-selected' : ''}"
                                             th:text="${item.label}"></li>
                                     </ul>
                                 </div>
-                            </div>
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" id="managed-status-create-label">账号状态</label>
-                                <div class="custom-select archive-create-control">
-                                    <input type="hidden" name="status" th:value="${managedUser.status != null ? managedUser.status : 'ACTIVE'}" />
-                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
-                                            aria-labelledby="managed-status-create-label managed-status-create-trigger-text">
-                                        <span class="custom-select-trigger-text" id="managed-status-create-trigger-text"
-                                              th:text="${managedUser.status == 'DISABLED' ? '禁用' : '启用'}">启用</span>
-                                        <span class="custom-select-arrow" aria-hidden="true"></span>
-                                    </button>
-                                    <ul class="custom-select-panel">
-                                        <li class="custom-select-option" data-value="ACTIVE" data-label="启用"
-                                            th:classappend="${managedUser.status == null or managedUser.status == 'ACTIVE'} ? ' is-selected'">启用</li>
-                                        <li class="custom-select-option" data-value="DISABLED" data-label="禁用"
-                                            th:classappend="${managedUser.status == 'DISABLED'} ? ' is-selected'">禁用</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="archive-create-footer">
-                        <span class="archive-create-time"
-                              th:text="${'登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
-                        <div class="archive-create-actions">
-                            <a class="archive-create-action archive-create-action--cancel" href="/admin/users">取　消</a>
-                            <button class="archive-create-action archive-create-action--save" type="submit">保　存</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </section>
-
-        <section class="archive-create-page archive-create-page--user" th:if="${editing}">
-            <form th:action="@{/admin/users/{id}/manage(id=${managedUser.id})}" method="post" class="archive-create-form"
-                  data-confirm-message="确认保存对该用户的设置修改吗？"
-                  data-confirm-confirm-text="确认保存">
-                <div class="archive-create-card">
-                    <div class="archive-top-bar"></div>
-                    <div class="archive-create-header">
-                        <div class="archive-create-sn"
-                             th:text="${managedUser.id != null ? '账号编号：' + managedUser.id : '账号编号：待生成'}">账号编号：__________</div>
-                        <div class="archive-create-stamp"><span>系统<br />用户</span></div>
-                        <h1>系统用户档案</h1>
-                        <p class="subtitle">USER PROFILE</p>
-                    </div>
-
-                    <div class="archive-create-body">
-                        <div class="archive-create-row-double">
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="managed-username-edit">登录账号</label>
-                                <input class="archive-create-control" id="managed-username-edit" th:value="${managedUser.username}" readonly />
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" id="managed-status-label">账号状态</label>
@@ -123,49 +80,20 @@
                                     <button type="button" class="custom-select-trigger" aria-expanded="false"
                                             aria-labelledby="managed-status-label managed-status-trigger-text">
                                         <span class="custom-select-trigger-text" id="managed-status-trigger-text"
-                                              th:text="${managedUser.status == 'DISABLED'} ? '禁用' : '启用'">启用</span>
+                                              th:text="${managedUser.status == 'DISABLED' ? '禁用' : '启用'}">启用</span>
                                         <span class="custom-select-arrow" aria-hidden="true"></span>
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li class="custom-select-option" data-value="ACTIVE" data-label="启用"
-                                            th:classappend="${managedUser.status == null or managedUser.status == 'ACTIVE'} ? ' is-selected'">启用</li>
+                                            th:classappend="${managedUser.status == null or managedUser.status == 'ACTIVE' ? ' is-selected' : ''}">启用</li>
                                         <li class="custom-select-option" data-value="DISABLED" data-label="禁用"
-                                            th:classappend="${managedUser.status == 'DISABLED'} ? ' is-selected'">禁用</li>
+                                            th:classappend="${managedUser.status == 'DISABLED' ? ' is-selected' : ''}">禁用</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="archive-create-row-double">
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" id="managed-role-edit-label">权限角色</label>
-                                <div class="custom-select archive-create-control">
-                                    <input type="hidden" id="managed-role-edit" name="role"
-                                           th:value="${managedUser.role != null ? managedUser.role.name() : 'ADMIN'}" />
-                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
-                                            aria-labelledby="managed-role-edit-label managed-role-edit-trigger-text">
-                                        <span class="custom-select-trigger-text" id="managed-role-edit-trigger-text"
-                                              th:text="${managedUser.role != null ? managedUser.role.label : '系统管理员'}">系统管理员</span>
-                                        <span class="custom-select-arrow" aria-hidden="true"></span>
-                                    </button>
-                                    <ul class="custom-select-panel">
-                                        <li th:if="${roles != null}" th:each="item : ${roles}"
-                                            class="custom-select-option"
-                                            th:attr="data-value=${item.name()},data-label=${item.label}"
-                                            th:classappend="${managedUser.role == null ? item.name() == 'ADMIN' : managedUser.role == item} ? ' is-selected'"
-                                            th:text="${item.label}"></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="archive-create-cell">
-                                <label class="archive-create-label" for="managed-createdAt">创建时间</label>
-                                <input class="archive-create-control" id="managed-createdAt"
-                                       th:value="${managedUser.createdAt != null ? #temporals.format(managedUser.createdAt, 'yyyy-MM-dd HH:mm') : '暂无记录'}"
-                                       readonly />
-                            </div>
-                        </div>
-
-                        <div class="archive-create-row-single">
+                        <div class="archive-create-row-single" th:if="${editing}">
                             <label class="archive-create-label" for="managed-updatedAt">最近更新</label>
                             <input class="archive-create-control" id="managed-updatedAt"
                                    th:value="${managedUser.updatedAt != null ? #temporals.format(managedUser.updatedAt, 'yyyy-MM-dd HH:mm') : '暂无更新'}"
@@ -175,16 +103,17 @@
 
                     <div class="archive-create-footer">
                         <span class="archive-create-time"
-                              th:text="${managedUser.updatedAt != null ? '最近更新 ' + #temporals.format(managedUser.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
+                              th:text="${editing and managedUser.updatedAt != null ? '最近更新 ' + #temporals.format(managedUser.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
                         <div class="archive-create-actions">
                             <a class="archive-create-action archive-create-action--cancel" href="/admin/users">取　消</a>
-                            <button class="archive-create-action archive-create-action--save" type="submit">保存设置</button>
+                            <button class="archive-create-action archive-create-action--save" type="submit"
+                                    th:text="${editing ? '保存设置' : '保　存'}">保　存</button>
                         </div>
                     </div>
                 </div>
             </form>
 
-            <section class="embedded-support-panel" th:if="${managedUser.id != null}">
+            <section class="embedded-support-panel" th:if="${editing and managedUser.id != null}">
                 <div class="embedded-support-copy">
                     <span class="note-kicker">密码维护</span>
                     <h3>重置当前账号密码</h3>

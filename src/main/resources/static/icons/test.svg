@@ -1,7 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-    <g stroke="#364b58" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M44 24c0 0-8-10-20-10S4 24 4 24s8 10 20 10 20-10 20-10z"/>
-        <circle cx="24" cy="24" r="5"/>
-        <path d="M14 14L34 34"/>
-    </g>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 底层厚度面（模拟纸飞机的"厚度"，制造3D感） -->
+    <path d="M44 8L22 26L4 20L44 8Z" fill="#222" opacity="0.15"/>
+
+    <!-- 下翼（暗面） -->
+    <path d="M43 6L21 23L29 43L43 6Z" fill="#333" stroke="#333" stroke-width="2.5" stroke-linejoin="round"/>
+
+    <!-- 上翼（亮面） -->
+    <path d="M43 6L21 23L4 17L43 6Z" fill="#555" stroke="#333" stroke-width="2.5" stroke-linejoin="round"/>
+
+    <!-- 折痕线（粗，强调立体结构） -->
+    <line x1="43" y1="6" x2="21" y2="23" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+
+    <!-- 上翼高光条（模拟光照反射） -->
+    <path d="M40 7.5L14 17.5L21 21" fill="#fff" opacity="0.15"/>
 </svg>
