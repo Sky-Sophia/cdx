@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.13</version>
+        <version>3.5.13</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.example</groupId>
@@ -100,7 +100,6 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>${poi.version}</version>
         </dependency>
     </dependencies>
 
@@ -183,7 +182,7 @@
                             <rules>
                                 <requireJavaVersion>
                                     <version>[21,22)</version>
-                                    <message>请使用 JDK 21 运行 Maven（项目已统一为 Java 21）</message>
+                                    <message>请使用 JDK 21 运行 Maven</message>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
