@@ -53,14 +53,16 @@
                                             th:text="${unit.unitNo}"></li>
                                     </ul>
                                 </div>
-                                <input class="archive-create-control" th:if="${editing}" th:value="${bill.unitNo}" readonly />
+                                <label>
+                                    <input class="archive-create-control" th:if="${editing}" th:value="${bill.unitNo}" readonly />
+                                </label>
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" for="bill-billingMonth">账　　期</label>
                                 <input class="archive-create-control" id="bill-billingMonth" th:unless="${editing}"
                                        type="month" name="billingMonth" th:value="${bill.billingMonth}" required data-ui-picker="month" />
-                                <input class="archive-create-control" id="bill-view-billingMonth" th:if="${editing}"
-                                       type="text" th:value="${bill.billingMonth}" readonly />
+                                <label for="bill-view-billingMonth"></label><input class="archive-create-control" id="bill-view-billingMonth" th:if="${editing}"
+                                                                                   type="text" th:value="${bill.billingMonth}" readonly />
                             </div>
                         </div>
 
@@ -69,8 +71,8 @@
                                 <label class="archive-create-label" for="bill-amount">应收金额</label>
                                 <input class="archive-create-control" id="bill-amount" th:unless="${editing}"
                                        type="number" name="amount" th:value="${bill.amount}" step="0.01" min="0" placeholder="请输入金额" required />
-                                <input class="archive-create-control" id="bill-view-amount" th:if="${editing}"
-                                       type="text" th:value="${bill.amount}" readonly />
+                                <label for="bill-view-amount"></label><input class="archive-create-control" id="bill-view-amount" th:if="${editing}"
+                                                                             type="text" th:value="${bill.amount}" readonly />
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" id="bill-status-label">账单状态</label>
@@ -94,9 +96,11 @@
                                             th:classappend="${bill.status == 'PAID' ? ' is-selected' : ''}">已缴清</li>
                                     </ul>
                                 </div>
-                                <input class="archive-create-control" th:if="${editing}"
-                                       th:value="${bill.status == 'UNPAID' ? '未缴' : (bill.status == 'PARTIAL' ? '部分已缴' : (bill.status == 'OVERDUE' ? '逾期' : '已缴清'))}"
-                                       readonly />
+                                <label>
+                                    <input class="archive-create-control" th:if="${editing}"
+                                           th:value="${bill.status == 'UNPAID' ? '未缴' : (bill.status == 'PARTIAL' ? '部分已缴' : (bill.status == 'OVERDUE' ? '逾期' : '已缴清'))}"
+                                           readonly />
+                                </label>
                             </div>
                         </div>
 
@@ -105,22 +109,22 @@
                                 <label class="archive-create-label"
                                        th:for="${editing ? (bill.status == 'PAID' ? 'bill-paid-locked' : 'bill-pay-amount') : 'bill-paidAmount'}"
                                        th:text="${editing ? '本次收款' : '实收金额'}">实收金额</label>
-                                <input class="archive-create-control" id="bill-paidAmount" th:unless="${editing}"
-                                       type="number" name="paidAmount" th:value="${bill.paidAmount}" step="0.01" min="0" placeholder="请输入金额" />
-                                <input class="archive-create-control" id="bill-pay-amount" th:if="${editing and bill.status != 'PAID'}"
-                                       type="number" name="paidAmount" step="0.01" min="0.01"
-                                       th:attr="max=${remainingAmount}" placeholder="请输入本次到账金额" required />
-                                <input class="archive-create-control" id="bill-paid-locked" th:if="${editing and bill.status == 'PAID'}"
-                                       value="账单已缴清" readonly />
+                                <label for="bill-paidAmount"></label><input class="archive-create-control" id="bill-paidAmount" th:unless="${editing}"
+                                                                            type="number" name="paidAmount" th:value="${bill.paidAmount}" step="0.01" min="0" placeholder="请输入金额" />
+                                <label for="bill-pay-amount"></label><input class="archive-create-control" id="bill-pay-amount" th:if="${editing and bill.status != 'PAID'}"
+                                                                            type="number" name="paidAmount" step="0.01" min="0.01"
+                                                                            th:attr="max=${remainingAmount}" placeholder="请输入本次到账金额" required />
+                                <label for="bill-paid-locked"></label><input class="archive-create-control" id="bill-paid-locked" th:if="${editing and bill.status == 'PAID'}"
+                                                                             value="账单已缴清" readonly />
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label"
                                        th:for="${editing ? 'bill-view-remaining' : 'bill-dueDate'}"
                                        th:text="${editing ? '待收金额' : '到期日期'}">到期日期</label>
-                                <input class="archive-create-control" id="bill-dueDate" th:unless="${editing}"
-                                       type="date" name="dueDate" th:value="${bill.dueDate}" data-ui-picker="date" />
-                                <input class="archive-create-control" id="bill-view-remaining" th:if="${editing}"
-                                       th:value="${remainingAmount}" readonly />
+                                <label for="bill-dueDate"></label><input class="archive-create-control" id="bill-dueDate" th:unless="${editing}"
+                                                                         type="date" name="dueDate" th:value="${bill.dueDate}" data-ui-picker="date" />
+                                <label for="bill-view-remaining"></label><input class="archive-create-control" id="bill-view-remaining" th:if="${editing}"
+                                                                                th:value="${remainingAmount}" readonly />
                             </div>
                         </div>
 
@@ -137,10 +141,10 @@
 
                         <div class="archive-create-row-single is-textarea">
                             <label class="archive-create-label" th:for="${editing ? 'bill-view-remarks' : 'bill-remarks'}">备　　注</label>
-                            <textarea class="archive-create-control" id="bill-remarks" th:unless="${editing}"
-                                      name="remarks" rows="3" placeholder="请输入备注信息" th:text="${bill.remarks}"></textarea>
-                            <textarea class="archive-create-control" id="bill-view-remarks" th:if="${editing}"
-                                      rows="3" th:text="${bill.remarks}" readonly></textarea>
+                            <label for="bill-remarks"></label><textarea class="archive-create-control" id="bill-remarks" th:unless="${editing}"
+                                                                        name="remarks" rows="3" placeholder="请输入备注信息" th:text="${bill.remarks}"></textarea>
+                            <label for="bill-view-remarks"></label><textarea class="archive-create-control" id="bill-view-remarks" th:if="${editing}"
+                                                                             rows="3" th:text="${bill.remarks}" readonly></textarea>
                         </div>
                     </div>
 

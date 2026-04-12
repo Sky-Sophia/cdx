@@ -44,11 +44,11 @@
                                 <label class="archive-create-label"
                                        th:for="${editing ? 'managed-createdAt' : 'managed-password'}"
                                        th:text="${editing ? '创建时间' : '登录密码'}">登录密码</label>
-                                <input class="archive-create-control" id="managed-password" name="password" th:unless="${editing}"
-                                       type="password" placeholder="请设置登录密码" required />
-                                <input class="archive-create-control" id="managed-createdAt" th:if="${editing}"
-                                       th:value="${managedUser.createdAt != null ? #temporals.format(managedUser.createdAt, 'yyyy-MM-dd HH:mm') : '暂无记录'}"
-                                       readonly />
+                                <label for="managed-password"></label><input class="archive-create-control" id="managed-password" name="password" th:unless="${editing}"
+                                                                             type="password" placeholder="请设置登录密码" required />
+                                <label for="managed-createdAt"></label><input class="archive-create-control" id="managed-createdAt" th:if="${editing}"
+                                                                              th:value="${managedUser.createdAt != null ? #temporals.format(managedUser.createdAt, 'yyyy-MM-dd HH:mm') : '暂无记录'}"
+                                                                              readonly />
                             </div>
                         </div>
 

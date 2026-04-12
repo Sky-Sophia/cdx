@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>登录 - 物业运营平台管理系统</title>
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/auth.css" />
+    <link rel="icon" href="/favicon.ico" sizes="any"/>
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg"/>
+    <link rel="stylesheet" href="/css/apps/auth.css"/>
 </head>
 <body class="auth-portal-body">
 <main class="auth-portal-card"
@@ -24,11 +24,13 @@
         <button type="button"
                 class="auth-tab-btn"
                 data-tab-target="login"
-                th:classappend="${tab != 'register'} ? ' is-active'">登录</button>
+                th:classappend="${tab != 'register'} ? ' is-active'">登录
+        </button>
         <button type="button"
                 class="auth-tab-btn"
                 data-tab-target="register"
-                th:classappend="${tab == 'register'} ? ' is-active'">注册</button>
+                th:classappend="${tab == 'register'} ? ' is-active'">注册
+        </button>
         <span class="slide-underline" aria-hidden="true"></span>
     </nav>
 
@@ -53,7 +55,7 @@
                        autocomplete="off"
                        minlength="3"
                        maxlength="20"
-                       required />
+                       required/>
             </div>
 
             <label class="auth-portal-label" for="login-password">密码</label>
@@ -66,7 +68,7 @@
                        autocomplete="off"
                        minlength="8"
                        maxlength="64"
-                       required />
+                       required/>
                 <button class="auth-portal-eye"
                         type="button"
                         data-target="login-password"
@@ -96,7 +98,7 @@
                        autocomplete="off"
                        minlength="3"
                        maxlength="20"
-                       required />
+                       required/>
             </div>
 
             <label class="auth-portal-label" for="register-password">密码</label>
@@ -109,7 +111,7 @@
                        autocomplete="new-password"
                        minlength="8"
                        maxlength="64"
-                       required />
+                       required/>
                 <button class="auth-portal-eye"
                         type="button"
                         data-target="register-password"
@@ -128,7 +130,7 @@
                        autocomplete="new-password"
                        minlength="8"
                        maxlength="64"
-                       required />
+                       required/>
                 <button class="auth-portal-eye"
                         type="button"
                         data-target="register-confirm-password"
@@ -142,134 +144,143 @@
     </section>
 
     <section class="auth-portal-section auth-portal-section-forgot"
-         th:classappend="${!forgotPanelOpen} ? ' is-hidden'"
-         th:attr="aria-hidden=${forgotPanelOpen} ? 'false' : 'true'">
-    <div class="auth-forgot-modal-card"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="forgotPasswordTitle">
-        <div class="auth-forgot-modal-stage">
-            <form method="post"
-                  action="/forgot-password"
-                  class="auth-portal-form auth-forgot-form"
-                  id="forgotForm"
-                  autocomplete="off"
-                  novalidate>
-                <div class="auth-forgot-step"
-                     data-step="verify"
-                     th:classappend="${forgotStep != 'verify'} ? ' is-hidden'"
-                     th:attr="aria-hidden=${forgotStep == 'verify'} ? 'false' : 'true'">
-                    <div class="auth-forgot-modal-header">
-                        <h2 id="forgotPasswordTitle">找回密码</h2>
-                        <button type="button" class="auth-forgot-close-btn" data-close-forgot-panel aria-label="关闭">&times;</button>
-                    </div>
-
-                    <div class="auth-forgot-form-block">
-                        <input id="forgot-username"
-                               name="username"
-                               type="text"
-                               th:value="${forgotUsername}"
-                               placeholder="注册用户名"
-                               autocomplete="off"
-                               minlength="3"
-                               maxlength="20"
-                               required />
-
-                        <div class="auth-forgot-code-row">
-                            <input id="forgot-code"
-                                   type="text"
-                                   inputmode="numeric"
-                                   autocomplete="one-time-code"
-                                   placeholder="验证码"
-                                   maxlength="6" />
-                            <button class="auth-forgot-code-btn"
-                                    id="forgotSendCodeBtn"
-                                    type="button">获取验证码</button>
+             th:classappend="${!forgotPanelOpen} ? ' is-hidden'"
+             th:attr="aria-hidden=${forgotPanelOpen} ? 'false' : 'true'">
+        <div class="auth-forgot-modal-card"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="forgotPasswordTitle">
+            <div class="auth-forgot-modal-stage">
+                <form method="post"
+                      action="/forgot-password"
+                      class="auth-portal-form auth-forgot-form"
+                      id="forgotForm"
+                      autocomplete="off"
+                      novalidate>
+                    <div class="auth-forgot-step"
+                         data-step="verify"
+                         th:classappend="${forgotStep != 'verify'} ? ' is-hidden'"
+                         th:attr="aria-hidden=${forgotStep == 'verify'} ? 'false' : 'true'">
+                        <div class="auth-forgot-modal-header">
+                            <h2 id="forgotPasswordTitle">找回密码</h2>
+                            <button type="button" class="auth-forgot-close-btn" data-close-forgot-panel
+                                    aria-label="关闭">&times;
+                            </button>
                         </div>
 
-                        <p class="auth-forgot-feedback" id="forgotVerifyFeedback" aria-live="polite"></p>
+                        <div class="auth-forgot-form-block">
+                            <label for="forgot-username"></label><input id="forgot-username"
+                                                                        name="username"
+                                                                        type="text"
+                                                                        th:value="${forgotUsername}"
+                                                                        placeholder="注册用户名"
+                                                                        autocomplete="off"
+                                                                        minlength="3"
+                                                                        maxlength="20"
+                                                                        required/>
 
-                        <button class="auth-forgot-primary-btn"
-                                type="button"
-                                data-forgot-next>下一步</button>
-                    </div>
-                </div>
+                            <div class="auth-forgot-code-row">
+                                <label for="forgot-code"></label><input id="forgot-code"
+                                                                        type="text"
+                                                                        inputmode="numeric"
+                                                                        autocomplete="one-time-code"
+                                                                        placeholder="验证码"
+                                                                        maxlength="6"/>
+                                <button class="auth-forgot-code-btn"
+                                        id="forgotSendCodeBtn"
+                                        type="button">获取验证码
+                                </button>
+                            </div>
 
-                <div class="auth-forgot-step"
-                     data-step="reset"
-                     th:classappend="${forgotStep != 'reset'} ? ' is-hidden'"
-                     th:attr="aria-hidden=${forgotStep == 'reset'} ? 'false' : 'true'">
-                    <div class="auth-forgot-modal-header">
-                        <h2>设置新密码</h2>
-                        <button type="button" class="auth-forgot-close-btn" data-close-forgot-panel aria-label="关闭">&times;</button>
-                    </div>
+                            <p class="auth-forgot-feedback" id="forgotVerifyFeedback" aria-live="polite"></p>
 
-                    <div class="auth-forgot-form-block">
-                        <div class="auth-forgot-summary">
-                            <span>当前账号</span>
-                            <strong id="forgotUsernamePreview" th:text="${forgotUsername != null and !#strings.isEmpty(forgotUsername) ? forgotUsername : '未填写用户名'}">未填写用户名</strong>
-                        </div>
-
-                        <div class="auth-portal-input-wrap auth-forgot-password-wrap">
-                            <input id="forgot-new-password"
-                                   name="newPassword"
-                                   type="password"
-                                   placeholder="新密码"
-                                   autocomplete="new-password"
-                                   minlength="8"
-                                   maxlength="64"
-                                   required />
-                            <button class="auth-portal-eye"
+                            <button class="auth-forgot-primary-btn"
                                     type="button"
-                                    data-target="forgot-new-password"
-                                    aria-label="显示或隐藏密码"
-                                    aria-pressed="false"></button>
-                        </div>
-
-                        <div class="auth-portal-input-wrap auth-forgot-password-wrap">
-                            <input id="forgot-confirm-password"
-                                   name="confirmPassword"
-                                   type="password"
-                                   placeholder="确认密码"
-                                   autocomplete="new-password"
-                                   minlength="8"
-                                   maxlength="64"
-                                   required />
-                            <button class="auth-portal-eye"
-                                    type="button"
-                                    data-target="forgot-confirm-password"
-                                    aria-label="显示或隐藏密码"
-                                    aria-pressed="false"></button>
-                        </div>
-
-                        <p class="auth-forgot-feedback" id="forgotResetFeedback" aria-live="polite"></p>
-
-                        <div class="auth-forgot-action-row">
-                            <button class="auth-forgot-secondary-btn" type="button" data-forgot-prev>上一步</button>
-                            <button class="auth-forgot-primary-btn" type="submit">完成</button>
+                                    data-forgot-next>下一步
+                            </button>
                         </div>
                     </div>
-                </div>
 
-                <div class="auth-forgot-step auth-forgot-step-success"
-                     data-step="success"
-                     th:classappend="${forgotStep != 'success'} ? ' is-hidden'"
-                     th:attr="aria-hidden=${forgotStep == 'success'} ? 'false' : 'true'">
-                    <div class="auth-forgot-modal-header auth-forgot-modal-header-success">
-                        <span></span>
-                        <button type="button" class="auth-forgot-close-btn" data-close-forgot-panel aria-label="关闭">&times;</button>
+                    <div class="auth-forgot-step"
+                         data-step="reset"
+                         th:classappend="${forgotStep != 'reset'} ? ' is-hidden'"
+                         th:attr="aria-hidden=${forgotStep == 'reset'} ? 'false' : 'true'">
+                        <div class="auth-forgot-modal-header">
+                            <h2>设置新密码</h2>
+                            <button type="button" class="auth-forgot-close-btn" data-close-forgot-panel
+                                    aria-label="关闭">&times;
+                            </button>
+                        </div>
+
+                        <div class="auth-forgot-form-block">
+                            <div class="auth-forgot-summary">
+                                <span>当前账号</span>
+                                <strong id="forgotUsernamePreview"
+                                        th:text="${forgotUsername != null and !#strings.isEmpty(forgotUsername) ? forgotUsername : '未填写用户名'}">未填写用户名</strong>
+                            </div>
+
+                            <div class="auth-portal-input-wrap auth-forgot-password-wrap">
+                                <label for="forgot-new-password"></label><input id="forgot-new-password"
+                                                                                name="newPassword"
+                                                                                type="password"
+                                                                                placeholder="新密码"
+                                                                                autocomplete="new-password"
+                                                                                minlength="8"
+                                                                                maxlength="64"
+                                                                                required/>
+                                <button class="auth-portal-eye"
+                                        type="button"
+                                        data-target="forgot-new-password"
+                                        aria-label="显示或隐藏密码"
+                                        aria-pressed="false"></button>
+                            </div>
+
+                            <div class="auth-portal-input-wrap auth-forgot-password-wrap">
+                                <label for="forgot-confirm-password"></label><input id="forgot-confirm-password"
+                                                                                    name="confirmPassword"
+                                                                                    type="password"
+                                                                                    placeholder="确认密码"
+                                                                                    autocomplete="new-password"
+                                                                                    minlength="8"
+                                                                                    maxlength="64"
+                                                                                    required/>
+                                <button class="auth-portal-eye"
+                                        type="button"
+                                        data-target="forgot-confirm-password"
+                                        aria-label="显示或隐藏密码"
+                                        aria-pressed="false"></button>
+                            </div>
+
+                            <p class="auth-forgot-feedback" id="forgotResetFeedback" aria-live="polite"></p>
+
+                            <div class="auth-forgot-action-row">
+                                <button class="auth-forgot-secondary-btn" type="button" data-forgot-prev>上一步</button>
+                                <button class="auth-forgot-primary-btn" type="submit">完成</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="auth-forgot-success-icon" aria-hidden="true">
-                        <span></span>
+                    <div class="auth-forgot-step auth-forgot-step-success"
+                         data-step="success"
+                         th:classappend="${forgotStep != 'success'} ? ' is-hidden'"
+                         th:attr="aria-hidden=${forgotStep == 'success'} ? 'false' : 'true'">
+                        <div class="auth-forgot-modal-header auth-forgot-modal-header-success">
+                            <span></span>
+                            <button type="button" class="auth-forgot-close-btn" data-close-forgot-panel
+                                    aria-label="关闭">&times;
+                            </button>
+                        </div>
+
+                        <div class="auth-forgot-success-icon" aria-hidden="true">
+                            <span></span>
+                        </div>
+                        <p class="auth-forgot-success-title">密码重置成功</p>
+                        <button class="auth-forgot-primary-btn" type="button" data-close-forgot-panel>返回登录</button>
                     </div>
-                    <p class="auth-forgot-success-title">密码重置成功</p>
-                    <button class="auth-forgot-primary-btn" type="button" data-close-forgot-panel>返回登录</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 </main>
 
 <script src="/js/common/validation-bubble.js?v=20260410-validation-bubble-message" defer></script>
