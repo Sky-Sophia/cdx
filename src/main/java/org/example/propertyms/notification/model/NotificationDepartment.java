@@ -1,8 +1,11 @@
 package org.example.propertyms.notification.model;
 
 import java.util.Locale;
+
+import lombok.Getter;
 import org.example.propertyms.user.model.Role;
 
+@Getter
 public enum NotificationDepartment {
     OFFICE("综合办公室", "OFFICE", 10, Role.OFFICE),
     MANAGEMENT("管理部", "MANAGEMENT", 20, Role.MANAGEMENT),
@@ -19,22 +22,6 @@ public enum NotificationDepartment {
         this.code = code;
         this.sortOrder = sortOrder;
         this.fallbackRole = fallbackRole;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public int getSortOrder() {
-        return sortOrder;
-    }
-
-    public Role getFallbackRole() {
-        return fallbackRole;
     }
 
     public static NotificationDepartment defaultForRole(Role role) {

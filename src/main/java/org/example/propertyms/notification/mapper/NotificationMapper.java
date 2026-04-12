@@ -32,7 +32,7 @@ public interface NotificationMapper {
             FROM notification_messages
             WHERE receiver_id = #{receiverId}
               AND is_deleted = 0
-            ORDER BY is_read ASC, send_time DESC, id DESC
+            ORDER BY is_read , send_time DESC, id DESC
             LIMIT #{limit}
             """)
     List<NotificationMessage> findInbox(@Param("receiverId") Long receiverId, @Param("limit") int limit);
@@ -75,7 +75,7 @@ public interface NotificationMapper {
               AND is_deleted = 0
               AND is_read = 0
             """)
-    int markRead(@Param("id") Long id, @Param("receiverId") Long receiverId);
+    void markRead(@Param("id") Long id, @Param("receiverId") Long receiverId);
 
     @Update("""
             UPDATE notification_messages
@@ -86,7 +86,7 @@ public interface NotificationMapper {
               AND is_deleted = 0
               AND is_read = 0
             """)
-    int markAllRead(@Param("receiverId") Long receiverId);
+    void markAllRead(@Param("receiverId") Long receiverId);
 
     @Delete("""
             DELETE FROM notification_messages
@@ -100,7 +100,7 @@ public interface NotificationMapper {
             WHERE receiver_id = #{receiverId}
               AND is_deleted = 0
             """)
-    int deleteAll(@Param("receiverId") Long receiverId);
+    void deleteAll(@Param("receiverId") Long receiverId);
 
     @Select("""
             SELECT COUNT(*)

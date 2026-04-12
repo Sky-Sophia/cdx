@@ -127,7 +127,7 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
-        if (!isValidStatus(status)) {
+        if (isValidStatus(status)) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
             return "redirect:/admin/users/new";
         }
@@ -156,7 +156,7 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
-        if (!isValidStatus(status)) {
+        if (isValidStatus(status)) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
             return "redirect:/admin/users/edit/" + id;
         }
@@ -189,7 +189,7 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
-        if (!isValidStatus(status)) {
+        if (isValidStatus(status)) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
             return RedirectUrls.MANAGEMENT_USERS;
         }
@@ -308,7 +308,7 @@ public class AdminUserController {
 
     private boolean lacksAdminPermission(HttpSession session) {
         UserSession currentUser = currentUser(session);
-        return currentUser == null || currentUser.getRole() == null || !currentUser.getRole().canManageUsers();
+        return currentUser == null || currentUser.getRole() == null || currentUser.getRole().canManageUsers();
     }
 
     private UserSession currentUser(HttpSession session) {
@@ -324,7 +324,7 @@ public class AdminUserController {
     }
 
     private boolean isValidStatus(String status) {
-        return status != null && VALID_STATUS.contains(status.toUpperCase(Locale.ROOT));
+        return status == null || !VALID_STATUS.contains(status.toUpperCase(Locale.ROOT));
     }
 
     private String resolveDepartmentCode(Role role) {

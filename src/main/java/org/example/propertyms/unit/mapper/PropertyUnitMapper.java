@@ -47,7 +47,7 @@ public interface PropertyUnitMapper {
 
     @Select("""
             SELECT
-                """ + BASE_COLUMNS + """
+            """ + BASE_COLUMNS + """
             FROM units u
             LEFT JOIN buildings b ON b.id = u.building_id
             LEFT JOIN residents r ON r.id = u.owner_resident_id

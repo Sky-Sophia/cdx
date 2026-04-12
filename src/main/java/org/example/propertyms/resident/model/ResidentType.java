@@ -1,5 +1,8 @@
 package org.example.propertyms.resident.model;
 
+import lombok.Getter;
+
+@Getter
 public enum ResidentType {
     OWNER("业主"),
     TENANT("租客");
@@ -8,10 +11,6 @@ public enum ResidentType {
 
     ResidentType(String label) {
         this.label = label;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     public static ResidentType from(String value) {

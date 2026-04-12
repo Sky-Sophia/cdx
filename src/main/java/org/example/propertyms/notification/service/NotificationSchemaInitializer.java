@@ -54,11 +54,11 @@ public class NotificationSchemaInitializer {
                     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
                 """);
-        createIndexIfMissing("notification_messages", "idx_notification_receiver_deleted",
+        createIndexIfMissing("idx_notification_receiver_deleted",
                 "CREATE INDEX idx_notification_receiver_deleted ON notification_messages (receiver_id, is_deleted, send_time)");
-        createIndexIfMissing("notification_messages", "idx_notification_receiver_unread",
+        createIndexIfMissing("idx_notification_receiver_unread",
                 "CREATE INDEX idx_notification_receiver_unread ON notification_messages (receiver_id, is_deleted, is_read)");
-        createIndexIfMissing("notification_messages", "idx_notification_batch_no",
+        createIndexIfMissing("idx_notification_batch_no",
                 "CREATE INDEX idx_notification_batch_no ON notification_messages (batch_no)");
     }
 
@@ -112,46 +112,46 @@ public class NotificationSchemaInitializer {
     }
 
     private void addUsersColumnIfMissing(String columnName, String definition) {
-        if (columnExists("users", columnName)) {
+        if (columnExists(columnName)) {
             return;
         }
         jdbcTemplate.execute("ALTER TABLE users ADD COLUMN " + columnName + " " + definition);
     }
 
-    private void createIndexIfMissing(String tableName, String indexName, String ddl) {
-        if (indexExists(tableName, indexName)) {
+    private void createIndexIfMissing(String indexName, String ddl) {
+        if (indexExists(indexName)) {
             return;
         }
         jdbcTemplate.execute(ddl);
     }
 
-    private boolean columnExists(String tableName, String columnName) {
+    private boolean columnExists(String columnName) {
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
-            try (ResultSet resultSet = metaData.getColumns(connection.getCatalog(), null, tableName, columnName)) {
+            try (ResultSet resultSet = metaData.getColumns(connection.getCatalog(), null, "users", columnName)) {
                 if (resultSet.next()) {
                     return true;
                 }
             }
-            try (ResultSet resultSet = metaData.getColumns(connection.getCatalog(), null, tableName.toUpperCase(), columnName.toUpperCase())) {
+            try (ResultSet resultSet = metaData.getColumns(connection.getCatalog(), null, "users".toUpperCase(), columnName.toUpperCase())) {
                 return resultSet.next();
             }
         } catch (SQLException ex) {
-            throw new IllegalStateException("Failed to inspect column: " + tableName + "." + columnName, ex);
+            throw new IllegalStateException("Failed to inspect column: " + "users" + "." + columnName, ex);
         }
     }
 
-    private boolean indexExists(String tableName, String indexName) {
+    private boolean indexExists(String indexName) {
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
-            try (ResultSet resultSet = metaData.getIndexInfo(connection.getCatalog(), null, tableName, false, false)) {
+            try (ResultSet resultSet = metaData.getIndexInfo(connection.getCatalog(), null, "notification_messages", false, false)) {
                 while (resultSet.next()) {
                     if (indexName.equalsIgnoreCase(resultSet.getString("INDEX_NAME"))) {
                         return true;
                     }
                 }
             }
-            try (ResultSet resultSet = metaData.getIndexInfo(connection.getCatalog(), null, tableName.toUpperCase(), false, false)) {
+            try (ResultSet resultSet = metaData.getIndexInfo(connection.getCatalog(), null, "notification_messages".toUpperCase(), false, false)) {
                 while (resultSet.next()) {
                     if (indexName.equalsIgnoreCase(resultSet.getString("INDEX_NAME"))) {
                         return true;
@@ -160,7 +160,7 @@ public class NotificationSchemaInitializer {
             }
             return false;
         } catch (SQLException ex) {
-            throw new IllegalStateException("Failed to inspect index: " + tableName + "." + indexName, ex);
+            throw new IllegalStateException("Failed to inspect index: " + "notification_messages" + "." + indexName, ex);
         }
     }
 }

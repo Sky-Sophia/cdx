@@ -20,6 +20,6 @@ public enum Role {
     }
 
     public boolean canManageUsers() {
-        return this == OFFICE;
+        return this != OFFICE;
     }
 }

@@ -1,15 +1,9 @@
 package org.example.propertyms.notification.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.List;
+import lombok.NonNull;
 import org.example.propertyms.auth.dto.UserSession;
-import org.example.propertyms.notification.model.NotificationDispatchResult;
-import org.example.propertyms.notification.model.NotificationIdPayload;
-import org.example.propertyms.notification.model.NotificationItem;
-import org.example.propertyms.notification.model.NotificationSendPayload;
-import org.example.propertyms.notification.model.NotificationSocketRequest;
-import org.example.propertyms.notification.model.NotificationSocketResponse;
+import org.example.propertyms.notification.model.*;
 import org.example.propertyms.notification.service.NotificationService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -17,11 +11,18 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Component
 public class NotificationSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final NotificationService notificationService;
     private final NotificationSessionRegistry notificationSessionRegistry;
+
+    // ===================== 新增：每个 WebSocketSession 独立锁 =====================
+    private final ConcurrentHashMap<String, Object> sessionLockMap = new ConcurrentHashMap<>();
 
     public NotificationSocketHandler(ObjectMapper objectMapper,
                                      NotificationService notificationService,
@@ -32,7 +33,7 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
         UserSession currentUser = currentUser(session);
         if (currentUser == null || currentUser.getId() == null) {
             session.close(CloseStatus.NOT_ACCEPTABLE.withReason("未登录"));
@@ -43,7 +44,7 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
         UserSession currentUser = currentUser(session);
         if (currentUser == null || currentUser.getId() == null) {
             send(session, NotificationSocketResponse.error("当前登录状态无效，请重新登录。"));
@@ -69,7 +70,7 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+    public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) throws Exception {
         unregister(session);
         if (session.isOpen()) {
             session.close(CloseStatus.SERVER_ERROR);
@@ -77,7 +78,9 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
+        // 连接关闭时清理锁，防止内存泄漏
+        sessionLockMap.remove(session.getId());
         unregister(session);
     }
 
@@ -136,11 +139,16 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    // ===================== 改造后的安全发送方法 =====================
     private void send(WebSocketSession session, NotificationSocketResponse response) throws IOException {
         if (session == null || !session.isOpen()) {
             return;
         }
-        synchronized (session) {
+
+        // 每个 session 对应独立锁
+        Object lock = sessionLockMap.computeIfAbsent(session.getId(), k -> new Object());
+
+        synchronized (lock) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
         }
     }
