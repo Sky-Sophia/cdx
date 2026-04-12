@@ -66,15 +66,15 @@ public interface ResidentMapper {
               AND status = 'ACTIVE'
               AND id <> #{residentId}
             """)
-    int moveOutOtherActiveOwners(@Param("unitId") Long unitId, @Param("residentId") Long residentId);
+    void moveOutOtherActiveOwners(@Param("unitId") Long unitId, @Param("residentId") Long residentId);
 
     @Update("""
             UPDATE units u
             LEFT JOIN (
                 SELECT r.unit_id,
                        MAX(CASE WHEN r.resident_type = 'OWNER' AND r.status = 'ACTIVE' THEN r.id END) AS owner_resident_id,
-                       MAX(CASE WHEN r.resident_type = 'TENANT' AND r.status = 'ACTIVE' THEN 1 ELSE 0 END) AS has_active_tenant,
-                       MAX(CASE WHEN r.resident_type = 'OWNER' AND r.status = 'ACTIVE' THEN 1 ELSE 0 END) AS has_active_owner
+                       MAX(IF(r.resident_type = 'TENANT' AND r.status = 'ACTIVE', 1, 0)) AS has_active_tenant,
+                       MAX(IF(r.resident_type = 'OWNER' AND r.status = 'ACTIVE', 1, 0)) AS has_active_owner
                 FROM residents r
                 WHERE r.unit_id = #{unitId}
                 GROUP BY r.unit_id
@@ -88,7 +88,7 @@ public interface ResidentMapper {
                 u.updated_at = CURRENT_TIMESTAMP
             WHERE u.id = #{unitId}
             """)
-    int refreshUnitOccupancy(@Param("unitId") Long unitId);
+    void refreshUnitOccupancy(@Param("unitId") Long unitId);
 
     @Select("""
             SELECT COUNT(*)
