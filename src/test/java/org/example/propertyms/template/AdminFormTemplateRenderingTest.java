@@ -64,7 +64,7 @@ class AdminFormTemplateRenderingTest {
     @BeforeEach
     void setUp() {
         adminSession = new MockHttpSession();
-        adminSession.setAttribute(SessionKeys.CURRENT_USER, new UserSession(99L, "admin", Role.ADMIN));
+        adminSession.setAttribute(SessionKeys.CURRENT_USER, new UserSession(99L, "admin", Role.OFFICE));
 
         PropertyUnit simpleUnit = new PropertyUnit();
         simpleUnit.setId(1L);
@@ -95,7 +95,7 @@ class AdminFormTemplateRenderingTest {
         resident.setName("张三");
         resident.setPhone("13800000000");
         resident.setIdentityNo("110101199001010011");
-        resident.setResidentType("OWNER");
+        resident.setResidentType("TENANT");
         resident.setStatus("ACTIVE");
         resident.setMoveInDate(LocalDate.of(2024, 1, 1));
         resident.setUpdatedAt(LocalDateTime.of(2026, 4, 9, 11, 0));
@@ -145,8 +145,8 @@ class AdminFormTemplateRenderingTest {
     void userEditForm_shouldRenderSuccessfully() throws Exception {
         User user = new User();
         user.setId(3L);
-        user.setUsername("finance_user");
-        user.setRole(Role.FINANCE);
+        user.setUsername("manager_user");
+        user.setRole(Role.MANAGEMENT);
         user.setStatus("ACTIVE");
         user.setCreatedAt(LocalDateTime.of(2026, 4, 1, 9, 0));
         user.setUpdatedAt(LocalDateTime.of(2026, 4, 9, 10, 30));

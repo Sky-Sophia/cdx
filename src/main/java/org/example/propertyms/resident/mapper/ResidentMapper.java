@@ -62,6 +62,7 @@ public interface ResidentMapper {
                 move_out_date = COALESCE(move_out_date, CURRENT_DATE),
                 updated_at = CURRENT_TIMESTAMP
             WHERE unit_id = #{unitId}
+              AND resident_type = 'OWNER'
               AND status = 'ACTIVE'
               AND id <> #{residentId}
             """)
@@ -69,22 +70,25 @@ public interface ResidentMapper {
 
     @Update("""
             UPDATE units u
-            JOIN residents r ON r.id = #{residentId}
-            SET u.owner_resident_id = r.id,
-                u.occupancy_status = 'OCCUPIED',
+            LEFT JOIN (
+                SELECT r.unit_id,
+                       MAX(CASE WHEN r.resident_type = 'OWNER' AND r.status = 'ACTIVE' THEN r.id END) AS owner_resident_id,
+                       MAX(CASE WHEN r.resident_type = 'TENANT' AND r.status = 'ACTIVE' THEN 1 ELSE 0 END) AS has_active_tenant,
+                       MAX(CASE WHEN r.resident_type = 'OWNER' AND r.status = 'ACTIVE' THEN 1 ELSE 0 END) AS has_active_owner
+                FROM residents r
+                WHERE r.unit_id = #{unitId}
+                GROUP BY r.unit_id
+            ) resident_stats ON resident_stats.unit_id = u.id
+            SET u.owner_resident_id = resident_stats.owner_resident_id,
+                u.occupancy_status = CASE
+                    WHEN COALESCE(resident_stats.has_active_tenant, 0) = 1 THEN 'RENTED'
+                    WHEN COALESCE(resident_stats.has_active_owner, 0) = 1 THEN 'OCCUPIED'
+                    ELSE 'VACANT'
+                END,
                 u.updated_at = CURRENT_TIMESTAMP
-            WHERE u.id = r.unit_id
+            WHERE u.id = #{unitId}
             """)
-    int syncUnitOwnerFromResident(@Param("residentId") Long residentId);
-
-    @Update("""
-            UPDATE units u
-            SET u.owner_resident_id = NULL,
-                u.occupancy_status = 'VACANT',
-                u.updated_at = CURRENT_TIMESTAMP
-            WHERE u.owner_resident_id = #{residentId}
-            """)
-    int clearUnitOwnerIfResidentInactive(@Param("residentId") Long residentId);
+    int refreshUnitOccupancy(@Param("unitId") Long unitId);
 
     @Select("""
             SELECT COUNT(*)

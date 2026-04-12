@@ -34,9 +34,8 @@ mysql -u root -h 127.0.0.1 -P 3306 -D archive_db --default-character-set=utf8mb4
 
 ## 新账号
 
-- 管理员：`admin` / `Admin@2026`
-- 物业管家：`manager` / `Manager@2026`
-- 财务专员：`finance` / `Finance@2026`
+- 综合办公室：`admin` / `Admin@2026`
+- 管理部：`manager` / `Manager@2026`
+- 工程部：`engineer` / `Finance@2026`
 
 > 数据均为合成示例，格式贴近中国物业管理场景，不对应真实个人。
-

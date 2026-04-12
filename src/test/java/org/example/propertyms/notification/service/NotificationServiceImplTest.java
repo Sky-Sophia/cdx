@@ -11,7 +11,6 @@ import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.notification.mapper.NotificationAudienceMapper;
 import org.example.propertyms.notification.mapper.NotificationMapper;
 import org.example.propertyms.notification.model.NotificationDispatchResult;
-import org.example.propertyms.notification.model.NotificationIdPayload;
 import org.example.propertyms.notification.model.NotificationMessage;
 import org.example.propertyms.notification.model.NotificationSendPayload;
 import org.example.propertyms.user.model.Role;
@@ -41,10 +40,10 @@ class NotificationServiceImplTest {
 
     @Test
     void send_singleShouldPersistNotification() {
-        UserSession sender = new UserSession(1L, "admin", Role.ADMIN);
+        UserSession sender = new UserSession(1L, "admin", Role.OFFICE);
         User receiver = new User();
         receiver.setId(3L);
-        receiver.setUsername("finance");
+        receiver.setUsername("manager");
         receiver.setStatus("ACTIVE");
 
         NotificationSendPayload payload = new NotificationSendPayload();
@@ -65,7 +64,7 @@ class NotificationServiceImplTest {
         assertThat(results).hasSize(1);
         assertThat(results.getFirst().getReceiverId()).isEqualTo(3L);
         assertThat(results.getFirst().getItem().getSender()).isEqualTo("admin");
-        assertThat(results.getFirst().getItem().getReceiver()).isEqualTo("finance");
+        assertThat(results.getFirst().getItem().getReceiver()).isEqualTo("manager");
         assertThat(results.getFirst().getItem().getTargetType()).isEqualTo("SINGLE");
 
         ArgumentCaptor<NotificationMessage> captor = ArgumentCaptor.forClass(NotificationMessage.class);
@@ -76,19 +75,19 @@ class NotificationServiceImplTest {
 
     @Test
     void send_departmentShouldUseDepartmentRouting() {
-        UserSession sender = new UserSession(1L, "admin", Role.ADMIN);
+        UserSession sender = new UserSession(1L, "admin", Role.OFFICE);
         User receiver = new User();
         receiver.setId(3L);
-        receiver.setUsername("finance");
+        receiver.setUsername("manager");
         receiver.setStatus("ACTIVE");
 
         NotificationSendPayload payload = new NotificationSendPayload();
         payload.setMsgType("提醒");
         payload.setContent("请跟进欠费住户。");
         payload.setTargetType("department");
-        payload.setReceiver("财务部");
+        payload.setReceiver("管理部");
 
-        when(notificationAudienceMapper.findActiveUsersByDepartment("FINANCE", Role.FINANCE, 1L))
+        when(notificationAudienceMapper.findActiveUsersByDepartment("MANAGEMENT", Role.MANAGEMENT, 1L))
                 .thenReturn(List.of(receiver));
         when(notificationMapper.insert(any(NotificationMessage.class))).thenAnswer(invocation -> {
             NotificationMessage message = invocation.getArgument(0);
@@ -100,7 +99,7 @@ class NotificationServiceImplTest {
 
         assertThat(results).hasSize(1);
         assertThat(results.getFirst().getItem().getTargetType()).isEqualTo("DEPARTMENT");
-        verify(notificationAudienceMapper).findActiveUsersByDepartment("FINANCE", Role.FINANCE, 1L);
+        verify(notificationAudienceMapper).findActiveUsersByDepartment("MANAGEMENT", Role.MANAGEMENT, 1L);
     }
 
     @Test
@@ -125,7 +124,7 @@ class NotificationServiceImplTest {
 
     @Test
     void send_shouldRejectBlankContent() {
-        UserSession sender = new UserSession(1L, "admin", Role.ADMIN);
+        UserSession sender = new UserSession(1L, "admin", Role.OFFICE);
         NotificationSendPayload payload = new NotificationSendPayload();
         payload.setMsgType("通知");
         payload.setContent("   ");

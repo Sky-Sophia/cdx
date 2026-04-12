@@ -57,18 +57,18 @@
                                 <label class="archive-create-label" id="managed-role-label">权限角色</label>
                                 <div class="custom-select archive-create-control">
                                     <input type="hidden" name="role"
-                                           th:value="${managedUser.role != null ? managedUser.role.name() : 'ADMIN'}" />
+                                           th:value="${managedUser.role != null ? managedUser.role.name() : 'MANAGEMENT'}" />
                                     <button type="button" class="custom-select-trigger" aria-expanded="false"
                                             aria-labelledby="managed-role-label managed-role-trigger-text">
                                         <span class="custom-select-trigger-text" id="managed-role-trigger-text"
-                                              th:text="${managedUser.role != null ? managedUser.role.label : '系统管理员'}">系统管理员</span>
+                                              th:text="${managedUser.role != null ? managedUser.role.label : '管理部（普通管理员）'}">管理部（普通管理员）</span>
                                         <span class="custom-select-arrow" aria-hidden="true"></span>
                                     </button>
                                     <ul class="custom-select-panel">
                                         <li th:if="${roles != null}" th:each="item : ${roles}"
                                             class="custom-select-option"
                                             th:attr="data-value=${item.name()},data-label=${item.label}"
-                                            th:classappend="${(managedUser.role == null ? item.name() == 'ADMIN' : managedUser.role == item) ? ' is-selected' : ''}"
+                                            th:classappend="${(managedUser.role == null ? item.name() == 'MANAGEMENT' : managedUser.role == item) ? ' is-selected' : ''}"
                                             th:text="${item.label}"></li>
                                     </ul>
                                 </div>

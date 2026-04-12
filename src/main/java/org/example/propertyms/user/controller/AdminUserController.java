@@ -58,7 +58,7 @@ public class AdminUserController {
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
-            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
 
@@ -79,12 +79,13 @@ public class AdminUserController {
     @GetMapping("/new")
     public String newForm(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
-            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
 
         User managedUser = new User();
-        managedUser.setDepartmentCode(NotificationDepartment.defaultForRole(Role.ADMIN).getCode());
+        managedUser.setRole(Role.MANAGEMENT);
+        managedUser.setDepartmentCode(NotificationDepartment.defaultForRole(Role.MANAGEMENT).getCode());
         model.addAttribute("managedUser", managedUser);
         model.addAttribute("editing", false);
         populateUserFormOptions(model);
@@ -97,7 +98,7 @@ public class AdminUserController {
                            Model model,
                            RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
-            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
 
@@ -107,9 +108,7 @@ public class AdminUserController {
             return RedirectUrls.MANAGEMENT_USERS;
         }
 
-        if (user.getDepartmentCode() == null || user.getDepartmentCode().isBlank()) {
-            user.setDepartmentCode(NotificationDepartment.defaultForRole(user.getRole()).getCode());
-        }
+        user.setDepartmentCode(resolveDepartmentCode(user.getRole()));
         model.addAttribute("managedUser", user);
         model.addAttribute("editing", true);
         populateUserFormOptions(model);
@@ -120,33 +119,24 @@ public class AdminUserController {
     public String save(@RequestParam String username,
                        @RequestParam String password,
                        @RequestParam Role role,
-                       @RequestParam String departmentCode,
+                       @RequestParam(required = false) String departmentCode,
                        @RequestParam(defaultValue = "ACTIVE") String status,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
-            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
-        if (role == Role.USER) {
-            redirectAttributes.addFlashAttribute("error", "后台只允许创建管理员/员工/财务账号。");
-            return "redirect:/admin/users/new";
-        }
-        if (status == null || !VALID_STATUS.contains(status.toUpperCase())) {
+        if (!isValidStatus(status)) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
-            return "redirect:/admin/users/new";
-        }
-        String normalizedDepartmentCode = normalizeDepartmentCode(departmentCode);
-        if (!departmentService.isEnabledCode(normalizedDepartmentCode)) {
-            redirectAttributes.addFlashAttribute("error", "请选择有效的部门。");
             return "redirect:/admin/users/new";
         }
 
         try {
             User user = userService.register(username.trim(), password);
             userService.updateRole(user.getId(), role);
-            userService.updateDepartmentCode(user.getId(), normalizedDepartmentCode);
-            userService.updateStatus(user.getId(), status.toUpperCase());
+            userService.updateDepartmentCode(user.getId(), resolveDepartmentCode(role));
+            userService.updateStatus(user.getId(), status.toUpperCase(Locale.ROOT));
             redirectAttributes.addFlashAttribute("success", "用户已创建。");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
@@ -158,25 +148,16 @@ public class AdminUserController {
     @PostMapping("/{id}/manage")
     public String manage(@PathVariable Long id,
                          @RequestParam Role role,
-                         @RequestParam String departmentCode,
+                         @RequestParam(required = false) String departmentCode,
                          @RequestParam String status,
                          HttpSession session,
                          RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
-            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
-        if (role == Role.USER) {
-            redirectAttributes.addFlashAttribute("error", "后台账号仅支持管理员、员工或财务角色。");
-            return "redirect:/admin/users/edit/" + id;
-        }
-        if (status == null || !VALID_STATUS.contains(status.toUpperCase())) {
+        if (!isValidStatus(status)) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
-            return "redirect:/admin/users/edit/" + id;
-        }
-        String normalizedDepartmentCode = normalizeDepartmentCode(departmentCode);
-        if (!departmentService.isEnabledCode(normalizedDepartmentCode)) {
-            redirectAttributes.addFlashAttribute("error", "请选择有效的部门。");
             return "redirect:/admin/users/edit/" + id;
         }
 
@@ -193,9 +174,9 @@ public class AdminUserController {
         }
 
         userService.updateRole(id, role);
-        userService.updateDepartmentCode(id, normalizedDepartmentCode);
-        userService.updateStatus(id, status.toUpperCase());
-        redirectAttributes.addFlashAttribute("success", "用户权限与状态已更新。");
+        userService.updateDepartmentCode(id, resolveDepartmentCode(role));
+        userService.updateStatus(id, status.toUpperCase(Locale.ROOT));
+        redirectAttributes.addFlashAttribute("success", "用户身份与状态已更新。");
         return RedirectUrls.MANAGEMENT_USERS;
     }
 
@@ -205,10 +186,10 @@ public class AdminUserController {
                                HttpSession session,
                                RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
-            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
-        if (status == null || !VALID_STATUS.contains(status.toUpperCase())) {
+        if (!isValidStatus(status)) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
             return RedirectUrls.MANAGEMENT_USERS;
         }
@@ -219,7 +200,7 @@ public class AdminUserController {
             return RedirectUrls.MANAGEMENT_USERS;
         }
 
-        userService.updateStatus(id, status.toUpperCase());
+        userService.updateStatus(id, status.toUpperCase(Locale.ROOT));
         redirectAttributes.addFlashAttribute("success", "用户状态已更新。");
         return RedirectUrls.MANAGEMENT_USERS;
     }
@@ -230,7 +211,7 @@ public class AdminUserController {
                                 HttpSession session,
                                 RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
-            redirectAttributes.addFlashAttribute("error", "仅管理员可访问用户管理。");
+            redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
 
@@ -256,7 +237,6 @@ public class AdminUserController {
         }
 
         List<User> users = userService.listByFilters(q, role, status);
-
         DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = "用户列表_" + timestamp + ".xlsx";
@@ -265,12 +245,11 @@ public class AdminUserController {
         response.setHeader("Content-Disposition",
                 "attachment; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"");
 
-        try (Workbook wb = new XSSFWorkbook()) {
-            Sheet sheet = wb.createSheet("用户列表");
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("用户列表");
 
-            // ── Header style ──
-            CellStyle headerStyle = wb.createCellStyle();
-            Font headerFont = wb.createFont();
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerFont.setFontHeightInPoints((short) 12);
             headerFont.setColor(IndexedColors.WHITE.getIndex());
@@ -283,15 +262,13 @@ public class AdminUserController {
             headerStyle.setBorderLeft(BorderStyle.THIN);
             headerStyle.setBorderRight(BorderStyle.THIN);
 
-            // ── Body style ──
-            CellStyle bodyStyle = wb.createCellStyle();
+            CellStyle bodyStyle = workbook.createCellStyle();
             bodyStyle.setBorderBottom(BorderStyle.THIN);
             bodyStyle.setBorderTop(BorderStyle.THIN);
             bodyStyle.setBorderLeft(BorderStyle.THIN);
             bodyStyle.setBorderRight(BorderStyle.THIN);
 
-            // ── Header row ──
-            String[] headers = {"用户名", "角色", "状态", "创建时间"};
+            String[] headers = {"用户名", "身份类型", "状态", "创建时间"};
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
                 var cell = headerRow.createCell(i);
@@ -299,7 +276,6 @@ public class AdminUserController {
                 cell.setCellStyle(headerStyle);
             }
 
-            // ── Data rows ──
             for (int i = 0; i < users.size(); i++) {
                 User user = users.get(i);
                 Row row = sheet.createRow(i + 1);
@@ -313,7 +289,7 @@ public class AdminUserController {
                 c1.setCellStyle(bodyStyle);
 
                 var c2 = row.createCell(2);
-                c2.setCellValue("ACTIVE".equals(user.getStatus()) ? "启用" : "禁用");
+                c2.setCellValue("ACTIVE".equalsIgnoreCase(user.getStatus()) ? "启用" : "禁用");
                 c2.setCellStyle(bodyStyle);
 
                 var c3 = row.createCell(3);
@@ -321,20 +297,18 @@ public class AdminUserController {
                 c3.setCellStyle(bodyStyle);
             }
 
-            // ── Auto-size columns ──
             for (int i = 0; i < headers.length; i++) {
                 sheet.autoSizeColumn(i);
-                // Add a little extra width for Chinese characters
                 sheet.setColumnWidth(i, Math.max(sheet.getColumnWidth(i), 4000));
             }
 
-            wb.write(response.getOutputStream());
+            workbook.write(response.getOutputStream());
         }
     }
 
     private boolean lacksAdminPermission(HttpSession session) {
         UserSession currentUser = currentUser(session);
-        return currentUser == null || currentUser.getRole() != Role.ADMIN;
+        return currentUser == null || currentUser.getRole() == null || !currentUser.getRole().canManageUsers();
     }
 
     private UserSession currentUser(HttpSession session) {
@@ -345,15 +319,15 @@ public class AdminUserController {
     }
 
     private void populateUserFormOptions(Model model) {
-        model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
+        model.addAttribute("roles", Role.values());
         model.addAttribute("departmentOptions", departmentService.listEnabled());
     }
 
-    private String normalizeDepartmentCode(String departmentCode) {
-        if (departmentCode == null) {
-            return null;
-        }
-        return departmentCode.trim().toUpperCase(Locale.ROOT);
+    private boolean isValidStatus(String status) {
+        return status != null && VALID_STATUS.contains(status.toUpperCase(Locale.ROOT));
+    }
+
+    private String resolveDepartmentCode(Role role) {
+        return NotificationDepartment.defaultForRole(role).getCode();
     }
 }
-

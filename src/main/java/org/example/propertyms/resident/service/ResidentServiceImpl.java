@@ -42,10 +42,12 @@ public class ResidentServiceImpl implements ResidentService {
         if (resident == null || resident.getUnitId() == null || StringHelper.isBlank(resident.getName())) {
             throw new IllegalArgumentException("请填写房屋和住户姓名。");
         }
+        ResidentType residentType = ResidentType.from(resident.getResidentType());
+        resident.setResidentType(residentType.name());
+
         if (StringHelper.isBlank(resident.getStatus())) {
             resident.setStatus(ResidentStatus.ACTIVE.name());
         }
-        resident.setResidentType(ResidentType.OWNER.name());
         if (resident.getMoveInDate() != null
                 && resident.getMoveOutDate() != null
                 && resident.getMoveOutDate().isBefore(resident.getMoveInDate())) {
@@ -54,31 +56,40 @@ public class ResidentServiceImpl implements ResidentService {
         if (ResidentStatus.ACTIVE.name().equals(resident.getStatus())) {
             resident.setMoveOutDate(null);
         }
+
         if (resident.getId() == null) {
             residentMapper.insert(resident);
         } else {
             residentMapper.update(resident);
         }
-        syncUnitOwner(resident);
+
+        syncUnitAfterResidentChange(resident.getUnitId(), resident.getId(), residentType, resident.getStatus());
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        residentMapper.clearUnitOwnerIfResidentInactive(id);
-        residentMapper.deleteById(id);
-    }
-
-    private void syncUnitOwner(Resident resident) {
-        if (resident.getId() == null) {
+        Resident resident = residentMapper.findById(id);
+        if (resident == null) {
             return;
         }
-        if (ResidentStatus.ACTIVE.name().equals(resident.getStatus())) {
-            residentMapper.moveOutOtherActiveOwners(resident.getUnitId(), resident.getId());
-            residentMapper.syncUnitOwnerFromResident(resident.getId());
-        } else {
-            residentMapper.clearUnitOwnerIfResidentInactive(resident.getId());
+        Long unitId = resident.getUnitId();
+        residentMapper.deleteById(id);
+        if (unitId != null) {
+            residentMapper.refreshUnitOccupancy(unitId);
         }
+    }
+
+    private void syncUnitAfterResidentChange(Long unitId, Long residentId, ResidentType residentType, String status) {
+        if (unitId == null) {
+            return;
+        }
+        if (residentId != null
+                && residentType == ResidentType.OWNER
+                && ResidentStatus.ACTIVE.name().equals(status)) {
+            residentMapper.moveOutOtherActiveOwners(unitId, residentId);
+        }
+        residentMapper.refreshUnitOccupancy(unitId);
     }
 
     @Override

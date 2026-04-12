@@ -7,8 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import org.example.propertyms.notification.model.NotificationDepartment;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -96,23 +96,18 @@ public class NotificationSchemaInitializer {
         jdbcTemplate.update("""
                 UPDATE users
                 SET department_code = CASE
-                    WHEN department_code = 'SECURITY' THEN 'MANAGEMENT'
-                    WHEN department_code = 'ADMINISTRATION' AND role = 'ADMIN' THEN 'MANAGEMENT'
-                    WHEN department_code IS NULL OR department_code = ''
-                         OR department_code NOT IN ('ADMINISTRATION', 'FINANCE', 'ENGINEERING', 'MANAGEMENT', 'NONE')
-                    THEN CASE
-                        WHEN role = 'ADMIN' THEN 'MANAGEMENT'
-                        WHEN role = 'FINANCE' THEN 'FINANCE'
-                        WHEN role = 'STAFF' THEN 'ENGINEERING'
-                        ELSE 'NONE'
-                    END
-                    ELSE department_code
+                    WHEN role IN ('OFFICE', 'ADMIN') THEN 'OFFICE'
+                    WHEN role IN ('MANAGEMENT', 'FINANCE') THEN 'MANAGEMENT'
+                    WHEN role IN ('ENGINEERING', 'STAFF') THEN 'ENGINEERING'
+                    ELSE 'NONE'
                 END
-                WHERE department_code IS NULL
-                   OR department_code = ''
-                   OR department_code = 'SECURITY'
-                   OR (department_code = 'ADMINISTRATION' AND role = 'ADMIN')
-                   OR department_code NOT IN ('ADMINISTRATION', 'FINANCE', 'ENGINEERING', 'MANAGEMENT', 'NONE')
+                WHERE role IN ('OFFICE', 'ADMIN', 'MANAGEMENT', 'FINANCE', 'ENGINEERING', 'STAFF', 'USER')
+                  AND (
+                      department_code IS NULL
+                      OR department_code = ''
+                      OR department_code IN ('ADMINISTRATION', 'FINANCE', 'SECURITY')
+                      OR department_code NOT IN ('OFFICE', 'MANAGEMENT', 'ENGINEERING', 'NONE')
+                  )
                 """);
     }
 
@@ -142,7 +137,7 @@ public class NotificationSchemaInitializer {
                 return resultSet.next();
             }
         } catch (SQLException ex) {
-            throw new IllegalStateException("检查数据库列失败: " + tableName + "." + columnName, ex);
+            throw new IllegalStateException("Failed to inspect column: " + tableName + "." + columnName, ex);
         }
     }
 
@@ -165,7 +160,7 @@ public class NotificationSchemaInitializer {
             }
             return false;
         } catch (SQLException ex) {
-            throw new IllegalStateException("检查数据库索引失败: " + tableName + "." + indexName, ex);
+            throw new IllegalStateException("Failed to inspect index: " + tableName + "." + indexName, ex);
         }
     }
 }

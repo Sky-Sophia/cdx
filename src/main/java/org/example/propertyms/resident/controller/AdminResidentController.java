@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.util.ExcelExportHelper;
 import org.example.propertyms.resident.model.Resident;
+import org.example.propertyms.resident.model.ResidentType;
 import org.example.propertyms.resident.service.ResidentService;
 import org.example.propertyms.unit.service.PropertyUnitService;
 import org.springframework.stereotype.Controller;
@@ -44,7 +45,10 @@ public class AdminResidentController {
 
     @GetMapping("/new")
     public String newForm(Model model) {
-        model.addAttribute("resident", new Resident());
+        Resident resident = new Resident();
+        resident.setResidentType(ResidentType.OWNER.name());
+        model.addAttribute("resident", resident);
+        model.addAttribute("residentTypes", ResidentType.values());
         model.addAttribute("units", propertyUnitService.listSimple());
         model.addAttribute("editing", false);
         return "admin/residents/form";
@@ -58,6 +62,7 @@ public class AdminResidentController {
             return RedirectUrls.MANAGEMENT_RESIDENTS;
         }
         model.addAttribute("resident", resident);
+        model.addAttribute("residentTypes", ResidentType.values());
         model.addAttribute("units", propertyUnitService.listSimple());
         model.addAttribute("editing", true);
         return "admin/residents/form";
@@ -94,17 +99,21 @@ public class AdminResidentController {
                             HttpServletResponse response) throws IOException {
         var list = residentService.listAll(keyword, status);
         String[] headers = {"姓名", "房号", "手机号", "证件号", "住户类型", "状态"};
-        ExcelExportHelper.export(response, "住户列表", "住户列表", headers, list, (row, r) -> {
-            row.getCell(0).setCellValue(r.getName() != null ? r.getName() : "");
-            row.getCell(1).setCellValue(r.getUnitNo() != null ? r.getUnitNo() : "");
-            row.getCell(2).setCellValue(r.getPhone() != null ? r.getPhone() : "");
-            row.getCell(3).setCellValue(r.getIdentityNo() != null ? r.getIdentityNo() : "");
-            row.getCell(4).setCellValue(residentTypeLabel(r.getResidentType()));
-            row.getCell(5).setCellValue("ACTIVE".equals(r.getStatus()) ? "在住" : "已迁出");
+        ExcelExportHelper.export(response, "住户列表", "住户列表", headers, list, (row, resident) -> {
+            row.getCell(0).setCellValue(resident.getName() != null ? resident.getName() : "");
+            row.getCell(1).setCellValue(resident.getUnitNo() != null ? resident.getUnitNo() : "");
+            row.getCell(2).setCellValue(resident.getPhone() != null ? resident.getPhone() : "");
+            row.getCell(3).setCellValue(resident.getIdentityNo() != null ? resident.getIdentityNo() : "");
+            row.getCell(4).setCellValue(residentTypeLabel(resident.getResidentType()));
+            row.getCell(5).setCellValue("ACTIVE".equalsIgnoreCase(resident.getStatus()) ? "在住" : "已迁出");
         });
     }
 
     private String residentTypeLabel(String type) {
-        return "业主";
+        try {
+            return ResidentType.from(type).getLabel();
+        } catch (IllegalArgumentException ex) {
+            return type == null ? "" : type;
+        }
     }
 }

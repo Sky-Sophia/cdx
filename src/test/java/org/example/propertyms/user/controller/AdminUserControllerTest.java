@@ -47,9 +47,9 @@ class AdminUserControllerTest {
     }
 
     @Test
-    void list_shouldRejectNonAdmin() throws Exception {
+    void list_shouldRejectNonOfficeUser() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "staff", Role.STAFF));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "manager", Role.MANAGEMENT));
 
         mockMvc.perform(get("/admin/users").session(session))
                 .andExpect(status().is3xxRedirection())
@@ -60,17 +60,16 @@ class AdminUserControllerTest {
     @Test
     void updateStatus_shouldPreventSelfDisable() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(10L, "admin", Role.ADMIN));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(10L, "admin", Role.OFFICE));
 
         User user = new User();
         user.setId(10L);
         when(userService.findById(10L)).thenReturn(user);
-        when(departmentService.isEnabledCode("MANAGEMENT")).thenReturn(true);
 
         mockMvc.perform(post("/admin/users/10/manage")
                         .session(session)
-                        .param("role", "ADMIN")
-                        .param("departmentCode", "MANAGEMENT")
+                        .param("role", "OFFICE")
+                        .param("departmentCode", "OFFICE")
                         .param("status", "DISABLED"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/users/edit/10"))
@@ -82,12 +81,12 @@ class AdminUserControllerTest {
     @Test
     void editForm_shouldLoadUserManagementPage() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.ADMIN));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.OFFICE));
 
         User user = new User();
         user.setId(2L);
-        user.setUsername("finance");
-        user.setRole(Role.FINANCE);
+        user.setUsername("manager");
+        user.setRole(Role.MANAGEMENT);
         user.setStatus("ACTIVE");
         when(userService.findById(2L)).thenReturn(user);
 
@@ -101,28 +100,26 @@ class AdminUserControllerTest {
     @Test
     void manage_shouldUpdateRoleAndStatusWhenValid() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.ADMIN));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.OFFICE));
 
         User user = new User();
         user.setId(2L);
-        user.setUsername("staff_user");
-        user.setRole(Role.STAFF);
+        user.setUsername("engineer");
+        user.setRole(Role.ENGINEERING);
         user.setStatus("ACTIVE");
         when(userService.findById(2L)).thenReturn(user);
-        when(departmentService.isEnabledCode("FINANCE")).thenReturn(true);
 
         mockMvc.perform(post("/admin/users/2/manage")
                         .session(session)
-                        .param("role", "FINANCE")
-                        .param("departmentCode", "FINANCE")
+                        .param("role", "MANAGEMENT")
+                        .param("departmentCode", "MANAGEMENT")
                         .param("status", "active"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/management?tab=users"))
                 .andExpect(flash().attributeExists("success"));
 
-        verify(userService).updateRole(2L, Role.FINANCE);
-        verify(userService).updateDepartmentCode(2L, "FINANCE");
+        verify(userService).updateRole(2L, Role.MANAGEMENT);
+        verify(userService).updateDepartmentCode(2L, "MANAGEMENT");
         verify(userService).updateStatus(2L, "ACTIVE");
     }
 }
-

@@ -49,7 +49,7 @@ class AuthControllerTest {
     @Test
     void loginPage_shouldRedirectWhenAlreadyLoggedIn() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.ADMIN));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.OFFICE));
 
         mockMvc.perform(get("/login").session(session))
                 .andExpect(status().is3xxRedirection())

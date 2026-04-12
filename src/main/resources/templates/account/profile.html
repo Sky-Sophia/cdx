@@ -40,7 +40,7 @@
             </div>
             <div class="info-item">
                 <span class="info-label">角色权限</span>
-                <span class="info-value" th:text="${roleLabel}">系统管理员</span>
+                                <span class="info-value" th:text="${roleLabel}">综合办公室（超级管理员）</span>
             </div>
             <div class="info-item">
                 <span class="info-label">账号状态</span>
@@ -181,7 +181,7 @@
                             <span class="profile-history-type"
                                   th:attr="data-tone=${historyType}"
                                   th:text="${typeLabel}">通知</span>
-                            <p class="profile-history-item-title" th:text="${itemTitle}">系统管理员</p>
+                                            <p class="profile-history-item-title" th:text="${itemTitle}">综合办公室（超级管理员）</p>
                         </div>
                         <span class="profile-history-item-time"
                               th:text="${message.sendTime != null ? #temporals.format(message.sendTime, 'yyyy-MM-dd HH:mm') : '刚刚'}">09:25</span>

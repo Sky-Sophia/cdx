@@ -20,7 +20,7 @@ TARGET_TOTAL_ROWS = 1000
 PASSWORD_HASHES = {
     "admin": "{bcrypt}$2a$12$FCYzNs4BZpzwwxMXPsSzLuu4YPxApxOAQHxlDuIt1LrMdBnVgqjc.",
     "manager": "{bcrypt}$2a$12$pUighS26gH.QWaRALc/TJORaatu/J1T5tDcDDxHCEZXOwjygBU7z.",
-    "finance": "{bcrypt}$2a$12$462yRqPtNqSSWMv3nXC/iuTOnmvtk.M9GeZoRDedSezX3Fw.LEXDO",
+    "engineer": "{bcrypt}$2a$12$462yRqPtNqSSWMv3nXC/iuTOnmvtk.M9GeZoRDedSezX3Fw.LEXDO",
 }
 
 SURNAMES = [
@@ -231,14 +231,14 @@ def generate_residents(units: list[UnitRecord]) -> tuple[list[tuple[object, ...]
             primary_type = "OWNER"
             primary_birth = resident_birth(unit.id, 30, 61)
             family_name = make_name(5000 + unit.id, surname=primary_name[0])
-            family_type = "FAMILY"
+            family_type = "OWNER"
             family_birth = resident_birth(7000 + unit.id, 8, 35)
         else:
             primary_name = make_name(3000 + unit.id)
             primary_type = "TENANT"
             primary_birth = resident_birth(3000 + unit.id, 24, 48)
             family_name = make_name(9000 + unit.id, surname=primary_name[0])
-            family_type = "FAMILY"
+            family_type = "TENANT"
             family_birth = resident_birth(11000 + unit.id, 5, 42)
 
         primary_phone = make_phone(4000 + unit.id)
@@ -403,9 +403,9 @@ def generate_work_orders(units: list[UnitRecord], profiles: dict[int, ResidentPr
 
 def generate_users() -> list[tuple[object, ...]]:
     return [
-        (1, "admin", PASSWORD_HASHES["admin"], "", "ADMIN", "ACTIVE", datetime(2025, 6, 1, 9, 0), datetime(2025, 6, 1, 9, 0)),
-        (2, "manager", PASSWORD_HASHES["manager"], "", "STAFF", "ACTIVE", datetime(2025, 6, 1, 9, 5), datetime(2025, 6, 1, 9, 5)),
-        (3, "finance", PASSWORD_HASHES["finance"], "", "FINANCE", "ACTIVE", datetime(2025, 6, 1, 9, 10), datetime(2025, 6, 1, 9, 10)),
+        (1, "admin", PASSWORD_HASHES["admin"], "", "OFFICE", "ACTIVE", datetime(2025, 6, 1, 9, 0), datetime(2025, 6, 1, 9, 0)),
+        (2, "manager", PASSWORD_HASHES["manager"], "", "MANAGEMENT", "ACTIVE", datetime(2025, 6, 1, 9, 5), datetime(2025, 6, 1, 9, 5)),
+        (3, "engineer", PASSWORD_HASHES["engineer"], "", "ENGINEERING", "ACTIVE", datetime(2025, 6, 1, 9, 10), datetime(2025, 6, 1, 9, 10)),
     ]
 
 
