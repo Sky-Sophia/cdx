@@ -1,0 +1,21 @@
+<svg class="error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <title>blocks-shuffle-3</title>
+    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="1">
+        <animate id="a1" fill="freeze" attributeName="x" begin="0;a12.end" dur="0.2s" values="1;13"/>
+        <animate id="a2" fill="freeze" attributeName="y" begin="a9.end" dur="0.2s" values="1;13"/>
+        <animate id="a3" fill="freeze" attributeName="x" begin="a10.end" dur="0.2s" values="13;1"/>
+        <animate id="a4" fill="freeze" attributeName="y" begin="a11.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="1">
+        <animate id="a5" fill="freeze" attributeName="y" begin="a1.end" dur="0.2s" values="13;1"/>
+        <animate id="a6" fill="freeze" attributeName="x" begin="a2.end" dur="0.2s" values="1;13"/>
+        <animate id="a7" fill="freeze" attributeName="y" begin="a3.end" dur="0.2s" values="1;13"/>
+        <animate id="a8" fill="freeze" attributeName="x" begin="a4.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="1">
+        <animate id="a9" fill="freeze" attributeName="x" begin="a5.end" dur="0.2s" values="13;1"/>
+        <animate id="a10" fill="freeze" attributeName="y" begin="a6.end" dur="0.2s" values="13;1"/>
+        <animate id="a11" fill="freeze" attributeName="x" begin="a7.end" dur="0.2s" values="1;13"/>
+        <animate id="a12" fill="freeze" attributeName="y" begin="a8.end" dur="0.2s" values="1;13"/>
+    </rect>
+</svg>

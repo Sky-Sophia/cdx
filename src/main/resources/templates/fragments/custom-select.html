@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+
+<!--
+    通用自定义下拉框 fragment
+    参数：
+      name        - hidden input 的 name 属性
+      currentVal  - 当前选中值（字符串，空字符串或 null 表示"全部"）
+      allLabel    - "全部XX" 的显示文字
+      options     - LinkedHashMap<String,String>  value → label，不含"全部"项
+-->
+<div th:fragment="select(name, currentVal, allLabel, options)" class="custom-select">
+    <input type="hidden" th:name="${name}" th:value="${currentVal}" data-auto-submit-filter="true" />
+    <button type="button" class="custom-select-trigger" aria-expanded="false">
+        <span class="custom-select-trigger-text"
+              th:text="${currentVal != null and currentVal != '' and options.containsKey(currentVal)}
+                        ? ${options.get(currentVal)} : ${allLabel}">
+        </span>
+        <span class="custom-select-arrow" aria-hidden="true"></span>
+    </button>
+    <ul class="custom-select-panel">
+        <li class="custom-select-option"
+            data-value="" th:attr="data-label=${allLabel}"
+            th:classappend="${currentVal == null or currentVal == ''} ? ' is-selected'"
+            th:text="${allLabel}"></li>
+        <li th:each="entry : ${options}"
+            class="custom-select-option"
+            th:attr="data-value=${entry.key}, data-label=${entry.value}"
+            th:classappend="${currentVal != null and currentVal.toString() == entry.key.toString()} ? ' is-selected'"
+            th:text="${entry.value}"></li>
+    </ul>
+</div>
+
+<!--
+    楼栋下拉框（选项来自动态列表 buildings）
+    参数：
+      name        - hidden input name
+      currentVal  - 当前选中的 buildingId
+      allLabel    - "全部楼栋"
+      buildings   - List<Building>  每项需有 id 和 name
+-->
+<div th:fragment="buildingSelect(name, currentVal, allLabel, buildings)" class="custom-select">
+    <input type="hidden" th:name="${name}" th:value="${currentVal}" data-auto-submit-filter="true" />
+    <button type="button" class="custom-select-trigger" aria-expanded="false">
+        <span class="custom-select-trigger-text">全部楼栋</span>
+        <span class="custom-select-arrow" aria-hidden="true"></span>
+    </button>
+    <ul class="custom-select-panel">
+        <li class="custom-select-option" data-value="" th:attr="data-label=${allLabel}"
+            th:classappend="${currentVal == null} ? ' is-selected'" th:text="${allLabel}"></li>
+        <li th:if="${buildings != null}" th:each="building : ${buildings}"
+            class="custom-select-option"
+            th:attr="data-value=${building.id}, data-label=${building.name}"
+            th:classappend="${currentVal == building.id} ? ' is-selected'"
+            th:text="${building.name}"></li>
+    </ul>
+</div>
+
+<!--
+    角色下拉框（选项来自枚举列表 roles）
+    参数：
+      name        - hidden input name
+      currentVal  - 当前选中角色枚举
+      roles       - List<RoleEnum>  每项需有 .label
+-->
+<div th:fragment="roleSelect(name, currentVal, roles)" class="custom-select">
+    <input type="hidden" th:name="${name}" th:value="${currentVal}" data-auto-submit-filter="true" />
+    <button type="button" class="custom-select-trigger" aria-expanded="false">
+        <span class="custom-select-trigger-text"
+              th:text="${currentVal != null and currentVal != ''} ? ${currentVal.label} : '全部角色'">全部角色</span>
+        <span class="custom-select-arrow" aria-hidden="true"></span>
+    </button>
+    <ul class="custom-select-panel">
+        <li class="custom-select-option" data-value="" data-label="全部角色"
+            th:classappend="${currentVal == null or currentVal == ''} ? ' is-selected'">全部角色</li>
+        <li th:if="${roles != null}" th:each="item : ${roles}"
+            class="custom-select-option"
+            th:attr="data-value=${item}, data-label=${item.label}"
+            th:classappend="${currentVal == item} ? ' is-selected'"
+            th:text="${item.label}"></li>
+    </ul>
+</div>
+
+</body>
+</html>

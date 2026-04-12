@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+
+<!-- ==================== 工单状态 ==================== -->
+<th:block th:fragment="orderStatus(status)">
+    <span class="badge dashboard-list-badge" th:attr="data-status=${status}" th:switch="${status}">
+        <th:block th:case="'OPEN'">待受理</th:block>
+        <th:block th:case="'IN_PROGRESS'">处理中</th:block>
+        <th:block th:case="'DONE'">已完成</th:block>
+        <th:block th:case="*">已关闭</th:block>
+    </span>
+</th:block>
+
+<!-- ==================== 账单状态 ==================== -->
+<th:block th:fragment="billStatus(status)">
+    <span class="badge dashboard-list-badge" th:attr="data-status=${status}" th:switch="${status}">
+        <th:block th:case="'UNPAID'">未缴</th:block>
+        <th:block th:case="'PARTIAL'">部分已缴</th:block>
+        <th:block th:case="'OVERDUE'">逾期</th:block>
+        <th:block th:case="*">已缴清</th:block>
+    </span>
+</th:block>
+
+<!-- ==================== 账单状态（无 dashboard-list-badge） ==================== -->
+<th:block th:fragment="billStatusPlain(status)">
+    <span class="badge" th:attr="data-status=${status}" th:switch="${status}">
+        <th:block th:case="'UNPAID'">未缴</th:block>
+        <th:block th:case="'PARTIAL'">部分已缴</th:block>
+        <th:block th:case="'OVERDUE'">逾期</th:block>
+        <th:block th:case="*">已缴清</th:block>
+    </span>
+</th:block>
+
+<!-- ==================== 工单状态（无 dashboard-list-badge） ==================== -->
+<th:block th:fragment="orderStatusPlain(status)">
+    <span class="badge" th:attr="data-status=${status}" th:switch="${status}">
+        <th:block th:case="'OPEN'">待受理</th:block>
+        <th:block th:case="'IN_PROGRESS'">处理中</th:block>
+        <th:block th:case="'DONE'">已完成</th:block>
+        <th:block th:case="*">已关闭</th:block>
+    </span>
+</th:block>
+
+<!-- ==================== 优先级 ==================== -->
+<th:block th:fragment="priority(p)" th:switch="${p}">
+    <th:block th:case="'HIGH'">高</th:block>
+    <th:block th:case="'MEDIUM'">中</th:block>
+    <th:block th:case="*">低</th:block>
+</th:block>
+
+<!-- ==================== 入住状态 ==================== -->
+<th:block th:fragment="occupancy(status)">
+    <span class="badge" th:attr="data-status=${status}" th:switch="${status}">
+        <th:block th:case="'OCCUPIED'">自住</th:block>
+        <th:block th:case="'RENTED'">出租</th:block>
+        <th:block th:case="*">空置</th:block>
+    </span>
+</th:block>
+
+<!-- ==================== 住户状态 ==================== -->
+<th:block th:fragment="residentStatus(status)">
+    <span class="badge" th:attr="data-status=${status}" th:switch="${status}">
+        <th:block th:case="'ACTIVE'">在住</th:block>
+        <th:block th:case="*">已迁出</th:block>
+    </span>
+</th:block>
+
+<!-- ==================== 用户状态 ==================== -->
+<th:block th:fragment="userStatus(status)">
+    <span class="badge" th:attr="data-status=${status}" th:switch="${status}">
+        <th:block th:case="'ACTIVE'">启用</th:block>
+        <th:block th:case="*">禁用</th:block>
+    </span>
+</th:block>
+
+<!-- ==================== 空表格行 ==================== -->
+<tr th:fragment="emptyRow(list, colspan, text)" th:if="${#lists.isEmpty(list)}">
+    <td th:attr="colspan=${colspan}" class="empty" th:text="${text}"></td>
+</tr>
+
+</body>
+</html>

@@ -24,18 +24,21 @@
         <button type="button"
                 class="auth-tab-btn"
                 data-tab-target="login"
-                th:classappend="${tab != 'register'} ? ' is-active'">登录
+                th:classappend="${tab != 'register'} ? ' is-active'">
+            登录
         </button>
         <button type="button"
                 class="auth-tab-btn"
                 data-tab-target="register"
-                th:classappend="${tab == 'register'} ? ' is-active'">注册
+                th:classappend="${tab == 'register'} ? ' is-active'">
+            注册
         </button>
         <span class="slide-underline" aria-hidden="true"></span>
     </nav>
 
     <div th:replace="~{fragments/layout :: messages}"></div>
 
+    <!-- 登录表单 -->
     <section class="auth-portal-section auth-portal-section-login"
              th:classappend="${tab == 'register' or forgotPanelOpen} ? ' is-hidden'">
         <form method="post"
@@ -85,6 +88,7 @@
         </form>
     </section>
 
+    <!-- 注册表单 -->
     <section class="auth-portal-section auth-portal-section-register"
              th:classappend="${tab != 'register' or forgotPanelOpen} ? ' is-hidden'">
         <form method="post" action="/register" class="auth-portal-form" id="registerForm" autocomplete="off">
@@ -143,6 +147,7 @@
         </form>
     </section>
 
+    <!-- 忘记密码面板 -->
     <section class="auth-portal-section auth-portal-section-forgot"
              th:classappend="${!forgotPanelOpen} ? ' is-hidden'"
              th:attr="aria-hidden=${forgotPanelOpen} ? 'false' : 'true'">
@@ -157,6 +162,7 @@
                       id="forgotForm"
                       autocomplete="off"
                       novalidate>
+                    <!-- 步骤1：验证用户名+验证码 -->
                     <div class="auth-forgot-step"
                          data-step="verify"
                          th:classappend="${forgotStep != 'verify'} ? ' is-hidden'"
@@ -169,23 +175,25 @@
                         </div>
 
                         <div class="auth-forgot-form-block">
-                            <label for="forgot-username"></label><input id="forgot-username"
-                                                                        name="username"
-                                                                        type="text"
-                                                                        th:value="${forgotUsername}"
-                                                                        placeholder="注册用户名"
-                                                                        autocomplete="off"
-                                                                        minlength="3"
-                                                                        maxlength="20"
-                                                                        required/>
+                            <label for="forgot-username"></label>
+                            <input id="forgot-username"
+                                   name="username"
+                                   type="text"
+                                   th:value="${forgotUsername}"
+                                   placeholder="注册用户名"
+                                   autocomplete="off"
+                                   minlength="3"
+                                   maxlength="20"
+                                   required/>
 
                             <div class="auth-forgot-code-row">
-                                <label for="forgot-code"></label><input id="forgot-code"
-                                                                        type="text"
-                                                                        inputmode="numeric"
-                                                                        autocomplete="one-time-code"
-                                                                        placeholder="验证码"
-                                                                        maxlength="6"/>
+                                <label for="forgot-code"></label>
+                                <input id="forgot-code"
+                                       type="text"
+                                       inputmode="numeric"
+                                       autocomplete="one-time-code"
+                                       placeholder="验证码"
+                                       maxlength="6"/>
                                 <button class="auth-forgot-code-btn"
                                         id="forgotSendCodeBtn"
                                         type="button">获取验证码
@@ -201,6 +209,7 @@
                         </div>
                     </div>
 
+                    <!-- 步骤2：重置密码 -->
                     <div class="auth-forgot-step"
                          data-step="reset"
                          th:classappend="${forgotStep != 'reset'} ? ' is-hidden'"
@@ -220,14 +229,15 @@
                             </div>
 
                             <div class="auth-portal-input-wrap auth-forgot-password-wrap">
-                                <label for="forgot-new-password"></label><input id="forgot-new-password"
-                                                                                name="newPassword"
-                                                                                type="password"
-                                                                                placeholder="新密码"
-                                                                                autocomplete="new-password"
-                                                                                minlength="8"
-                                                                                maxlength="64"
-                                                                                required/>
+                                <label for="forgot-new-password"></label>
+                                <input id="forgot-new-password"
+                                       name="newPassword"
+                                       type="password"
+                                       placeholder="新密码"
+                                       autocomplete="new-password"
+                                       minlength="8"
+                                       maxlength="64"
+                                       required/>
                                 <button class="auth-portal-eye"
                                         type="button"
                                         data-target="forgot-new-password"
@@ -236,14 +246,15 @@
                             </div>
 
                             <div class="auth-portal-input-wrap auth-forgot-password-wrap">
-                                <label for="forgot-confirm-password"></label><input id="forgot-confirm-password"
-                                                                                    name="confirmPassword"
-                                                                                    type="password"
-                                                                                    placeholder="确认密码"
-                                                                                    autocomplete="new-password"
-                                                                                    minlength="8"
-                                                                                    maxlength="64"
-                                                                                    required/>
+                                <label for="forgot-confirm-password"></label>
+                                <input id="forgot-confirm-password"
+                                       name="confirmPassword"
+                                       type="password"
+                                       placeholder="确认密码"
+                                       autocomplete="new-password"
+                                       minlength="8"
+                                       maxlength="64"
+                                       required/>
                                 <button class="auth-portal-eye"
                                         type="button"
                                         data-target="forgot-confirm-password"
@@ -260,6 +271,7 @@
                         </div>
                     </div>
 
+                    <!-- 步骤3：重置成功 -->
                     <div class="auth-forgot-step auth-forgot-step-success"
                          data-step="success"
                          th:classappend="${forgotStep != 'success'} ? ' is-hidden'"
@@ -289,4 +301,3 @@
 <script src="/js/auth/login.js" defer></script>
 </body>
 </html>
-
