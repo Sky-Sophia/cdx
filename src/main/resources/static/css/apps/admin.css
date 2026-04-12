@@ -1,8 +1,8 @@
-@import url("../common/base.css");
+@import url("../common/base.css?v=20260411-msg-bubble-font-fix");
 @import url("../common/confirm-modal.css");
 @import url("../common/validation-bubble.css");
 @import url("../common/custom-select.css");
-@import url("../common/notification-popup.css");
+@import url("../common/notification-popup.css?v=20260411-notice-type-tag");
 @import url("../common/notice-compose-modal.css?v=20260410-topbar-compose-modal");
 
 
@@ -93,12 +93,12 @@
 
 .ui-picker-popup {
 	position: absolute;
-	top: calc(100% + 8px);
+	top: calc(100% + 6px);
 	left: 0;
 	z-index: 70;
-	width: min(100%, 340px);
-	min-width: 320px;
-	padding: 16px;
+	width: min(100%, 300px);
+	min-width: 280px;
+	padding: 12px;
 	border: 1px solid #ebeef5;
 	border-radius: 8px;
 	background: #ffffff;
@@ -111,14 +111,14 @@
 
 .ui-picker-header {
 	display: grid;
-	grid-template-columns: 32px 32px minmax(0, 1fr) 32px 32px;
-	gap: 8px;
+	grid-template-columns: 28px 28px minmax(0, 1fr) 28px 28px;
+	gap: 6px;
 	align-items: center;
-	margin-bottom: 16px;
+	margin-bottom: 12px;
 }
 
 .ui-picker[data-picker-mode="month"] .ui-picker-header {
-	grid-template-columns: 32px minmax(0, 1fr) 32px;
+	grid-template-columns: 28px minmax(0, 1fr) 28px;
 }
 
 .ui-picker-nav,
@@ -131,8 +131,8 @@
 }
 
 .ui-picker-nav {
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	border: none;
 	border-radius: 6px;
 	background: transparent;
@@ -156,9 +156,9 @@
 	border: none;
 	background: transparent;
 	color: #1d2129;
-	font-size: 1rem;
+	font-size: 0.94rem;
 	font-weight: 500;
-	padding: 6px 8px;
+	padding: 4px 6px;
 	border-radius: 6px;
 	cursor: pointer;
 	text-align: center;
@@ -167,9 +167,9 @@
 .ui-picker-years {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 8px;
-	margin-bottom: 16px;
-	max-height: 200px;
+	gap: 6px;
+	margin-bottom: 12px;
+	max-height: 180px;
 	overflow-y: auto;
 }
 
@@ -182,7 +182,7 @@
 	border-radius: 6px;
 	background: transparent;
 	color: #1d2129;
-	padding: 8px;
+	padding: 6px;
 	cursor: pointer;
 	transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -198,7 +198,7 @@
 .ui-picker-days,
 .ui-picker-months {
 	display: grid;
-	gap: 4px;
+	gap: 3px;
 }
 
 .ui-picker-weekdays,
@@ -211,26 +211,26 @@
 }
 
 .ui-picker-weekdays {
-	margin-bottom: 8px;
+	margin-bottom: 6px;
 }
 
 .ui-picker-weekdays span {
 	text-align: center;
-	font-size: 0.82rem;
+	font-size: 0.78rem;
 	font-weight: 500;
 	color: #86909c;
-	padding: 8px 0;
+	padding: 6px 0;
 }
 
 .ui-picker-day,
 .ui-picker-day-btn,
 .ui-picker-month-btn {
-	min-height: 38px;
+	min-height: 34px;
 	border-radius: 6px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 0.95rem;
+	font-size: 0.9rem;
 }
 
 .ui-picker-day {
@@ -251,8 +251,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-top: 16px;
-	padding-top: 12px;
+	margin-top: 12px;
+	padding-top: 10px;
 	border-top: 1px solid #f2f3f5;
 }
 
@@ -261,7 +261,7 @@
 	border-radius: 6px;
 	background: transparent;
 	color: #4080ff;
-	padding: 6px 12px;
+	padding: 5px 10px;
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 }

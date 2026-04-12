@@ -1,4 +1,3 @@
-@import url("../common/base.css");
+@import url("../common/base.css?v=20260411-msg-bubble-font-fix");
 @import url("../common/validation-bubble.css");
 @import url("../pages/auth.css");
-

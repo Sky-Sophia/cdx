@@ -1,5 +1,6 @@
 html.confirm-modal-open {
     scrollbar-gutter: stable;
+    overflow-y: hidden;
 }
 
 body.confirm-modal-open {
@@ -19,7 +20,7 @@ body.confirm-modal-open {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    z-index: 120;
+    z-index: 2600;
 }
 
 .confirm-modal.is-open {
@@ -93,4 +94,3 @@ body.confirm-modal-open {
 .confirm-modal-btn.primary.is-danger:hover {
     background: #882222;
 }
-

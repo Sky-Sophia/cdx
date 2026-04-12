@@ -5,8 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import org.example.propertyms.auth.dto.UserSession;
-import org.example.propertyms.user.model.Role;
 import org.example.propertyms.common.constant.SessionKeys;
+import org.example.propertyms.user.model.Role;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -17,7 +17,6 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler)
             throws Exception {
         String path = request.getRequestURI();
-
         if (isPublic(path)) {
             return true;
         }
@@ -33,21 +32,19 @@ public class AuthInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        if (path.startsWith("/actuator") && user.getRole() != Role.ADMIN) {
+        Role role = user.getRole();
+        if (path.startsWith("/actuator") && (role == null || !role.canManageUsers())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
-
-        if (path.startsWith("/admin/users") && user.getRole() != Role.ADMIN) {
+        if (path.startsWith("/admin/users") && (role == null || !role.canManageUsers())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
-
-        if (path.startsWith("/admin") && user.getRole() == Role.USER) {
+        if (path.startsWith("/admin") && (role == null || !role.canAccessAdminConsole())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
-
         return true;
     }
 
@@ -65,4 +62,3 @@ public class AuthInterceptor implements HandlerInterceptor {
                 || path.startsWith("/webjars");
     }
 }
-

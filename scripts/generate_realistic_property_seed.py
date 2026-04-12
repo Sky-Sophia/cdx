@@ -298,6 +298,7 @@ def generate_fee_bills(units: list[UnitRecord]) -> list[tuple[object, ...]]:
     for unit in units:
         bill_id = unit.id
         billing_month = bill_month_for(unit.id)
+        billing_month_start = date.fromisoformat(f"{billing_month}-01")
         due_date = date.fromisoformat(f"{billing_month}-25")
         rate = Decimal("3.10") + Decimal((unit.building_id % 4)) * Decimal("0.18")
         amount = decimal_money(unit.area_m2 * rate + Decimal("58.00"))
@@ -330,14 +331,14 @@ def generate_fee_bills(units: list[UnitRecord]) -> list[tuple[object, ...]]:
         else:
             remarks = remark_prefix + " 账单待住户处理。"
 
-        created_at = datetime.combine(date.fromisoformat(f"{billing_month}-01"), time(8, 30))
+        created_at = datetime.combine(billing_month_start, time(8, 30))
         updated_at = paid_at or datetime.combine(due_date + timedelta(days=7), time(9, 0))
         rows.append(
             (
                 bill_id,
                 f"FY{billing_month.replace('-', '')}{bill_id:04d}",
                 unit.id,
-                billing_month,
+                billing_month_start,
                 amount,
                 paid_amount,
                 status,
@@ -508,4 +509,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

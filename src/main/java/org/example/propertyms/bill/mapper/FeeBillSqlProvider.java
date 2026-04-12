@@ -3,30 +3,42 @@ package org.example.propertyms.bill.mapper;
 import java.util.Map;
 import org.example.propertyms.common.util.SqlProviderHelper;
 
-/**
- * FeeBill 动态 SQL 提供器。
- * <p>修复原版 countSql() 不带过滤条件的 bug — 现在 countSql 与 findAllSql 共享同一组过滤逻辑。</p>
- */
 public class FeeBillSqlProvider {
+    private static final String SELECT_FIELDS = """
+            SELECT f.id,
+                   f.bill_no,
+                   f.unit_id,
+                   u.unit_no,
+                   DATE_FORMAT(f.billing_month, '%Y-%m') AS billing_month,
+                   f.amount,
+                   f.paid_amount,
+                   f.status,
+                   f.due_date,
+                   f.paid_at,
+                   f.remarks,
+                   f.created_at,
+                   f.updated_at
+            FROM fee_bills f
+            LEFT JOIN units u ON u.id = f.unit_id
+            WHERE 1=1
+            """;
+
+    private static final String COUNT_FIELDS = """
+            SELECT COUNT(*)
+            FROM fee_bills f
+            LEFT JOIN units u ON u.id = f.unit_id
+            WHERE 1=1
+            """;
 
     public String findAllSql(Map<String, Object> params) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT f.*, u.unit_no ");
-        sql.append("FROM fee_bills f ");
-        sql.append("LEFT JOIN units u ON u.id = f.unit_id ");
-        sql.append("WHERE 1=1");
+        StringBuilder sql = new StringBuilder(SELECT_FIELDS);
         appendFilters(sql, params);
         sql.append(" ORDER BY f.due_date ASC, f.id DESC");
         return sql.toString();
     }
 
-    /** 【BUG FIX】原方法签名无参数，导致带 status/billingMonth 筛选时分页总数错误。 */
     public String countSql(Map<String, Object> params) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) ");
-        sql.append("FROM fee_bills f ");
-        sql.append("LEFT JOIN units u ON u.id = f.unit_id ");
-        sql.append("WHERE 1=1");
+        StringBuilder sql = new StringBuilder(COUNT_FIELDS);
         appendFilters(sql, params);
         return sql.toString();
     }
@@ -44,8 +56,7 @@ public class FeeBillSqlProvider {
             sql.append(" AND f.status = #{status}");
         }
         if (SqlProviderHelper.isNotBlank(params.get("billingMonth"))) {
-            sql.append(" AND f.billing_month = #{billingMonth}");
+            sql.append(" AND f.billing_month = STR_TO_DATE(CONCAT(#{billingMonth}, '-01'), '%Y-%m-%d')");
         }
     }
 }
-

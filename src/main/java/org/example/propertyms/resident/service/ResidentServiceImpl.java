@@ -45,9 +45,7 @@ public class ResidentServiceImpl implements ResidentService {
         if (StringHelper.isBlank(resident.getStatus())) {
             resident.setStatus(ResidentStatus.ACTIVE.name());
         }
-        if (StringHelper.isBlank(resident.getResidentType())) {
-            resident.setResidentType(ResidentType.OWNER.name());
-        }
+        resident.setResidentType(ResidentType.OWNER.name());
         if (resident.getMoveInDate() != null
                 && resident.getMoveOutDate() != null
                 && resident.getMoveOutDate().isBefore(resident.getMoveInDate())) {
@@ -61,12 +59,26 @@ public class ResidentServiceImpl implements ResidentService {
         } else {
             residentMapper.update(resident);
         }
+        syncUnitOwner(resident);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
+        residentMapper.clearUnitOwnerIfResidentInactive(id);
         residentMapper.deleteById(id);
+    }
+
+    private void syncUnitOwner(Resident resident) {
+        if (resident.getId() == null) {
+            return;
+        }
+        if (ResidentStatus.ACTIVE.name().equals(resident.getStatus())) {
+            residentMapper.moveOutOtherActiveOwners(resident.getUnitId(), resident.getId());
+            residentMapper.syncUnitOwnerFromResident(resident.getId());
+        } else {
+            residentMapper.clearUnitOwnerIfResidentInactive(resident.getId());
+        }
     }
 
     @Override
@@ -79,4 +91,3 @@ public class ResidentServiceImpl implements ResidentService {
         return residentMapper.countOccupiedUnits();
     }
 }
-

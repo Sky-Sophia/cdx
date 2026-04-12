@@ -56,6 +56,36 @@ public interface ResidentMapper {
     @Delete("DELETE FROM residents WHERE id = #{id}")
     void deleteById(@Param("id") Long id);
 
+    @Update("""
+            UPDATE residents
+            SET status = 'MOVED_OUT',
+                move_out_date = COALESCE(move_out_date, CURRENT_DATE),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE unit_id = #{unitId}
+              AND status = 'ACTIVE'
+              AND id <> #{residentId}
+            """)
+    int moveOutOtherActiveOwners(@Param("unitId") Long unitId, @Param("residentId") Long residentId);
+
+    @Update("""
+            UPDATE units u
+            JOIN residents r ON r.id = #{residentId}
+            SET u.owner_resident_id = r.id,
+                u.occupancy_status = 'OCCUPIED',
+                u.updated_at = CURRENT_TIMESTAMP
+            WHERE u.id = r.unit_id
+            """)
+    int syncUnitOwnerFromResident(@Param("residentId") Long residentId);
+
+    @Update("""
+            UPDATE units u
+            SET u.owner_resident_id = NULL,
+                u.occupancy_status = 'VACANT',
+                u.updated_at = CURRENT_TIMESTAMP
+            WHERE u.owner_resident_id = #{residentId}
+            """)
+    int clearUnitOwnerIfResidentInactive(@Param("residentId") Long residentId);
+
     @Select("""
             SELECT COUNT(*)
             FROM residents
@@ -72,4 +102,3 @@ public interface ResidentMapper {
             """)
     long countOccupiedUnits();
 }
-

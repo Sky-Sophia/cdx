@@ -14,8 +14,8 @@ import org.example.propertyms.user.model.User;
 @Mapper
 public interface UserMapper {
     @Insert("""
-            INSERT INTO users (username, password, role, status)
-            VALUES (#{username}, #{password}, #{role}, #{status})
+            INSERT INTO users (username, password, role, status, department_code)
+            VALUES (#{username}, #{password}, #{role}, #{status}, #{departmentCode})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
@@ -45,6 +45,9 @@ public interface UserMapper {
 
     @Update("UPDATE users SET role = #{role}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}")
     void updateRole(@Param("id") Long id, @Param("role") Role role);
+
+    @Update("UPDATE users SET department_code = #{departmentCode}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}")
+    void updateDepartmentCode(@Param("id") Long id, @Param("departmentCode") String departmentCode);
 
     @Update("UPDATE users SET status = #{status}, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}")
     int updateStatus(@Param("id") Long id, @Param("status") String status);

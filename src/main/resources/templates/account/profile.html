@@ -6,7 +6,7 @@
     <title>物业系统 - 个人中心</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/profile.css" />
+    <link rel="stylesheet" href="/css/apps/profile.css?v=20260412-profile-history-layout-fix7" />
 </head>
 
 <body>
@@ -66,7 +66,7 @@
         </div>
         <ul class="setting-list">
             <li>
-                <a class="setting-item" th:href="@{/profile/password}">
+                <a class="setting-item">
                     <div class="setting-left">
                         <div class="setting-icon">
                             <img src="/icons/lock.svg" alt="修改密码">
@@ -76,14 +76,21 @@
                     <span class="setting-arrow">›</span>
                 </a>
             </li>
-            <li class="setting-item">
-                <div class="setting-left">
-                    <div class="setting-icon">
-                        <img src="/icons/speaker.svg" alt="消息通知">
+            <li>
+                <button class="setting-item setting-item-button"
+                        type="button"
+                        data-history-open
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        aria-controls="profileHistoryModal">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <img src="/icons/speaker.svg" alt="历史消息">
+                        </div>
+                        <span class="setting-text">历史消息</span>
                     </div>
-                    <span class="setting-text">消息通知</span>
-                </div>
-                <span class="setting-arrow">›</span>
+                    <span class="setting-arrow">›</span>
+                </button>
             </li>
             <li class="setting-item">
                 <div class="setting-left">
@@ -97,9 +104,9 @@
             <li class="setting-item">
                 <div class="setting-left">
                     <div class="setting-icon">
-                        <img src="/icons/device.svg" alt="绑定或修改邮箱">
+                        <img src="/icons/device.svg" alt="操作日志">
                     </div>
-                    <span class="setting-text">绑定/修改邮箱</span>
+                    <span class="setting-text">操作日志</span>
                 </div>
                 <span class="setting-arrow">›</span>
             </li>
@@ -123,6 +130,76 @@
 
 </div>
 
+<div class="profile-history-modal-overlay"
+     id="profileHistoryModal"
+     data-history-modal
+     hidden
+     aria-hidden="true">
+    <div class="profile-history-modal" role="dialog" aria-modal="true" aria-labelledby="profileHistoryTitle">
+        <div class="profile-history-modal-head">
+            <h2 class="profile-history-modal-title" id="profileHistoryTitle">历史消息</h2>
+            <div class="profile-history-modal-actions">
+                <button class="profile-history-action-btn"
+                        type="button"
+                        data-history-delete-all
+                        data-confirm-title="删除确认"
+                        data-confirm-message="确定要删除全部历史消息吗？删除后将无法恢复。"
+                        data-confirm-confirm-text="全部删除"
+                        data-confirm-tone="danger"
+                        th:disabled="${profileInboxItems == null or #lists.isEmpty(profileInboxItems)}">全部删除</button>
+                <button class="profile-history-close-btn" type="button" data-history-close aria-label="关闭弹窗">×</button>
+            </div>
+        </div>
+
+        <div class="profile-history-filters" role="tablist" aria-label="历史消息筛选">
+            <button class="profile-history-filter is-active" type="button" data-history-filter="all">全部</button>
+            <button class="profile-history-filter" type="button" data-history-filter="notice">通知</button>
+            <button class="profile-history-filter" type="button" data-history-filter="announce">公告</button>
+            <button class="profile-history-filter" type="button" data-history-filter="reminder">提醒</button>
+            <button class="profile-history-filter" type="button" data-history-filter="warning">预警</button>
+        </div>
+
+        <div class="profile-history-list" data-history-list>
+            <button class="profile-history-item"
+                    type="button"
+                    th:each="message : ${profileInboxItems}"
+                    th:with="typeLabel=${message.msgType != null and !#strings.isEmpty(message.msgType) ? message.msgType : '通知'},
+                             historyType=${#strings.equals(typeLabel, '公告') ? 'announce' : (#strings.equals(typeLabel, '提醒') ? 'reminder' : (#strings.equals(typeLabel, '预警') ? 'warning' : 'notice'))},
+                             iconPath=${historyType == 'announce' ? '/icons/speaker.svg' : (historyType == 'warning' ? '/icons/shield.svg' : (historyType == 'reminder' ? '/icons/device.svg' : '/icons/bell.svg'))},
+                             itemTitle=${message.sender != null and !#strings.isEmpty(message.sender) ? message.sender : '系统消息'},
+                             previewText=${message.content != null and !#strings.isEmpty(message.content) ? message.content : '暂无消息内容'}"
+                    th:attr="data-history-type=${historyType},
+                             data-history-read=${message.read ? 'true' : 'false'},
+                             data-message-id=${message.id},
+                             data-send-time=${message.sendTime != null ? #temporals.format(message.sendTime, 'yyyy-MM-dd''T''HH:mm:ss') : ''}">
+                <div class="profile-history-item-icon">
+                    <img th:src="${iconPath}" alt="">
+                </div>
+                <div class="profile-history-item-body">
+                    <div class="profile-history-item-meta">
+                        <div class="profile-history-item-heading">
+                            <span class="profile-history-type"
+                                  th:attr="data-tone=${historyType}"
+                                  th:text="${typeLabel}">通知</span>
+                            <p class="profile-history-item-title" th:text="${itemTitle}">系统管理员</p>
+                        </div>
+                        <span class="profile-history-item-time"
+                              th:text="${message.sendTime != null ? #temporals.format(message.sendTime, 'yyyy-MM-dd HH:mm') : '刚刚'}">09:25</span>
+                    </div>
+                    <p class="profile-history-item-content" th:text="${previewText}">消息内容</p>
+                </div>
+            </button>
+            <div class="profile-history-empty"
+                 data-history-empty
+                 th:hidden="${profileInboxItems != null and !#lists.isEmpty(profileInboxItems)}">暂无消息</div>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/layout :: confirmModal}"></div>
+<script src="/js/common/overlay-scrollbar.js?v=20260411-overlay-scrollbar-global" defer></script>
+<script src="/js/common/validation-bubble.js?v=20260411-profile-validation-bubble-fix" defer></script>
+<script src="/js/account/profile.js?v=20260412-profile-history-modal-fix10" defer></script>
+<script src="/js/common/notification-center.js?v=20260412-profile-history-delete-fix10" defer></script>
 </body>
 </html>

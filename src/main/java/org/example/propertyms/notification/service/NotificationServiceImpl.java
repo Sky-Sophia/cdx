@@ -128,13 +128,23 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public Long softDelete(Long receiverId, Long notificationId) {
+    public Long delete(Long receiverId, Long notificationId) {
         NotificationMessage current = requireOwnedNotification(receiverId, notificationId);
-        if (current.getIsDeleted() != null && current.getIsDeleted() == 1) {
-            return notificationId;
-        }
-        notificationMapper.softDelete(notificationId, receiverId);
+        notificationMapper.delete(current.getId(), receiverId);
         return notificationId;
+    }
+
+    @Override
+    @Transactional
+    public List<Long> deleteAll(Long receiverId) {
+        if (receiverId == null) {
+            throw new IllegalArgumentException("通知参数不完整。");
+        }
+        List<Long> ids = notificationMapper.findInboxIds(receiverId);
+        if (!ids.isEmpty()) {
+            notificationMapper.deleteAll(receiverId);
+        }
+        return ids;
     }
 
     private NotificationMessage requireOwnedNotification(Long receiverId, Long notificationId) {

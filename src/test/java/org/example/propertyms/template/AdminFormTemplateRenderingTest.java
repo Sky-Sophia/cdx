@@ -21,6 +21,7 @@ import org.example.propertyms.unit.model.PropertyUnit;
 import org.example.propertyms.unit.service.PropertyUnitService;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
+import org.example.propertyms.user.service.DepartmentService;
 import org.example.propertyms.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,9 @@ class AdminFormTemplateRenderingTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private DepartmentService departmentService;
 
     private MockHttpSession adminSession;
 

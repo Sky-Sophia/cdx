@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.SessionKeys;
+import org.example.propertyms.notification.service.NotificationService;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
 import org.example.propertyms.user.service.UserService;
@@ -28,6 +29,9 @@ class AccountControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private AccountController accountController;
@@ -56,13 +60,17 @@ class AccountControllerTest {
         user.setRole(Role.ADMIN);
         user.setStatus("ACTIVE");
         when(userService.findById(1L)).thenReturn(user);
+        when(notificationService.loadInbox(1L, 100)).thenReturn(java.util.List.of());
+        when(notificationService.countUnread(1L)).thenReturn(0);
 
         mockMvc.perform(get("/profile").session(session))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("userProfile", "roleLabel", "statusLabel"))
+                .andExpect(model().attributeExists("userProfile", "roleLabel", "statusLabel", "profileInboxItems", "profileInboxUnreadCount"))
                 .andExpect(view().name("account/profile"));
 
         verify(userService).findById(1L);
+        verify(notificationService).loadInbox(1L, 100);
+        verify(notificationService).countUnread(1L);
     }
 
     @Test

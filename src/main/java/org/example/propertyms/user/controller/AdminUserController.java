@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -22,8 +23,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.constant.SessionKeys;
+import org.example.propertyms.notification.model.NotificationDepartment;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
+import org.example.propertyms.user.service.DepartmentService;
 import org.example.propertyms.user.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,9 +44,11 @@ public class AdminUserController {
     private static final Set<String> VALID_STATUS = Set.of("ACTIVE", "DISABLED");
 
     private final UserService userService;
+    private final DepartmentService departmentService;
 
-    public AdminUserController(UserService userService) {
+    public AdminUserController(UserService userService, DepartmentService departmentService) {
         this.userService = userService;
+        this.departmentService = departmentService;
     }
 
     @GetMapping
@@ -78,9 +83,11 @@ public class AdminUserController {
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
 
-        model.addAttribute("managedUser", new User());
+        User managedUser = new User();
+        managedUser.setDepartmentCode(NotificationDepartment.defaultForRole(Role.ADMIN).getCode());
+        model.addAttribute("managedUser", managedUser);
         model.addAttribute("editing", false);
-        model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
+        populateUserFormOptions(model);
         return "admin/users/form";
     }
 
@@ -100,9 +107,12 @@ public class AdminUserController {
             return RedirectUrls.MANAGEMENT_USERS;
         }
 
+        if (user.getDepartmentCode() == null || user.getDepartmentCode().isBlank()) {
+            user.setDepartmentCode(NotificationDepartment.defaultForRole(user.getRole()).getCode());
+        }
         model.addAttribute("managedUser", user);
         model.addAttribute("editing", true);
-        model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
+        populateUserFormOptions(model);
         return "admin/users/form";
     }
 
@@ -110,6 +120,7 @@ public class AdminUserController {
     public String save(@RequestParam String username,
                        @RequestParam String password,
                        @RequestParam Role role,
+                       @RequestParam String departmentCode,
                        @RequestParam(defaultValue = "ACTIVE") String status,
                        HttpSession session,
                        RedirectAttributes redirectAttributes) {
@@ -125,10 +136,16 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
             return "redirect:/admin/users/new";
         }
+        String normalizedDepartmentCode = normalizeDepartmentCode(departmentCode);
+        if (!departmentService.isEnabledCode(normalizedDepartmentCode)) {
+            redirectAttributes.addFlashAttribute("error", "请选择有效的部门。");
+            return "redirect:/admin/users/new";
+        }
 
         try {
             User user = userService.register(username.trim(), password);
             userService.updateRole(user.getId(), role);
+            userService.updateDepartmentCode(user.getId(), normalizedDepartmentCode);
             userService.updateStatus(user.getId(), status.toUpperCase());
             redirectAttributes.addFlashAttribute("success", "用户已创建。");
         } catch (IllegalArgumentException ex) {
@@ -141,6 +158,7 @@ public class AdminUserController {
     @PostMapping("/{id}/manage")
     public String manage(@PathVariable Long id,
                          @RequestParam Role role,
+                         @RequestParam String departmentCode,
                          @RequestParam String status,
                          HttpSession session,
                          RedirectAttributes redirectAttributes) {
@@ -154,6 +172,11 @@ public class AdminUserController {
         }
         if (status == null || !VALID_STATUS.contains(status.toUpperCase())) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
+            return "redirect:/admin/users/edit/" + id;
+        }
+        String normalizedDepartmentCode = normalizeDepartmentCode(departmentCode);
+        if (!departmentService.isEnabledCode(normalizedDepartmentCode)) {
+            redirectAttributes.addFlashAttribute("error", "请选择有效的部门。");
             return "redirect:/admin/users/edit/" + id;
         }
 
@@ -170,6 +193,7 @@ public class AdminUserController {
         }
 
         userService.updateRole(id, role);
+        userService.updateDepartmentCode(id, normalizedDepartmentCode);
         userService.updateStatus(id, status.toUpperCase());
         redirectAttributes.addFlashAttribute("success", "用户权限与状态已更新。");
         return RedirectUrls.MANAGEMENT_USERS;
@@ -318,6 +342,18 @@ public class AdminUserController {
             return null;
         }
         return (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
+    }
+
+    private void populateUserFormOptions(Model model) {
+        model.addAttribute("roles", new Role[]{Role.ADMIN, Role.STAFF, Role.FINANCE});
+        model.addAttribute("departmentOptions", departmentService.listEnabled());
+    }
+
+    private String normalizeDepartmentCode(String departmentCode) {
+        if (departmentCode == null) {
+            return null;
+        }
+        return departmentCode.trim().toUpperCase(Locale.ROOT);
     }
 }
 

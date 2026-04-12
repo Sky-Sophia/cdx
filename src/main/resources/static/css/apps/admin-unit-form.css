@@ -366,6 +366,22 @@
     padding: 10px 0;
 }
 
+.field-note {
+    flex: 1;
+    min-height: 36px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--unit-archive-line);
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--unit-archive-ink-light);
+}
+
+.field-note span {
+    display: inline-block;
+    margin-left: 8px;
+    color: var(--unit-archive-blue-ink);
+}
+
 .unit-archive-footer {
     display: flex;
     align-items: center;
@@ -561,4 +577,3 @@
         flex-direction: column;
     }
 }
-

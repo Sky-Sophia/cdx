@@ -14,6 +14,23 @@ import org.example.propertyms.bill.model.FeeBill;
 
 @Mapper
 public interface FeeBillMapper {
+    String BILL_SELECT_COLUMNS = """
+            SELECT f.id,
+                   f.bill_no,
+                   f.unit_id,
+                   u.unit_no,
+                   DATE_FORMAT(f.billing_month, '%Y-%m') AS billing_month,
+                   f.amount,
+                   f.paid_amount,
+                   f.status,
+                   f.due_date,
+                   f.paid_at,
+                   f.remarks,
+                   f.created_at,
+                   f.updated_at
+            FROM fee_bills f
+            LEFT JOIN units u ON u.id = f.unit_id
+            """;
 
     @SelectProvider(type = FeeBillSqlProvider.class, method = "countSql")
     long count(@Param("keyword") String keyword,
@@ -32,15 +49,24 @@ public interface FeeBillMapper {
                           @Param("status") String status,
                           @Param("billingMonth") String billingMonth);
 
-    @Select("SELECT f.*, u.unit_no FROM fee_bills f LEFT JOIN units u ON u.id = f.unit_id WHERE f.id = #{id}")
+    @Select(BILL_SELECT_COLUMNS + " WHERE f.id = #{id}")
     FeeBill findById(@Param("id") Long id);
 
-    @Select("SELECT f.*, u.unit_no FROM fee_bills f LEFT JOIN units u ON u.id = f.unit_id WHERE f.status <> 'PAID' ORDER BY f.due_date LIMIT #{limit}")
+    @Select(BILL_SELECT_COLUMNS + " WHERE f.status <> 'PAID' ORDER BY f.due_date LIMIT #{limit}")
     List<FeeBill> findDueSoon(@Param("limit") int limit);
 
     @Insert("""
             INSERT INTO fee_bills (bill_no, unit_id, billing_month, amount, paid_amount, status, due_date, remarks)
-            VALUES (#{billNo}, #{unitId}, #{billingMonth}, #{amount}, #{paidAmount}, #{status}, #{dueDate}, #{remarks})
+            VALUES (
+                #{billNo},
+                #{unitId},
+                STR_TO_DATE(CONCAT(#{billingMonth}, '-01'), '%Y-%m-%d'),
+                #{amount},
+                #{paidAmount},
+                #{status},
+                #{dueDate},
+                #{remarks}
+            )
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(FeeBill bill);
@@ -67,4 +93,3 @@ public interface FeeBillMapper {
     @Select("SELECT COALESCE(SUM(paid_amount), 0) FROM fee_bills")
     BigDecimal sumReceived();
 }
-

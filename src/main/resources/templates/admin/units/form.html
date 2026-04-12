@@ -73,14 +73,13 @@
                             </div>
                         </div>
 
-                        <div class="field-row-double">
-                            <div class="field-cell">
-                                <label class="field-label" for="unit-ownerName">业主姓名</label>
-                                <input id="unit-ownerName" type="text" name="ownerName" th:value="${unit.ownerName}" placeholder="请填写" />
-                            </div>
-                            <div class="field-cell">
-                                <label class="field-label" for="unit-ownerPhone">联系电话</label>
-                                <input id="unit-ownerPhone" type="tel" name="ownerPhone" th:value="${unit.ownerPhone}" placeholder="请填写" />
+                        <div class="field-row-single">
+                            <label class="field-label">业主信息</label>
+                            <div class="field-note">
+                                业主姓名、联系电话已改为从住户档案自动关联。
+                                <span th:if="${unit.ownerName != null and !#strings.isEmpty(unit.ownerName)}"
+                                      th:text="${'当前业主：' + unit.ownerName + (unit.ownerPhone != null and !#strings.isEmpty(unit.ownerPhone) ? '（' + unit.ownerPhone + '）' : '')}">当前业主</span>
+                                <span th:unless="${unit.ownerName != null and !#strings.isEmpty(unit.ownerName)}">请到“住户管理”中维护业主后自动同步。</span>
                             </div>
                         </div>
 

@@ -15,6 +15,7 @@ import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.SessionKeys;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
+import org.example.propertyms.user.service.DepartmentService;
 import org.example.propertyms.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class AdminUserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private DepartmentService departmentService;
 
     @InjectMocks
     private AdminUserController adminUserController;
@@ -61,10 +65,12 @@ class AdminUserControllerTest {
         User user = new User();
         user.setId(10L);
         when(userService.findById(10L)).thenReturn(user);
+        when(departmentService.isEnabledCode("MANAGEMENT")).thenReturn(true);
 
         mockMvc.perform(post("/admin/users/10/manage")
                         .session(session)
                         .param("role", "ADMIN")
+                        .param("departmentCode", "MANAGEMENT")
                         .param("status", "DISABLED"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/users/edit/10"))
@@ -103,16 +109,19 @@ class AdminUserControllerTest {
         user.setRole(Role.STAFF);
         user.setStatus("ACTIVE");
         when(userService.findById(2L)).thenReturn(user);
+        when(departmentService.isEnabledCode("FINANCE")).thenReturn(true);
 
         mockMvc.perform(post("/admin/users/2/manage")
                         .session(session)
                         .param("role", "FINANCE")
+                        .param("departmentCode", "FINANCE")
                         .param("status", "active"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/management?tab=users"))
                 .andExpect(flash().attributeExists("success"));
 
         verify(userService).updateRole(2L, Role.FINANCE);
+        verify(userService).updateDepartmentCode(2L, "FINANCE");
         verify(userService).updateStatus(2L, "ACTIVE");
     }
 }

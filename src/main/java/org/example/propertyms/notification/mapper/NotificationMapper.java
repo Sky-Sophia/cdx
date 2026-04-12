@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Update;
 import org.example.propertyms.notification.model.NotificationMessage;
 
@@ -55,6 +56,15 @@ public interface NotificationMapper {
             """)
     List<Long> findUnreadIds(@Param("receiverId") Long receiverId);
 
+    @Select("""
+            SELECT id
+            FROM notification_messages
+            WHERE receiver_id = #{receiverId}
+              AND is_deleted = 0
+            ORDER BY send_time DESC, id DESC
+            """)
+    List<Long> findInboxIds(@Param("receiverId") Long receiverId);
+
     @Update("""
             UPDATE notification_messages
             SET is_read = 1,
@@ -78,16 +88,19 @@ public interface NotificationMapper {
             """)
     int markAllRead(@Param("receiverId") Long receiverId);
 
-    @Update("""
-            UPDATE notification_messages
-            SET is_deleted = 1,
-                deleted_time = CURRENT_TIMESTAMP,
-                updated_at = CURRENT_TIMESTAMP
+    @Delete("""
+            DELETE FROM notification_messages
             WHERE id = #{id}
               AND receiver_id = #{receiverId}
+            """)
+    int delete(@Param("id") Long id, @Param("receiverId") Long receiverId);
+
+    @Delete("""
+            DELETE FROM notification_messages
+            WHERE receiver_id = #{receiverId}
               AND is_deleted = 0
             """)
-    int softDelete(@Param("id") Long id, @Param("receiverId") Long receiverId);
+    int deleteAll(@Param("receiverId") Long receiverId);
 
     @Select("""
             SELECT COUNT(*)

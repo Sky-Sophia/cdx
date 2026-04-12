@@ -110,7 +110,7 @@ public class AuthController {
         }
         try {
             User user = userService.register(username, request.getPassword());
-            userService.updateRole(user.getId(), Role.STAFF);
+            userService.updateRole(user.getId(), Role.USER);
             userService.updateStatus(user.getId(), "DISABLED");
             redirectAttributes.addFlashAttribute("success", "注册成功，待管理员审核启用后可登录");
             return RedirectUrls.LOGIN;

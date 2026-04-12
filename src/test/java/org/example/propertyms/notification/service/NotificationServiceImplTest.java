@@ -114,6 +114,16 @@ class NotificationServiceImplTest {
     }
 
     @Test
+    void deleteAll_shouldHardDeleteInboxMessages() {
+        when(notificationMapper.findInboxIds(5L)).thenReturn(List.of(100L, 101L, 102L));
+
+        List<Long> ids = notificationService.deleteAll(5L);
+
+        assertThat(ids).containsExactly(100L, 101L, 102L);
+        verify(notificationMapper).deleteAll(5L);
+    }
+
+    @Test
     void send_shouldRejectBlankContent() {
         UserSession sender = new UserSession(1L, "admin", Role.ADMIN);
         NotificationSendPayload payload = new NotificationSendPayload();

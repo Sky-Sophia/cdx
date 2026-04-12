@@ -92,7 +92,7 @@
     left: 0;
     right: 0;
     margin: 0;
-    padding: 4px 0;
+    padding: 0;
     list-style: none;
     background: #fff;
     border: 1px solid var(--u-border-light, #ebeef5);
@@ -121,16 +121,18 @@
 
 /* ── Scrollbar styling ── */
 .custom-select-panel::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 .custom-select-panel::-webkit-scrollbar-thumb {
-    background: #dcdfe6;
-    border-radius: 3px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: var(--overlay-scrollbar-thumb);
+    background-clip: padding-box;
 }
 
 .custom-select-panel::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--overlay-scrollbar-track);
 }
 
 /* ── Option items ── */
@@ -148,51 +150,19 @@
     min-height: 36px;
     box-sizing: border-box;
     position: relative;
-    isolation: isolate;
     background: transparent;
-}
-
-.custom-select-option::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: transparent;
-    z-index: -1;
-    transition: background-color 0.15s;
 }
 
 .custom-select-option:hover,
 .custom-select-option.is-highlighted {
     color: var(--u-primary, #409eff);
-}
-
-.custom-select-option:hover::before,
-.custom-select-option.is-highlighted::before {
     background-color: #f5f7fa;
 }
 
 .custom-select-option.is-selected {
     color: var(--u-primary, #409eff);
     font-weight: 600;
-}
-
-.custom-select-option.is-selected::before {
     background-color: rgba(64, 158, 255, 0.06);
-}
-
-.custom-select-option:first-child:hover,
-.custom-select-option:first-child.is-highlighted,
-.custom-select-option:first-child.is-selected {
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-}
-
-.custom-select-option:last-child:hover,
-.custom-select-option:last-child.is-highlighted,
-.custom-select-option:last-child.is-selected {
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
 }
 
 .custom-select-option.is-selected::after {
@@ -248,4 +218,3 @@
     background: rgba(144, 147, 153, 0.1);
     color: #909399;
 }
-

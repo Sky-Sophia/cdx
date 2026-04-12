@@ -24,6 +24,7 @@
         const loginSection = document.querySelector(".auth-portal-section-login");
         const registerSection = document.querySelector(".auth-portal-section-register");
         const forgotSection = document.querySelector(".auth-portal-section-forgot");
+        const forgotModalCard = document.querySelector(".auth-forgot-modal-card");
         const forgotSteps = document.querySelectorAll(".auth-forgot-step");
         const forgotProgressItems = document.querySelectorAll("[data-step-indicator]");
         const quickSwitch = document.querySelectorAll("[data-switch-tab]");
@@ -43,7 +44,10 @@
         const loginForm = document.getElementById("loginForm");
         const loginUsernameInput = document.getElementById("login-username");
         const loginPasswordInput = document.getElementById("login-password");
+        const registerUsernameInput = document.getElementById("register-username");
         const preserveLoginUsername = loginForm && loginForm.getAttribute("data-preserve-username") === "true";
+        const preserveRegisterUsername = Boolean(registerUsernameInput && registerUsernameInput.defaultValue.trim());
+        const preserveForgotUsername = Boolean(forgotUsernameInput && forgotUsernameInput.defaultValue.trim());
         const formInputs = document.querySelectorAll(
             "#login-username, #login-password, #register-username, #register-password, #register-confirm-password, #forgot-username, #forgot-code, #forgot-new-password, #forgot-confirm-password"
         );
@@ -107,6 +111,9 @@
                 clearRuntimeMessage();
             }
             renderSections();
+            if (activeTab === "register") {
+                scheduleInputCleanup(clearRegisterUsernameIfNeeded);
+            }
         }
 
         function updateForgotUsernamePreview() {
@@ -173,22 +180,12 @@
             }
         }
 
-        function syncForgotInputsFromLogin() {
-            if (!forgotUsernameInput || !loginUsernameInput) {
-                return;
-            }
-            if (!forgotUsernameInput.value.trim() && loginUsernameInput.value.trim()) {
-                forgotUsernameInput.value = loginUsernameInput.value.trim();
-                updateForgotUsernamePreview();
-            }
-        }
-
         function resetForgotCountdownButton() {
             if (!forgotSendCodeButton) {
                 return;
             }
             forgotSendCodeButton.disabled = false;
-            forgotSendCodeButton.textContent = "发送验证码";
+            forgotSendCodeButton.textContent = "获取验证码";
         }
 
         function stopForgotCountdown(resetButton = true) {
@@ -244,6 +241,31 @@
             updateForgotUsernamePreview();
         }
 
+        function clearRegisterUsernameIfNeeded() {
+            if (preserveRegisterUsername || !registerUsernameInput) {
+                return;
+            }
+            registerUsernameInput.value = "";
+        }
+
+        function clearForgotUsernameIfNeeded() {
+            if (preserveForgotUsername || !forgotUsernameInput || currentForgotStep !== "verify") {
+                return;
+            }
+            forgotUsernameInput.value = "";
+            updateForgotUsernamePreview();
+        }
+
+        function scheduleInputCleanup(callback) {
+            if (typeof callback !== "function") {
+                return;
+            }
+            [0, 120, 320, 620].forEach((delay) => {
+                const timerId = window.setTimeout(callback, delay);
+                clearTimerIds.push(timerId);
+            });
+        }
+
         function setForgotPanelOpen(isOpen, options = {}) {
             if (!forgotSection) {
                 return;
@@ -255,14 +277,17 @@
             if (isForgotPanelOpen) {
                 activeTab = "login";
                 currentForgotStep = normalizeForgotStep(step);
-                syncForgotInputsFromLogin();
+                if (currentForgotStep === "verify") {
+                    resetForgotFlow({ preserveUsername: preserveForgotUsername });
+                    scheduleInputCleanup(clearForgotUsernameIfNeeded);
+                }
                 renderSections();
                 renderForgotStep({ focus });
                 return;
             }
 
             if (resetFlow) {
-                resetForgotFlow({ preserveUsername: true });
+                resetForgotFlow({ preserveUsername: false });
             }
             currentForgotStep = "verify";
             renderSections();
@@ -290,6 +315,8 @@
 
         function clearCredentialInputs() {
             clearLoginUsernameIfNeeded();
+            clearRegisterUsernameIfNeeded();
+            clearForgotUsernameIfNeeded();
             sensitiveInputs.forEach((input) => {
                 input.value = "";
                 input.type = "password";
@@ -481,6 +508,20 @@
                 closeForgotPanel();
             });
         });
+
+        if (forgotSection) {
+            forgotSection.addEventListener("click", (event) => {
+                if (event.target === forgotSection) {
+                    closeForgotPanel();
+                }
+            });
+        }
+
+        if (forgotModalCard) {
+            forgotModalCard.addEventListener("click", (event) => {
+                event.stopPropagation();
+            });
+        }
 
         forgotNextButtons.forEach((btn) => {
             btn.addEventListener("click", () => {

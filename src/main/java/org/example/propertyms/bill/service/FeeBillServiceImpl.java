@@ -3,6 +3,7 @@ package org.example.propertyms.bill.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.example.propertyms.bill.mapper.FeeBillMapper;
 import org.example.propertyms.bill.model.BillStatus;
 import org.example.propertyms.bill.model.FeeBill;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class FeeBillServiceImpl implements FeeBillService {
+    private static final Pattern BILLING_MONTH_PATTERN = Pattern.compile("^\\d{4}-(0[1-9]|1[0-2])$");
+
     private final FeeBillMapper feeBillMapper;
 
     public FeeBillServiceImpl(FeeBillMapper feeBillMapper) {
@@ -48,6 +51,13 @@ public class FeeBillServiceImpl implements FeeBillService {
                 || StringHelper.isBlank(bill.getBillingMonth())) {
             throw new IllegalArgumentException("请完整填写账单信息。");
         }
+
+        String billingMonth = bill.getBillingMonth().trim();
+        if (!BILLING_MONTH_PATTERN.matcher(billingMonth).matches()) {
+            throw new IllegalArgumentException("账期格式必须为 yyyy-MM。");
+        }
+        bill.setBillingMonth(billingMonth);
+
         bill.setBillNo(CodeGenerator.nextBillNo());
         if (bill.getPaidAmount() == null) {
             bill.setPaidAmount(BigDecimal.ZERO);
@@ -94,14 +104,14 @@ public class FeeBillServiceImpl implements FeeBillService {
 
     @Override
     public BigDecimal sumReceivable() {
-        BigDecimal v = feeBillMapper.sumReceivable();
-        return v == null ? BigDecimal.ZERO : v;
+        BigDecimal value = feeBillMapper.sumReceivable();
+        return value == null ? BigDecimal.ZERO : value;
     }
 
     @Override
     public BigDecimal sumReceived() {
-        BigDecimal v = feeBillMapper.sumReceived();
-        return v == null ? BigDecimal.ZERO : v;
+        BigDecimal value = feeBillMapper.sumReceived();
+        return value == null ? BigDecimal.ZERO : value;
     }
 
     @Override
@@ -119,4 +129,3 @@ public class FeeBillServiceImpl implements FeeBillService {
         return BillStatus.PARTIAL.name();
     }
 }
-

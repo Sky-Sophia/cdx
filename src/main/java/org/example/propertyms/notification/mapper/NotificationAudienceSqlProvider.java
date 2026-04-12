@@ -15,7 +15,8 @@ public class NotificationAudienceSqlProvider {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT DISTINCT u.* FROM users u WHERE u.status = 'ACTIVE'");
         sql.append(" AND (u.department_code = #{departmentCode}");
-        sql.append(" OR (u.department_code IS NULL AND u.role = #{fallbackRole}))");
+        sql.append(" OR ((u.department_code IS NULL OR u.department_code = '') AND u.role = #{fallbackRole})");
+        sql.append(" OR (#{departmentCode} = 'NONE' AND (u.department_code IS NULL OR u.department_code = '' OR u.department_code = 'NONE')))");
         appendExclude(sql, params);
         sql.append(" ORDER BY u.id ASC");
         return sql.toString();

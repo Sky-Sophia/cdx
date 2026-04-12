@@ -17,5 +17,7 @@ public interface NotificationService {
 
     List<Long> markAllRead(Long receiverId);
 
-    Long softDelete(Long receiverId, Long notificationId);
+    Long delete(Long receiverId, Long notificationId);
+
+    List<Long> deleteAll(Long receiverId);
 }

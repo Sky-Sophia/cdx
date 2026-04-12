@@ -266,14 +266,14 @@
         return `${resolvedTitle}：${resolvedMessage}`;
     }
 
-    function showTopMessage(text) {
+    function showTopMessage(text, type = "error") {
         removeActiveMessage(true);
 
         const container = ensureMessageContainer();
         positionMessageContainer();
 
         const alert = document.createElement("div");
-        alert.className = "msg error";
+        alert.className = `msg ${type === "success" ? "success" : "error"}`;
         alert.setAttribute("role", "alert");
         alert.textContent = trimBubbleText(text);
         alert.style.setProperty("--msg-dismiss-duration", `${getDismissDuration()}ms`);
@@ -408,7 +408,13 @@
         },
         hide: () => {
             hideBubble();
+        },
+        showMessage: (message, type = "error") => {
+            if (!message) {
+                return;
+            }
+            clearActiveValidation();
+            showTopMessage(message, type);
         }
     };
 })();
-

@@ -16,6 +16,8 @@ public interface UserService {
 
     void updateRole(Long userId, Role role);
 
+    void updateDepartmentCode(Long userId, String departmentCode);
+
     void updateStatus(Long userId, String status);
 
     void resetPassword(Long userId, String newPassword);

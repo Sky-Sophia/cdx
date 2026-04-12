@@ -225,6 +225,299 @@ body {
     text-decoration: none;
 }
 
+.setting-item-button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+}
+
+.setting-item-button:focus-visible,
+.profile-history-filter:focus-visible,
+.profile-history-action-btn:focus-visible,
+.profile-history-close-btn:focus-visible,
+.profile-history-item:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.16);
+}
+
+.setting-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+body.profile-history-modal-open {
+    overflow: hidden;
+}
+
+.profile-history-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.2);
+}
+
+.profile-history-modal-overlay[hidden] {
+    display: none;
+}
+
+.profile-history-modal {
+    width: 100%;
+    max-width: 512px;
+    height: 520px;
+    max-height: calc(100vh - 32px);
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+    border: 1px solid #eef2f7;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.profile-history-modal-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.profile-history-modal-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.profile-history-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-history-action-btn {
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.profile-history-action-btn:hover:not(:disabled) {
+    color: #165dff;
+}
+
+.profile-history-action-btn:disabled {
+    color: #cbd5e1;
+    cursor: default;
+    pointer-events: none;
+}
+
+.profile-history-close-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.profile-history-close-btn:hover {
+    color: #4b5563;
+    background: #f8fafc;
+}
+
+.profile-history-filters {
+    padding: 10px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    flex-shrink: 0;
+}
+
+.profile-history-filter {
+    border: none;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.profile-history-filter.is-active {
+    background: #165dff;
+    color: #ffffff;
+}
+
+.profile-history-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.profile-history-item {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 14px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.profile-history-item:hover {
+    background: #f8fafc;
+}
+
+.profile-history-item[hidden] {
+    display: none !important;
+}
+
+.profile-history-item + .profile-history-item {
+    margin-top: 2px;
+}
+
+.profile-history-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-history-item-icon img {
+    width: 15px;
+    height: 15px;
+    display: block;
+    opacity: 0.72;
+}
+
+.profile-history-item-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.profile-history-item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.profile-history-item-heading {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-history-type {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    color: #1677ff;
+    background: #e8f3ff;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.profile-history-type[data-tone="announce"] {
+    color: #722ed1;
+    background: #f3e8ff;
+}
+
+.profile-history-type[data-tone="notice"] {
+    color: #1677ff;
+    background: #e8f3ff;
+}
+
+.profile-history-type[data-tone="reminder"] {
+    color: #d46b08;
+    background: #fff7e6;
+}
+
+.profile-history-type[data-tone="warning"] {
+    color: #cf1322;
+    background: #fff1f0;
+}
+
+.profile-history-item-title {
+    margin: 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-history-item-time {
+    flex-shrink: 0;
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.profile-history-item-content {
+    margin: 0;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.6;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.profile-history-empty {
+    height: 100%;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
 @media (max-width: 640px) {
     .user-header {
         flex-direction: column;
@@ -239,5 +532,21 @@ body {
     .setting-item {
         padding: 14px 20px;
     }
-}
 
+    .profile-history-modal {
+        width: 100%;
+        height: 520px;
+        max-height: calc(100vh - 20px);
+    }
+
+    .profile-history-modal-head,
+    .profile-history-filters {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .profile-history-item {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}

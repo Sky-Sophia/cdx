@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.constant.SessionKeys;
+import org.example.propertyms.notification.service.NotificationService;
 import org.example.propertyms.user.model.User;
 import org.example.propertyms.user.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -17,9 +18,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AccountController {
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
-    public AccountController(UserService userService) {
+    public AccountController(UserService userService, NotificationService notificationService) {
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/profile")
@@ -38,6 +41,8 @@ public class AccountController {
         model.addAttribute("userProfile", user);
         model.addAttribute("roleLabel", user.getRole() != null ? user.getRole().getLabel() : "未设置角色");
         model.addAttribute("statusLabel", statusLabel(user.getStatus()));
+        model.addAttribute("profileInboxItems", notificationService.loadInbox(currentUser.getId(), 100));
+        model.addAttribute("profileInboxUnreadCount", notificationService.countUnread(currentUser.getId()));
         return "account/profile";
     }
 

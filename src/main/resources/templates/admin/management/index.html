@@ -6,7 +6,7 @@
     <title>统一管理 - 物业后台管理系统</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin-management.css?v=20260410-dashboard-list-table-ui" />
+    <link rel="stylesheet" href="/css/apps/admin-management.css?v=20260411-notice-type-tag" />
 </head>
 <body>
 <div class="app-shell">
@@ -429,7 +429,7 @@
                         <td th:text="${resident.unitNo}"></td>
                         <td th:text="${resident.phone}"></td>
                         <td th:text="${resident.identityNo}"></td>
-                        <td th:text="${resident.residentType == 'OWNER' ? '业主' : (resident.residentType == 'TENANT' ? '租户' : '家属')}"></td>
+                        <td>业主</td>
                         <td>
                             <span class="badge"
                                   th:attr="data-status=${resident.status}"

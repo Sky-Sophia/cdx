@@ -60,6 +60,7 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
                 case "READ" -> handleRead(currentUser.getId(), request);
                 case "READ_ALL" -> handleReadAll(currentUser.getId());
                 case "DELETE" -> handleDelete(currentUser.getId(), request);
+                case "DELETE_ALL" -> handleDeleteAll(currentUser.getId());
                 default -> send(session, NotificationSocketResponse.error("未识别的通知指令。"));
             }
         } catch (IllegalArgumentException ex) {
@@ -112,13 +113,19 @@ public class NotificationSocketHandler extends TextWebSocketHandler {
         if (payload == null || payload.getId() == null) {
             throw new IllegalArgumentException("通知 ID 不能为空。");
         }
-        Long id = notificationService.softDelete(userId, payload.getId());
+        Long id = notificationService.delete(userId, payload.getId());
         int unreadCount = notificationService.countUnread(userId);
         pushToUser(userId, NotificationSocketResponse.deleted(id, unreadCount));
     }
 
+    private void handleDeleteAll(Long userId) throws Exception {
+        List<Long> ids = notificationService.deleteAll(userId);
+        int unreadCount = notificationService.countUnread(userId);
+        pushToUser(userId, NotificationSocketResponse.deletedAll(ids, unreadCount));
+    }
+
     private void syncInbox(WebSocketSession session, Long userId) throws Exception {
-        List<NotificationItem> items = notificationService.loadInbox(userId, 30);
+        List<NotificationItem> items = notificationService.loadInbox(userId, 100);
         int unreadCount = notificationService.countUnread(userId);
         send(session, NotificationSocketResponse.sync(items, unreadCount));
     }

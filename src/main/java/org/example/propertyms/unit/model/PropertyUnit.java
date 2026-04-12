@@ -15,7 +15,7 @@ public class PropertyUnit {
     private String occupancyStatus;
     private String ownerName;
     private String ownerPhone;
+    private Long ownerResidentId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-

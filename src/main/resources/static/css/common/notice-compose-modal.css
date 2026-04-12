@@ -27,6 +27,11 @@
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.16);
 }
 
+html.compose-modal-open {
+    scrollbar-gutter: stable;
+    overflow-y: hidden;
+}
+
 body.compose-modal-open {
     overflow: hidden;
 }
@@ -60,7 +65,7 @@ body.compose-modal-open {
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    overflow: visible;
     transform: translateY(10px) scale(0.98);
     transition: transform 0.18s ease;
 }
@@ -154,6 +159,43 @@ body.compose-modal-open {
     cursor: default;
     pointer-events: none;
     user-select: none;
+}
+
+.compose-form-item .custom-select {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.compose-form-item .custom-select-trigger {
+    min-height: 42px;
+    border: 1px solid #e5e6eb;
+    border-radius: 6px;
+    padding: 0 40px 0 12px;
+    color: #333333;
+}
+
+.compose-form-item .custom-select-trigger:hover,
+.compose-form-item .custom-select.is-open .custom-select-trigger,
+.compose-form-item .custom-select-trigger:focus {
+    border-color: #0066cc;
+}
+
+.compose-form-item .custom-select.is-open .custom-select-trigger,
+.compose-form-item .custom-select-trigger:focus {
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+.compose-form-item .custom-select-arrow {
+    right: 12px;
+}
+
+.compose-form-item .custom-select-panel {
+    z-index: 40;
+}
+
+.compose-form-item .custom-select.is-open {
+    z-index: 50;
 }
 
 .compose-form-textarea {

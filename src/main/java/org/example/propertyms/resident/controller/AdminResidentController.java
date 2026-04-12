@@ -105,13 +105,6 @@ public class AdminResidentController {
     }
 
     private String residentTypeLabel(String type) {
-        if (type == null) return "";
-        return switch (type) {
-            case "OWNER" -> "业主";
-            case "TENANT" -> "租户";
-            case "FAMILY" -> "家属";
-            default -> type;
-        };
+        return "业主";
     }
 }
-

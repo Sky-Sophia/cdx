@@ -6,7 +6,7 @@
     <title th:text="${editing ? '编辑系统用户' : '新增系统用户'}">系统用户表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin.css" />
+    <link rel="stylesheet" href="/css/apps/admin.css?v=20260411-notice-type-tag" />
     <link rel="stylesheet" href="/css/apps/admin-archive-create.css" th:href="@{/css/apps/admin-archive-create.css}" />
 </head>
 <body>
@@ -74,22 +74,42 @@
                                 </div>
                             </div>
                             <div class="archive-create-cell">
-                                <label class="archive-create-label" id="managed-status-label">账号状态</label>
-                                <div class="custom-select archive-create-control">
-                                    <input type="hidden" name="status" th:value="${managedUser.status != null ? managedUser.status : 'ACTIVE'}" />
+                                <label class="archive-create-label" id="managed-department-label">所属部门</label>
+                                <div class="custom-select archive-create-control" data-required>
+                                    <input type="hidden" name="departmentCode"
+                                           th:value="${managedUser.departmentCode != null ? managedUser.departmentCode : 'MANAGEMENT'}" required />
                                     <button type="button" class="custom-select-trigger" aria-expanded="false"
-                                            aria-labelledby="managed-status-label managed-status-trigger-text">
-                                        <span class="custom-select-trigger-text" id="managed-status-trigger-text"
-                                              th:text="${managedUser.status == 'DISABLED' ? '禁用' : '启用'}">启用</span>
+                                            aria-labelledby="managed-department-label managed-department-trigger-text">
+                                        <span class="custom-select-trigger-text" id="managed-department-trigger-text">请选择部门</span>
                                         <span class="custom-select-arrow" aria-hidden="true"></span>
                                     </button>
                                     <ul class="custom-select-panel">
-                                        <li class="custom-select-option" data-value="ACTIVE" data-label="启用"
-                                            th:classappend="${managedUser.status == null or managedUser.status == 'ACTIVE' ? ' is-selected' : ''}">启用</li>
-                                        <li class="custom-select-option" data-value="DISABLED" data-label="禁用"
-                                            th:classappend="${managedUser.status == 'DISABLED' ? ' is-selected' : ''}">禁用</li>
+                                        <li th:if="${departmentOptions != null}" th:each="item : ${departmentOptions}"
+                                            class="custom-select-option"
+                                            th:attr="data-value=${item.code},data-label=${item.label}"
+                                            th:classappend="${(managedUser.departmentCode == null ? item.code == 'MANAGEMENT' : managedUser.departmentCode == item.code) ? ' is-selected' : ''}"
+                                            th:text="${item.label}"></li>
                                     </ul>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="archive-create-row-single">
+                            <label class="archive-create-label" id="managed-status-label">账号状态</label>
+                            <div class="custom-select archive-create-control">
+                                <input type="hidden" name="status" th:value="${managedUser.status != null ? managedUser.status : 'ACTIVE'}" />
+                                <button type="button" class="custom-select-trigger" aria-expanded="false"
+                                        aria-labelledby="managed-status-label managed-status-trigger-text">
+                                    <span class="custom-select-trigger-text" id="managed-status-trigger-text"
+                                          th:text="${managedUser.status == 'DISABLED' ? '禁用' : '启用'}">启用</span>
+                                    <span class="custom-select-arrow" aria-hidden="true"></span>
+                                </button>
+                                <ul class="custom-select-panel">
+                                    <li class="custom-select-option" data-value="ACTIVE" data-label="启用"
+                                        th:classappend="${managedUser.status == null or managedUser.status == 'ACTIVE' ? ' is-selected' : ''}">启用</li>
+                                    <li class="custom-select-option" data-value="DISABLED" data-label="禁用"
+                                        th:classappend="${managedUser.status == 'DISABLED' ? ' is-selected' : ''}">禁用</li>
+                                </ul>
                             </div>
                         </div>
 

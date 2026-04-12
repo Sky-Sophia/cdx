@@ -21,6 +21,47 @@ document.addEventListener("DOMContentLoaded", function () {
         emptyText: empty.textContent || "暂无最近通知"
     };
 
+    function showMessage(message, type) {
+        if (window.ValidationBubble && typeof window.ValidationBubble.showMessage === "function") {
+            window.ValidationBubble.showMessage(message, type || "error");
+            return;
+        }
+        window.console[type === "success" ? "info" : "warn"](message);
+    }
+
+    function deleteNotice(id) {
+        return window.fetch(`/api/notifications/${id}`, {
+            method: "DELETE",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            credentials: "same-origin"
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(function (result) {
+                window.dispatchEvent(new CustomEvent("notification:data-deleted", {
+                    detail: {
+                        id: result.id || id,
+                        unreadCount: Number(result.unreadCount || 0)
+                    }
+                }));
+            })
+            .catch(function (error) {
+                window.console.error("删除通知失败", error);
+                if (window.notificationCenterApi
+                    && typeof window.notificationCenterApi.deleteViaSocket === "function"
+                    && window.notificationCenterApi.deleteViaSocket(id)) {
+                    return;
+                }
+                showMessage("删除失败，请稍后重试", "error");
+            });
+    }
+
     function isUnread(item) {
         return !item.read;
     }
@@ -101,17 +142,68 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 0);
     }
 
+    function resolveTypeLabel(msgType) {
+        const type = String(msgType || "").trim();
+        return type || "\u901a\u77e5";
+    }
+
+    function resolveTypeTone(msgType) {
+        const type = resolveTypeLabel(msgType);
+        const lowerType = type.toLowerCase();
+
+        switch (type) {
+            case "\u516c\u544a":
+                return "announcement";
+            case "\u901a\u77e5":
+                return "notice";
+            case "\u63d0\u9192":
+                return "reminder";
+            case "\u9884\u8b66":
+                return "warning";
+            default:
+                break;
+        }
+
+        if (lowerType.includes("announce")) {
+            return "announcement";
+        }
+        if (lowerType.includes("warn") || lowerType.includes("alert")) {
+            return "warning";
+        }
+        if (lowerType.includes("remind")) {
+            return "reminder";
+        }
+        if (lowerType.includes("bill")) {
+            return "bill";
+        }
+        if (lowerType.includes("work")) {
+            return "work";
+        }
+        return "notice";
+    }
+
     function createNoticeElement(item) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = `notice-item${isUnread(item) ? " unread" : ""}`;
         button.dataset.noticeItem = "true";
         button.dataset.noticeId = String(item.id);
+        button.dataset.noticeType = resolveTypeLabel(item.msgType);
         button.title = item.content || "";
+
+        const meta = document.createElement("span");
+        meta.className = "notice-meta";
+
+        const typeTag = document.createElement("span");
+        typeTag.className = "notice-type";
+        typeTag.dataset.tone = resolveTypeTone(item.msgType);
+        typeTag.textContent = resolveTypeLabel(item.msgType);
 
         const time = document.createElement("span");
         time.className = "notice-time";
         time.textContent = formatTimeLabel(item.sendTime);
+        meta.appendChild(typeTag);
+        meta.appendChild(time);
 
         const content = document.createElement("span");
         content.className = "notice-content";
@@ -124,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteBtn.setAttribute("aria-label", "删除通知");
         deleteBtn.textContent = "×";
 
-        button.appendChild(time);
+        button.appendChild(meta);
         button.appendChild(content);
         button.appendChild(deleteBtn);
         return button;
@@ -195,6 +287,23 @@ document.addEventListener("DOMContentLoaded", function () {
         render();
     }
 
+    function removeItems(ids, unreadCount) {
+        const idSet = new Set((ids || []).map(function (id) {
+            return String(id);
+        }));
+        if (idSet.size === 0) {
+            state.items = [];
+        } else {
+            state.items = state.items.filter(function (item) {
+                return !idSet.has(String(item.id));
+            });
+        }
+        if (typeof unreadCount === "number") {
+            state.unreadCount = unreadCount;
+        }
+        render();
+    }
+
     function setLoading(text) {
         state.emptyText = text || "通知加载中...";
         state.items = [];
@@ -252,9 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (deleteTarget) {
             event.preventDefault();
             event.stopPropagation();
-            window.dispatchEvent(new CustomEvent("notification:delete", {
-                detail: { id: id }
-            }));
+            deleteNotice(id);
             return;
         }
 
@@ -275,12 +382,61 @@ document.addEventListener("DOMContentLoaded", function () {
         window.dispatchEvent(new CustomEvent("notification:read-all"));
     });
 
+    window.addEventListener("notification:data-loading", function (event) {
+        const detail = event.detail || {};
+        setLoading(detail.text || "通知加载中...");
+    });
+
+    window.addEventListener("notification:data-sync", function (event) {
+        const detail = event.detail || {};
+        setItems(detail.items || [], detail.unreadCount || 0);
+    });
+
+    window.addEventListener("notification:data-created", function (event) {
+        const detail = event.detail || {};
+        if (detail.item) {
+            upsertItem(detail.item, detail.unreadCount || 0);
+        }
+    });
+
+    window.addEventListener("notification:data-updated", function (event) {
+        const detail = event.detail || {};
+        if (detail.item) {
+            upsertItem(detail.item, detail.unreadCount || 0);
+        }
+    });
+
+    window.addEventListener("notification:data-read-all", function (event) {
+        const detail = event.detail || {};
+        applyReadAll(detail.ids || [], detail.unreadCount || 0);
+    });
+
+    window.addEventListener("notification:data-deleted", function (event) {
+        const detail = event.detail || {};
+        if (detail.id) {
+            removeItem(detail.id, detail.unreadCount || 0);
+        }
+    });
+
+    window.addEventListener("notification:data-deleted-all", function (event) {
+        const detail = event.detail || {};
+        removeItems(detail.ids || [], detail.unreadCount || 0);
+    });
+
+    window.addEventListener("notification:action-error", function (event) {
+        const detail = event.detail || {};
+        if (detail.action === "DELETE") {
+            showMessage(detail.message || "删除失败，请稍后重试", "error");
+        }
+    });
+
     window.notificationDropdownApi = {
         close: closePanel,
         setItems: setItems,
         upsertItem: upsertItem,
         applyReadAll: applyReadAll,
         removeItem: removeItem,
+        removeItems: removeItems,
         setLoading: setLoading
     };
 

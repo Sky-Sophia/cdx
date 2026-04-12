@@ -6,8 +6,8 @@
     <title th:text="${editing ? '编辑住户' : '新增住户'}">住户表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin.css?v=20260408-all-date-pickers" />
-    <link rel="stylesheet" href="/css/apps/admin-archive-create.css" th:href="@{/css/apps/admin-archive-create.css}" />
+    <link rel="stylesheet" href="/css/apps/admin.css?v=20260411-notice-type-tag" />
+    <link rel="stylesheet" href="/css/apps/admin-archive-create.css?v=20260411-resident-entry-layout" th:href="@{/css/apps/admin-archive-create.css(v='20260411-resident-entry-layout')}" />
 </head>
 <body>
 <div class="app-shell">
@@ -17,7 +17,8 @@
     <main class="app-main">
         <div th:replace="~{fragments/layout :: messages}"></div>
 
-        <section class="archive-create-page">
+        <section class="archive-create-page archive-create-page--resident">
+            <div class="resident-entry-layout">
             <form method="post" action="/admin/residents/save" class="archive-create-form"
                   th:attr="data-confirm-message=${editing ? '确认保存对该住户档案的修改吗？' : null},
                            data-confirm-confirm-text=${editing ? '确认保存' : null}">
@@ -86,24 +87,8 @@
                         <div class="archive-create-row-double">
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" id="resident-type-label">住户类型</label>
-                                <div class="custom-select archive-create-control">
-                                    <input type="hidden" name="residentType"
-                                           th:value="${resident.residentType != null ? resident.residentType : 'OWNER'}" />
-                                    <button type="button" class="custom-select-trigger" aria-expanded="false"
-                                            aria-labelledby="resident-type-label resident-type-trigger-text">
-                                        <span class="custom-select-trigger-text" id="resident-type-trigger-text"
-                                              th:text="${resident.residentType == 'TENANT' ? '租户' : (resident.residentType == 'FAMILY' ? '家属' : '业主')}">业主</span>
-                                        <span class="custom-select-arrow" aria-hidden="true"></span>
-                                    </button>
-                                    <ul class="custom-select-panel">
-                                        <li class="custom-select-option" data-value="OWNER" data-label="业主"
-                                            th:classappend="${resident.residentType == null or resident.residentType == 'OWNER' ? ' is-selected' : ''}">业主</li>
-                                        <li class="custom-select-option" data-value="TENANT" data-label="租户"
-                                            th:classappend="${resident.residentType == 'TENANT' ? ' is-selected' : ''}">租户</li>
-                                        <li class="custom-select-option" data-value="FAMILY" data-label="家属"
-                                            th:classappend="${resident.residentType == 'FAMILY' ? ' is-selected' : ''}">家属</li>
-                                    </ul>
-                                </div>
+                                <input type="hidden" name="residentType" value="OWNER" />
+                                <input class="archive-create-control" value="业主" readonly />
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" id="resident-status-label">当前状态</label>
@@ -138,6 +123,71 @@
                     </div>
                 </div>
             </form>
+
+            <aside class="resident-entry-aside" aria-label="住户录入辅助信息">
+                <section class="resident-assist-card resident-assist-card--primary">
+                    <div class="resident-assist-eyebrow">录入工作台</div>
+                    <h2 th:text="${editing ? '校准业主档案信息' : '新增业主档案准备'}">新增业主档案准备</h2>
+                    <p>住户档案统一按业主管理。保存后会同步房屋当前业主与在住状态，避免房屋表和住户表信息不一致。</p>
+                    <div class="resident-assist-progress" aria-hidden="true">
+                        <span></span>
+                    </div>
+                    <div class="resident-assist-progress-meta">
+                        <strong>核心信息</strong>
+                        <span>房屋 / 业主姓名为必填</span>
+                    </div>
+                </section>
+
+                <section class="resident-assist-card">
+                    <div class="resident-assist-card-head">
+                        <span class="resident-assist-icon resident-assist-icon--check" aria-hidden="true"></span>
+                        <div>
+                            <h3>录入前核对</h3>
+                            <p>确保每套房当前业主清晰唯一</p>
+                        </div>
+                    </div>
+                    <ul class="resident-assist-list">
+                        <li><strong>房屋状态</strong><span>新增在住业主后，房屋会同步为在住</span></li>
+                        <li><strong>联系方式</strong><span>手机号用于住户账号初始密码规则</span></li>
+                        <li><strong>证件信息</strong><span>身份证后四位参与初始密码生成</span></li>
+                    </ul>
+                </section>
+
+                <section class="resident-assist-card">
+                    <div class="resident-assist-card-head">
+                        <span class="resident-assist-icon resident-assist-icon--flow" aria-hidden="true"></span>
+                        <div>
+                            <h3>保存后逻辑</h3>
+                            <p>当前只同步房屋与业主关系，不额外扩展后端模块</p>
+                        </div>
+                    </div>
+                    <div class="resident-flow">
+                        <div class="resident-flow-item">
+                            <span>1</span>
+                            <p>写入住户业主档案</p>
+                        </div>
+                        <div class="resident-flow-item">
+                            <span>2</span>
+                            <p>房屋绑定当前业主</p>
+                        </div>
+                        <div class="resident-flow-item">
+                            <span>3</span>
+                            <p>房屋状态同步为在住 / 空置</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="resident-assist-card resident-assist-card--soft">
+                    <div class="resident-assist-card-head">
+                        <span class="resident-assist-icon resident-assist-icon--tip" aria-hidden="true"></span>
+                        <div>
+                            <h3>填写建议</h3>
+                            <p>迁出日期通常只在业主迁出时填写；新增当前业主时建议保持为空。</p>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+            </div>
 
             <section class="embedded-danger-panel" th:if="${editing and resident.id != null}">
                 <div class="embedded-danger-copy">

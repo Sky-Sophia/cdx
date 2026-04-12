@@ -54,6 +54,14 @@ public class NotificationSocketResponse {
         return response;
     }
 
+    public static NotificationSocketResponse deletedAll(List<Long> ids, int unreadCount) {
+        NotificationSocketResponse response = new NotificationSocketResponse();
+        response.setType("notice_deleted_all");
+        response.setIds(ids);
+        response.setUnreadCount(unreadCount);
+        return response;
+    }
+
     public static NotificationSocketResponse sendAck(int dispatchCount) {
         NotificationSocketResponse response = new NotificationSocketResponse();
         response.setType("send_ack");
