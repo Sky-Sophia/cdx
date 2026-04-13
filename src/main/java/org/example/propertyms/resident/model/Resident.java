@@ -23,3 +23,4 @@ public class Resident {
     private LocalDateTime updatedAt;
 }
 
+

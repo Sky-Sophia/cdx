@@ -44,14 +44,10 @@ public class AdminResidentController {
     }
 
     @GetMapping("/new")
-    public String newForm(Model model) {
-        Resident resident = new Resident();
-        resident.setResidentType(ResidentType.OWNER.name());
-        model.addAttribute("resident", resident);
-        model.addAttribute("residentTypes", ResidentType.values());
-        model.addAttribute("units", propertyUnitService.listSimple());
-        model.addAttribute("editing", false);
-        return "admin/residents/form";
+    public String newForm(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("createResident", defaultCreateResident());
+        redirectAttributes.addFlashAttribute("openCreateResidentModal", true);
+        return RedirectUrls.MANAGEMENT_RESIDENTS;
     }
 
     @GetMapping("/edit/{id}")
@@ -77,7 +73,11 @@ public class AdminResidentController {
             return RedirectUrls.MANAGEMENT_RESIDENTS;
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            return creating ? "redirect:/admin/residents/new" : "redirect:/admin/residents/edit/" + resident.getId();
+            if (creating) {
+                prepareCreateModalState(redirectAttributes, resident);
+                return RedirectUrls.MANAGEMENT_RESIDENTS;
+            }
+            return "redirect:/admin/residents/edit/" + resident.getId();
         }
     }
 
@@ -116,4 +116,17 @@ public class AdminResidentController {
             return type == null ? "" : type;
         }
     }
+
+    private Resident defaultCreateResident() {
+        Resident resident = new Resident();
+        resident.setResidentType(ResidentType.OWNER.name());
+        resident.setStatus("ACTIVE");
+        return resident;
+    }
+
+    private void prepareCreateModalState(RedirectAttributes redirectAttributes, Resident resident) {
+        redirectAttributes.addFlashAttribute("createResident", resident);
+        redirectAttributes.addFlashAttribute("openCreateResidentModal", true);
+    }
 }
+

@@ -9,3 +9,4 @@ public interface BuildingService {
     long countAll();
 }
 
+

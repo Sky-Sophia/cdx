@@ -8,3 +8,4 @@ public class NotificationSocketRequest {
     private String action;
     private JsonNode payload;
 }
+

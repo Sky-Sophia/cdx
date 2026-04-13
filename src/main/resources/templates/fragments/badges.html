@@ -52,9 +52,10 @@
 <!-- ==================== 入住状态 ==================== -->
 <th:block th:fragment="occupancy(status)">
     <span class="badge" th:attr="data-status=${status}" th:switch="${status}">
-        <th:block th:case="'OCCUPIED'">自住</th:block>
+        <th:block th:case="'SELF_OCCUPIED'">自住</th:block>
         <th:block th:case="'RENTED'">出租</th:block>
-        <th:block th:case="*">空置</th:block>
+        <th:block th:case="'VACANT'">空置</th:block>
+        <th:block th:case="*">未售出</th:block>
     </span>
 </th:block>
 

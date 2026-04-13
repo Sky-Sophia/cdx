@@ -21,3 +21,4 @@ public interface NotificationService {
 
     List<Long> deleteAll(Long receiverId);
 }
+

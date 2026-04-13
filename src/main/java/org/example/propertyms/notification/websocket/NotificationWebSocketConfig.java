@@ -24,3 +24,4 @@ public class NotificationWebSocketConfig implements WebSocketConfigurer {
                 .setAllowedOriginPatterns("*");
     }
 }
+

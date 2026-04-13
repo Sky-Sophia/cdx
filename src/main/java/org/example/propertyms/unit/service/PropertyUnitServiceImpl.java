@@ -36,7 +36,7 @@ public class PropertyUnitServiceImpl implements PropertyUnitService {
             throw new IllegalArgumentException("请填写楼栋和房号。");
         }
         if (StringHelper.isBlank(unit.getOccupancyStatus())) {
-            unit.setOccupancyStatus(OccupancyStatus.VACANT.name());
+            unit.setOccupancyStatus(OccupancyStatus.UNSOLD.name());
         }
         try {
             if (unit.getId() == null) {
@@ -77,4 +77,5 @@ public class PropertyUnitServiceImpl implements PropertyUnitService {
         return propertyUnitMapper.countAll();
     }
 }
+
 

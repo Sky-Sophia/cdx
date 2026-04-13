@@ -3,6 +3,7 @@ package org.example.propertyms.resident.controller;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -33,6 +34,15 @@ class AdminResidentControllerTest {
     }
 
     @Test
+    void newForm_shouldRedirectToManagementAndOpenModal() throws Exception {
+        mockMvc.perform(get("/admin/residents/new"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/management?tab=residents"))
+                .andExpect(flash().attribute("openCreateResidentModal", true))
+                .andExpect(flash().attributeExists("createResident"));
+    }
+
+    @Test
     void delete_shouldRedirectWithErrorWhenResidentHasDependencies() throws Exception {
         doThrow(new IllegalArgumentException("该住户仍有关联账单、工单或入住记录，暂时无法删除，请先处理关联数据后再试。"))
                 .when(residentService)
@@ -56,4 +66,6 @@ class AdminResidentControllerTest {
         verify(residentService).deleteById(2L);
     }
 }
+
+
 

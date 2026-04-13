@@ -87,20 +87,22 @@
                             <label class="field-label" id="unit-occupancyStatus-label">使用状态</label>
                             <div class="custom-select">
                                 <input type="hidden" id="unit-occupancyStatus" name="occupancyStatus"
-                                       th:value="${unit.occupancyStatus != null ? unit.occupancyStatus : 'OCCUPIED'}" />
+                                       th:value="${unit.occupancyStatus != null ? unit.occupancyStatus : 'UNSOLD'}" />
                                 <button type="button" class="custom-select-trigger" aria-expanded="false"
                                         aria-labelledby="unit-occupancyStatus-label unit-occupancyStatus-trigger-text">
                                     <span class="custom-select-trigger-text" id="unit-occupancyStatus-trigger-text"
-                                          th:text="${unit.occupancyStatus == 'RENTED'} ? '出租' : (${unit.occupancyStatus == 'VACANT'} ? '空置' : '自住')">自住</span>
+                                          th:text="${unit.occupancyStatus == 'SELF_OCCUPIED'} ? '自住' : (${unit.occupancyStatus == 'RENTED'} ? '出租' : (${unit.occupancyStatus == 'VACANT'} ? '空置' : '未售出'))">未售出</span>
                                     <span class="custom-select-arrow" aria-hidden="true"></span>
                                 </button>
                                 <ul class="custom-select-panel">
-                                    <li class="custom-select-option" data-value="OCCUPIED" data-label="自住"
-                                        th:classappend="${unit.occupancyStatus == null or unit.occupancyStatus == 'OCCUPIED' ? ' is-selected' : ''}">自住</li>
+                                    <li class="custom-select-option" data-value="SELF_OCCUPIED" data-label="自住"
+                                        th:classappend="${unit.occupancyStatus == 'SELF_OCCUPIED' ? ' is-selected' : ''}">自住</li>
                                     <li class="custom-select-option" data-value="RENTED" data-label="出租"
                                         th:classappend="${unit.occupancyStatus == 'RENTED' ? ' is-selected' : ''}">出租</li>
                                     <li class="custom-select-option" data-value="VACANT" data-label="空置"
                                         th:classappend="${unit.occupancyStatus == 'VACANT' ? ' is-selected' : ''}">空置</li>
+                                    <li class="custom-select-option" data-value="UNSOLD" data-label="未售出"
+                                        th:classappend="${unit.occupancyStatus == null or unit.occupancyStatus == 'UNSOLD' ? ' is-selected' : ''}">未售出</li>
                                 </ul>
                             </div>
                         </div>

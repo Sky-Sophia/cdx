@@ -9,6 +9,7 @@ public class WorkOrder {
     private Long id;
     private String orderNo;
     private Long unitId;
+    private Long residentId;
     private String unitNo;
     private String residentName;
     private String phone;
@@ -22,4 +23,5 @@ public class WorkOrder {
     private LocalDateTime scheduledAt;
     private LocalDateTime finishedAt;
 }
+
 

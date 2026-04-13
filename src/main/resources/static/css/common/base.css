@@ -486,6 +486,10 @@ a {
     --side-nav-icon-mask: url("../../icons/repair.svg");
 }
 
+.side-nav .ico.side-nav-icon-complaint {
+    --side-nav-icon-mask: url("../../icons/complaint.svg");
+}
+
 .side-nav .ico.side-nav-icon-bill {
     --side-nav-icon-mask: url("../../icons/bill.svg");
 }
@@ -1081,10 +1085,11 @@ textarea:focus {
 .badge[data-status="DONE"],
 .badge[data-status="PAID"],
 .badge[data-status="ACTIVE"],
-.badge[data-status="OCCUPIED"],
+.badge[data-status="SELF_OCCUPIED"],
 .badge[data-status="OWNER"],
 .badge[data-status="ADMIN"],
-.badge[data-status="STAFF"],
+.badge[data-status="ENGINEER"],
+.badge[data-status="ACCOUNTANT"],
 .badge[data-status="FINANCE"] {
     background: var(--primary);
     border-color: var(--primary);
@@ -1092,6 +1097,7 @@ textarea:focus {
 }
 
 .badge[data-status="VACANT"],
+.badge[data-status="UNSOLD"],
 .badge[data-status="MOVED_OUT"],
 .badge[data-status="CLOSED"] {
     background: #f7f8fb;

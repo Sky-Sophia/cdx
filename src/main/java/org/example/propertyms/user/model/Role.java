@@ -1,25 +1,28 @@
 package org.example.propertyms.user.model;
 
 public enum Role {
-    OFFICE,
-    MANAGEMENT,
-    ENGINEERING,
-    USER;
+    SUPER_ADMIN,
+    ADMIN,
+    ENGINEER,
+    ACCOUNTANT,
+    RESIDENT;
 
     public String getLabel() {
         return switch (this) {
-            case OFFICE -> "综合办公室（超级管理员）";
-            case MANAGEMENT -> "管理部（普通管理员）";
-            case ENGINEERING -> "工程部（维修师傅）";
-            case USER -> "无部门（普通住户）";
+            case SUPER_ADMIN -> "超级管理员";
+            case ADMIN -> "普通管理员";
+            case ENGINEER -> "维修工程师";
+            case ACCOUNTANT -> "财务会计";
+            case RESIDENT -> "普通住户";
         };
     }
 
     public boolean canAccessAdminConsole() {
-        return this != USER;
+        return this != RESIDENT;
     }
 
     public boolean canManageUsers() {
-        return this != OFFICE;
+        return this != SUPER_ADMIN;
     }
 }
+

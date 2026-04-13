@@ -19,3 +19,4 @@ public class PropertyUnit {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
+

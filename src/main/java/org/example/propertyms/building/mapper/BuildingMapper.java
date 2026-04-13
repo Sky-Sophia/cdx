@@ -15,3 +15,4 @@ public interface BuildingMapper {
     long countAll();
 }
 
+

@@ -48,15 +48,10 @@ public class AdminBillController {
     }
 
     @GetMapping("/new")
-    public String newForm(Model model) {
-        FeeBill bill = new FeeBill();
-        bill.setStatus("UNPAID");
-        bill.setPaidAmount(BigDecimal.ZERO);
-        model.addAttribute("bill", bill);
-        model.addAttribute("units", propertyUnitService.listSimple());
-        model.addAttribute("editing", false);
-        model.addAttribute("remainingAmount", BigDecimal.ZERO);
-        return "admin/bills/form";
+    public String newForm(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("createBill", defaultCreateBill());
+        redirectAttributes.addFlashAttribute("openCreateBillModal", true);
+        return RedirectUrls.MANAGEMENT_BILLS;
     }
 
     @GetMapping("/edit/{id}")
@@ -83,7 +78,8 @@ public class AdminBillController {
             return RedirectUrls.MANAGEMENT_BILLS;
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/admin/bills/new";
+            prepareCreateModalState(redirectAttributes, bill);
+            return RedirectUrls.MANAGEMENT_BILLS;
         }
     }
 
@@ -119,8 +115,22 @@ public class AdminBillController {
         });
     }
 
+    private FeeBill defaultCreateBill() {
+        FeeBill bill = new FeeBill();
+        bill.setStatus("UNPAID");
+        bill.setPaidAmount(BigDecimal.ZERO);
+        return bill;
+    }
+
+    private void prepareCreateModalState(RedirectAttributes redirectAttributes, FeeBill bill) {
+        redirectAttributes.addFlashAttribute("createBill", bill);
+        redirectAttributes.addFlashAttribute("openCreateBillModal", true);
+    }
+
     private String billStatusLabel(String status) {
-        if (status == null) return "";
+        if (status == null) {
+            return "";
+        }
         return switch (status) {
             case "UNPAID" -> "未缴";
             case "PARTIAL" -> "部分已缴";

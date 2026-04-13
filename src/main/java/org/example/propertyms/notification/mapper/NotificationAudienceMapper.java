@@ -35,3 +35,4 @@ public interface NotificationAudienceMapper {
     @SelectProvider(type = NotificationAudienceSqlProvider.class, method = "findActiveUsersByCompletedWorkOrderSql")
     List<User> findActiveUsersByCompletedWorkOrder(@Param("excludeUserId") Long excludeUserId);
 }
+

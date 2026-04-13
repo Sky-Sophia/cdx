@@ -42,7 +42,7 @@ class AuthInterceptorTest {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/admin/users");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "engineer", Role.ENGINEERING));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "engineer", Role.ENGINEER));
         request.setSession(session);
 
         boolean allowed = authInterceptor.preHandle(request, response, new Object());
@@ -56,7 +56,7 @@ class AuthInterceptorTest {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/admin/users");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(2L, "admin", Role.OFFICE));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(2L, "admin", Role.SUPER_ADMIN));
         request.setSession(session);
 
         boolean allowed = authInterceptor.preHandle(request, response, new Object());
@@ -64,3 +64,5 @@ class AuthInterceptorTest {
         assertTrue(allowed);
     }
 }
+
+

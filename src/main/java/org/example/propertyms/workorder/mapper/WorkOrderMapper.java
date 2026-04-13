@@ -13,6 +13,28 @@ import org.example.propertyms.workorder.model.WorkOrder;
 
 @Mapper
 public interface WorkOrderMapper {
+    String BASE_SELECT = """
+            SELECT w.id,
+                   w.order_no,
+                   w.unit_id,
+                   w.resident_id,
+                   u.unit_no,
+                   COALESCE(p.full_name, r.name) AS resident_name,
+                   COALESCE(p.phone, r.phone) AS phone,
+                   w.category,
+                   w.priority,
+                   w.description,
+                   w.status,
+                   w.assignee,
+                   w.scheduled_at,
+                   w.finished_at,
+                   w.created_at,
+                   w.updated_at
+            FROM work_orders w
+            LEFT JOIN units u ON u.id = w.unit_id
+            LEFT JOIN residents r ON r.id = w.resident_id
+            LEFT JOIN persons p ON p.id = r.person_id
+            """;
 
     @SelectProvider(type = WorkOrderSqlProvider.class, method = "countSql")
     long count(@Param("keyword") String keyword,
@@ -31,18 +53,28 @@ public interface WorkOrderMapper {
                             @Param("status") String status,
                             @Param("priority") String priority);
 
-    @Select("SELECT w.*, u.unit_no FROM work_orders w LEFT JOIN units u ON u.id = w.unit_id WHERE w.id = #{id}")
+    @Select(BASE_SELECT + " WHERE w.id = #{id}")
     WorkOrder findById(@Param("id") Long id);
 
-    @Select("SELECT w.*, u.unit_no FROM work_orders w LEFT JOIN units u ON u.id = w.unit_id ORDER BY w.created_at DESC LIMIT #{limit}")
+    @Select(BASE_SELECT + " ORDER BY w.created_at DESC LIMIT #{limit}")
     List<WorkOrder> findRecent(@Param("limit") int limit);
 
     @Insert("""
-            INSERT INTO work_orders (order_no, unit_id, resident_name, phone, category, priority, description, status, assignee, scheduled_at)
-            VALUES (#{orderNo}, #{unitId}, #{residentName}, #{phone}, #{category}, #{priority}, #{description}, #{status}, #{assignee}, #{scheduledAt})
+            INSERT INTO work_orders (order_no, unit_id, resident_id, category, priority, description, status, assignee, scheduled_at)
+            VALUES (#{orderNo}, #{unitId}, #{residentId}, #{category}, #{priority}, #{description}, #{status}, #{assignee}, #{scheduledAt})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(WorkOrder workOrder);
+
+    @Select("""
+            SELECT r.id
+            FROM residents r
+            WHERE r.unit_id = #{unitId}
+              AND r.status = 'ACTIVE'
+            ORDER BY CASE r.resident_type WHEN 'OWNER' THEN 0 ELSE 1 END, r.id
+            LIMIT 1
+            """)
+    Long findActiveResidentIdByUnitId(@Param("unitId") Long unitId);
 
     @Update("""
             UPDATE work_orders
@@ -62,4 +94,5 @@ public interface WorkOrderMapper {
     @Select("SELECT COUNT(*) FROM work_orders WHERE status IN ('OPEN', 'IN_PROGRESS')")
     long countOpen();
 }
+
 

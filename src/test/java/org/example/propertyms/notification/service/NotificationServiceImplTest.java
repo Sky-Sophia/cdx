@@ -10,6 +10,7 @@ import java.util.List;
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.notification.mapper.NotificationAudienceMapper;
 import org.example.propertyms.notification.mapper.NotificationMapper;
+import org.example.propertyms.notification.model.NotificationBatch;
 import org.example.propertyms.notification.model.NotificationDispatchResult;
 import org.example.propertyms.notification.model.NotificationMessage;
 import org.example.propertyms.notification.model.NotificationSendPayload;
@@ -40,7 +41,7 @@ class NotificationServiceImplTest {
 
     @Test
     void send_singleShouldPersistNotification() {
-        UserSession sender = new UserSession(1L, "admin", Role.OFFICE);
+        UserSession sender = new UserSession(1L, "admin", Role.SUPER_ADMIN);
         User receiver = new User();
         receiver.setId(3L);
         receiver.setUsername("manager");
@@ -53,7 +54,12 @@ class NotificationServiceImplTest {
         payload.setReceiver("3");
 
         when(notificationAudienceMapper.findActiveUserById(3L)).thenReturn(receiver);
-        when(notificationMapper.insert(any(NotificationMessage.class))).thenAnswer(invocation -> {
+        when(notificationMapper.insertBatch(any(NotificationBatch.class))).thenAnswer(invocation -> {
+            NotificationBatch batch = invocation.getArgument(0);
+            batch.setId(9L);
+            return 1;
+        });
+        when(notificationMapper.insertMessage(any(NotificationMessage.class))).thenAnswer(invocation -> {
             NotificationMessage message = invocation.getArgument(0);
             message.setId(11L);
             return 1;
@@ -68,14 +74,15 @@ class NotificationServiceImplTest {
         assertThat(results.getFirst().getItem().getTargetType()).isEqualTo("SINGLE");
 
         ArgumentCaptor<NotificationMessage> captor = ArgumentCaptor.forClass(NotificationMessage.class);
-        verify(notificationMapper).insert(captor.capture());
+        verify(notificationMapper).insertMessage(captor.capture());
+        assertThat(captor.getValue().getBatchId()).isEqualTo(9L);
         assertThat(captor.getValue().getContent()).isEqualTo("请尽快核对四月账单。");
         assertThat(captor.getValue().getReceiverId()).isEqualTo(3L);
     }
 
     @Test
     void send_departmentShouldUseDepartmentRouting() {
-        UserSession sender = new UserSession(1L, "admin", Role.OFFICE);
+        UserSession sender = new UserSession(1L, "admin", Role.SUPER_ADMIN);
         User receiver = new User();
         receiver.setId(3L);
         receiver.setUsername("manager");
@@ -87,9 +94,14 @@ class NotificationServiceImplTest {
         payload.setTargetType("department");
         payload.setReceiver("管理部");
 
-        when(notificationAudienceMapper.findActiveUsersByDepartment("MANAGEMENT", Role.MANAGEMENT, 1L))
+        when(notificationAudienceMapper.findActiveUsersByDepartment("MANAGEMENT", Role.ADMIN, 1L))
                 .thenReturn(List.of(receiver));
-        when(notificationMapper.insert(any(NotificationMessage.class))).thenAnswer(invocation -> {
+        when(notificationMapper.insertBatch(any(NotificationBatch.class))).thenAnswer(invocation -> {
+            NotificationBatch batch = invocation.getArgument(0);
+            batch.setId(19L);
+            return 1;
+        });
+        when(notificationMapper.insertMessage(any(NotificationMessage.class))).thenAnswer(invocation -> {
             NotificationMessage message = invocation.getArgument(0);
             message.setId(21L);
             return 1;
@@ -99,7 +111,7 @@ class NotificationServiceImplTest {
 
         assertThat(results).hasSize(1);
         assertThat(results.getFirst().getItem().getTargetType()).isEqualTo("DEPARTMENT");
-        verify(notificationAudienceMapper).findActiveUsersByDepartment("MANAGEMENT", Role.MANAGEMENT, 1L);
+        verify(notificationAudienceMapper).findActiveUsersByDepartment("MANAGEMENT", Role.ADMIN, 1L);
     }
 
     @Test
@@ -124,7 +136,7 @@ class NotificationServiceImplTest {
 
     @Test
     void send_shouldRejectBlankContent() {
-        UserSession sender = new UserSession(1L, "admin", Role.OFFICE);
+        UserSession sender = new UserSession(1L, "admin", Role.SUPER_ADMIN);
         NotificationSendPayload payload = new NotificationSendPayload();
         payload.setMsgType("通知");
         payload.setContent("   ");
@@ -135,3 +147,5 @@ class NotificationServiceImplTest {
                 .hasMessageContaining("消息内容不能为空");
     }
 }
+
+

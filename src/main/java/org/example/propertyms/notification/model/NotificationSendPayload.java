@@ -9,3 +9,4 @@ public class NotificationSendPayload {
     private String targetType;
     private String receiver;
 }
+

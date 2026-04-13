@@ -39,6 +39,15 @@ class AdminBillControllerTest {
     }
 
     @Test
+    void newForm_shouldRedirectToManagementAndOpenModal() throws Exception {
+        mockMvc.perform(get("/admin/bills/new"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/management?tab=bills"))
+                .andExpect(flash().attribute("openCreateBillModal", true))
+                .andExpect(flash().attributeExists("createBill"));
+    }
+
+    @Test
     void editForm_shouldLoadBillPaymentPage() throws Exception {
         FeeBill bill = new FeeBill();
         bill.setId(3L);
@@ -79,4 +88,6 @@ class AdminBillControllerTest {
         verify(feeBillService).recordPayment(8L, new BigDecimal("20.00"));
     }
 }
+
+
 

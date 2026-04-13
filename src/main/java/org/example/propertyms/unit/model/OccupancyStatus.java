@@ -4,9 +4,10 @@ package org.example.propertyms.unit.model;
  * 房屋入住状态枚举常量。
  */
 public enum OccupancyStatus {
+    SELF_OCCUPIED("自住"),
+    RENTED("出租"),
     VACANT("空置"),
-    OCCUPIED("已入住"),
-    MAINTENANCE("维护中");
+    UNSOLD("未售出");
 
     private final String label;
 
@@ -18,4 +19,5 @@ public enum OccupancyStatus {
         return label;
     }
 }
+
 

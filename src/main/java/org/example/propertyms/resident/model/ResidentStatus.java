@@ -8,3 +8,4 @@ public enum ResidentStatus {
     public String getLabel() { return label; }
 }
 
+

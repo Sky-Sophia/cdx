@@ -51,15 +51,15 @@
                                 </div>
                             </div>
                             <div class="archive-create-cell">
-                                <label class="archive-create-label" for="work-order-residentName">报 修 人</label>
-                                <input class="archive-create-control" id="work-order-residentName" name="residentName" th:value="${workOrder.residentName}" placeholder="请输入报修人姓名" required />
+                                <label class="archive-create-label">报 修 人</label>
+                                <input class="archive-create-control" type="text" value="系统将按房屋自动关联当前在住住户" readonly />
                             </div>
                         </div>
 
                         <div class="archive-create-row-double">
                             <div class="archive-create-cell">
-                                <label class="archive-create-label" for="work-order-phone">联系电话</label>
-                                <input class="archive-create-control" id="work-order-phone" name="phone" th:value="${workOrder.phone}" placeholder="请输入联系电话" />
+                                <label class="archive-create-label">联系电话</label>
+                                <input class="archive-create-control" type="text" value="联系电话将随住户档案自动带出" readonly />
                             </div>
                             <div class="archive-create-cell">
                                 <label class="archive-create-label" id="work-order-category-label">工单类别</label>

@@ -50,9 +50,14 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     public void create(WorkOrder workOrder) {
         if (workOrder == null
                 || workOrder.getUnitId() == null
-                || StringHelper.isBlank(workOrder.getResidentName())
                 || StringHelper.isBlank(workOrder.getDescription())) {
             throw new IllegalArgumentException("请完整填写工单信息。");
+        }
+        if (workOrder.getResidentId() == null) {
+            workOrder.setResidentId(workOrderMapper.findActiveResidentIdByUnitId(workOrder.getUnitId()));
+        }
+        if (workOrder.getResidentId() == null) {
+            throw new IllegalArgumentException("该房屋没有可关联的在住住户，无法创建工单。");
         }
         workOrder.setOrderNo(CodeGenerator.nextWorkOrderNo());
         if (StringHelper.isBlank(workOrder.getPriority())) {
@@ -105,4 +110,5 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         return status.trim().toUpperCase();
     }
 }
+
 

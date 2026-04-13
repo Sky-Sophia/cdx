@@ -31,15 +31,16 @@ class WorkOrderServiceImplTest {
     void create_shouldSetDefaultsAndPersist() {
         WorkOrder workOrder = new WorkOrder();
         workOrder.setUnitId(1L);
-        workOrder.setResidentName("Alice");
         workOrder.setDescription("Water leakage");
         workOrder.setPriority(null);
+        when(workOrderMapper.findActiveResidentIdByUnitId(1L)).thenReturn(11L);
 
         workOrderService.create(workOrder);
 
         assertEquals("OPEN", workOrder.getStatus());
         assertEquals("MEDIUM", workOrder.getPriority());
         assertNotNull(workOrder.getOrderNo());
+        assertEquals(11L, workOrder.getResidentId());
         verify(workOrderMapper).insert(workOrder);
     }
 
@@ -95,4 +96,6 @@ class WorkOrderServiceImplTest {
         assertNotNull(finishedCaptor.getValue());
     }
 }
+
+
 

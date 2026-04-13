@@ -20,7 +20,7 @@
             <h1 th:text="|${userProfile.username} 您好|">用户您好</h1>
             <div class="account" th:text="${'账号: ' + userProfile.username}">账号: admin</div>
             <div class="role-time"
-                 th:text="${roleLabel + ' · ' + (userProfile.createdAt != null ? #temporals.format(userProfile.createdAt, 'yyyy-MM-dd') + ' 注册' : '注册时间未知')}">角色信息</div>
+                 th:text="${roleLabel + ' · ' + departmentLabel}">角色信息</div>
         </div>
     </div>
 
@@ -40,7 +40,7 @@
             </div>
             <div class="info-item">
                 <span class="info-label">角色权限</span>
-                                <span class="info-value" th:text="${roleLabel}">综合办公室（超级管理员）</span>
+                                <span class="info-value" th:text="${roleLabel}">超级管理员</span>
             </div>
             <div class="info-item">
                 <span class="info-label">账号状态</span>
@@ -49,8 +49,8 @@
                       th:text="${userProfile.status != null and #strings.equalsIgnoreCase(userProfile.status, 'ACTIVE') ? '正常' : statusLabel}">正常</span>
             </div>
             <div class="info-item">
-                <span class="info-label">注册时间</span>
-                <span class="info-value" th:text="${userProfile.createdAt != null ? #temporals.format(userProfile.createdAt, 'yyyy-MM-dd HH:mm') : '暂无记录'}">2025-06-01 09:00</span>
+                <span class="info-label">所属部门</span>
+                <span class="info-value" th:text="${departmentLabel}">综合办公室</span>
             </div>
             <div class="info-item">
                 <span class="info-label">最近更新</span>

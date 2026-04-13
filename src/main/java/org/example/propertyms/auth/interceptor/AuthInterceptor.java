@@ -62,3 +62,4 @@ public class AuthInterceptor implements HandlerInterceptor {
                 || path.startsWith("/webjars");
     }
 }
+

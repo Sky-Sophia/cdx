@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.util.ExcelExportHelper;
-import org.example.propertyms.unit.service.PropertyUnitService;
 import org.example.propertyms.workorder.model.WorkOrder;
 import org.example.propertyms.workorder.service.WorkOrderService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,11 +20,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/admin/work-orders")
 public class AdminWorkOrderController {
     private final WorkOrderService workOrderService;
-    private final PropertyUnitService propertyUnitService;
 
-    public AdminWorkOrderController(WorkOrderService workOrderService, PropertyUnitService propertyUnitService) {
+    public AdminWorkOrderController(WorkOrderService workOrderService) {
         this.workOrderService = workOrderService;
-        this.propertyUnitService = propertyUnitService;
     }
 
     @GetMapping
@@ -48,24 +44,22 @@ public class AdminWorkOrderController {
     }
 
     @GetMapping("/new")
-    public String newForm(Model model) {
-        WorkOrder workOrder = new WorkOrder();
-        workOrder.setPriority("MEDIUM");
-        workOrder.setStatus("OPEN");
-        model.addAttribute("workOrder", workOrder);
-        model.addAttribute("units", propertyUnitService.listSimple());
-        return "admin/work-orders/form";
+    public String newForm(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("createWorkOrder", defaultCreateWorkOrder());
+        redirectAttributes.addFlashAttribute("openCreateWorkOrderModal", true);
+        return RedirectUrls.MANAGEMENT_WORK_ORDERS;
     }
 
     @PostMapping("/save")
     public String save(WorkOrder workOrder, RedirectAttributes redirectAttributes) {
         try {
             workOrderService.create(workOrder);
-            redirectAttributes.addFlashAttribute("success", "工单已创建");
+            redirectAttributes.addFlashAttribute("success", "工单已创建。");
             return RedirectUrls.MANAGEMENT_WORK_ORDERS;
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/admin/work-orders/new";
+            prepareCreateModalState(redirectAttributes, workOrder);
+            return RedirectUrls.MANAGEMENT_WORK_ORDERS;
         }
     }
 
@@ -76,7 +70,7 @@ public class AdminWorkOrderController {
                                RedirectAttributes redirectAttributes) {
         try {
             workOrderService.updateStatus(id, status, assignee);
-            redirectAttributes.addFlashAttribute("success", "工单状态已更新");
+            redirectAttributes.addFlashAttribute("success", "工单状态已更新。");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
@@ -104,8 +98,23 @@ public class AdminWorkOrderController {
         });
     }
 
+    private WorkOrder defaultCreateWorkOrder() {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setPriority("MEDIUM");
+        workOrder.setStatus("OPEN");
+        workOrder.setCategory("水电维修");
+        return workOrder;
+    }
+
+    private void prepareCreateModalState(RedirectAttributes redirectAttributes, WorkOrder workOrder) {
+        redirectAttributes.addFlashAttribute("createWorkOrder", workOrder);
+        redirectAttributes.addFlashAttribute("openCreateWorkOrderModal", true);
+    }
+
     private String priorityLabel(String priority) {
-        if (priority == null) return "";
+        if (priority == null) {
+            return "";
+        }
         return switch (priority) {
             case "HIGH" -> "高";
             case "MEDIUM" -> "中";
@@ -115,7 +124,9 @@ public class AdminWorkOrderController {
     }
 
     private String workOrderStatusLabel(String status) {
-        if (status == null) return "";
+        if (status == null) {
+            return "";
+        }
         return switch (status) {
             case "OPEN" -> "待受理";
             case "IN_PROGRESS" -> "处理中";

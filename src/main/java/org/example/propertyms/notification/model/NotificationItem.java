@@ -16,3 +16,4 @@ public class NotificationItem {
     private boolean read;
     private LocalDateTime readTime;
 }
+

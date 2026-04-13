@@ -77,19 +77,15 @@ public class AdminUserController {
     }
 
     @GetMapping("/new")
-    public String newForm(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    public String newForm(HttpSession session, RedirectAttributes redirectAttributes) {
         if (lacksAdminPermission(session)) {
             redirectAttributes.addFlashAttribute("error", "仅综合办公室可访问用户管理。");
             return RedirectUrls.MANAGEMENT_DASHBOARD;
         }
 
-        User managedUser = new User();
-        managedUser.setRole(Role.MANAGEMENT);
-        managedUser.setDepartmentCode(NotificationDepartment.defaultForRole(Role.MANAGEMENT).getCode());
-        model.addAttribute("managedUser", managedUser);
-        model.addAttribute("editing", false);
-        populateUserFormOptions(model);
-        return "admin/users/form";
+        redirectAttributes.addFlashAttribute("createUser", defaultCreateUser());
+        redirectAttributes.addFlashAttribute("openCreateUserModal", true);
+        return RedirectUrls.MANAGEMENT_USERS;
     }
 
     @GetMapping("/edit/{id}")
@@ -129,7 +125,8 @@ public class AdminUserController {
         }
         if (isValidStatus(status)) {
             redirectAttributes.addFlashAttribute("error", "不支持的用户状态。");
-            return "redirect:/admin/users/new";
+            prepareCreateModalState(redirectAttributes, username, role, status);
+            return RedirectUrls.MANAGEMENT_USERS;
         }
 
         try {
@@ -140,7 +137,8 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("success", "用户已创建。");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/admin/users/new";
+            prepareCreateModalState(redirectAttributes, username, role, status);
+            return RedirectUrls.MANAGEMENT_USERS;
         }
         return RedirectUrls.MANAGEMENT_USERS;
     }
@@ -323,11 +321,34 @@ public class AdminUserController {
         model.addAttribute("departmentOptions", departmentService.listEnabled());
     }
 
+    private void prepareCreateModalState(RedirectAttributes redirectAttributes,
+                                         String username,
+                                         Role role,
+                                         String status) {
+        User user = new User();
+        user.setUsername(username == null ? null : username.trim());
+        user.setRole(role == null ? Role.ADMIN : role);
+        user.setDepartmentCode(resolveDepartmentCode(user.getRole()));
+        user.setStatus(status == null || status.isBlank() ? "ACTIVE" : status.toUpperCase(Locale.ROOT));
+        redirectAttributes.addFlashAttribute("createUser", user);
+        redirectAttributes.addFlashAttribute("openCreateUserModal", true);
+    }
+
     private boolean isValidStatus(String status) {
         return status == null || !VALID_STATUS.contains(status.toUpperCase(Locale.ROOT));
     }
 
     private String resolveDepartmentCode(Role role) {
-        return NotificationDepartment.defaultForRole(role).getCode();
+        NotificationDepartment department = NotificationDepartment.defaultForRole(role);
+        return department == null ? null : department.getCode();
+    }
+
+    private User defaultCreateUser() {
+        User user = new User();
+        user.setRole(Role.ADMIN);
+        user.setDepartmentCode(resolveDepartmentCode(Role.ADMIN));
+        user.setStatus("ACTIVE");
+        return user;
     }
 }
+

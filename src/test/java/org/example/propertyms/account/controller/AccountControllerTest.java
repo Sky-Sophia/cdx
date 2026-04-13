@@ -53,11 +53,11 @@ class AccountControllerTest {
     @Test
     void profile_shouldRenderAccountProfileWhenLoggedIn() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.OFFICE));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.SUPER_ADMIN));
         User user = new User();
         user.setId(1L);
         user.setUsername("admin");
-        user.setRole(Role.OFFICE);
+        user.setRole(Role.SUPER_ADMIN);
         user.setStatus("ACTIVE");
         when(userService.findById(1L)).thenReturn(user);
         when(notificationService.loadInbox(1L, 100)).thenReturn(java.util.List.of());
@@ -76,7 +76,7 @@ class AccountControllerTest {
     @Test
     void profile_shouldRedirectToLoginWhenSessionUserCannotBeLoaded() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.OFFICE));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.SUPER_ADMIN));
         when(userService.findById(1L)).thenReturn(null);
 
         mockMvc.perform(get("/profile").session(session))
@@ -84,4 +84,6 @@ class AccountControllerTest {
                 .andExpect(redirectedUrl("/login"));
     }
 }
+
+
 

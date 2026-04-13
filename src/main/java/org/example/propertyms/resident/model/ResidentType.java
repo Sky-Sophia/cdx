@@ -25,3 +25,4 @@ public enum ResidentType {
         throw new IllegalArgumentException("住户类型不正确。");
     }
 }
+

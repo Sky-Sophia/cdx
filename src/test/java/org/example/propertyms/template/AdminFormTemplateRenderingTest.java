@@ -64,14 +64,14 @@ class AdminFormTemplateRenderingTest {
     @BeforeEach
     void setUp() {
         adminSession = new MockHttpSession();
-        adminSession.setAttribute(SessionKeys.CURRENT_USER, new UserSession(99L, "admin", Role.OFFICE));
+        adminSession.setAttribute(SessionKeys.CURRENT_USER, new UserSession(99L, "admin", Role.SUPER_ADMIN));
 
         PropertyUnit simpleUnit = new PropertyUnit();
         simpleUnit.setId(1L);
         simpleUnit.setUnitNo("1-101");
         simpleUnit.setBuildingId(1L);
         simpleUnit.setBuildingName("1号楼");
-        simpleUnit.setOccupancyStatus("OCCUPIED");
+        simpleUnit.setOccupancyStatus("SELF_OCCUPIED");
         when(propertyUnitService.listSimple()).thenReturn(List.of(simpleUnit));
 
         Building building = new Building();
@@ -81,10 +81,9 @@ class AdminFormTemplateRenderingTest {
     }
 
     @Test
-    void residentCreateForm_shouldRenderSuccessfully() throws Exception {
+    void residentCreateForm_shouldRedirectToManagementModal() throws Exception {
         mockMvc.perform(get("/admin/residents/new").session(adminSession))
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("住户档案登记表")));
+                .andExpect(status().is3xxRedirection());
     }
 
     @Test
@@ -107,10 +106,15 @@ class AdminFormTemplateRenderingTest {
     }
 
     @Test
-    void billCreateForm_shouldRenderSuccessfully() throws Exception {
+    void workOrderCreateForm_shouldRedirectToManagementModal() throws Exception {
+        mockMvc.perform(get("/admin/work-orders/new").session(adminSession))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    void billCreateForm_shouldRedirectToManagementModal() throws Exception {
         mockMvc.perform(get("/admin/bills/new").session(adminSession))
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("费用账单登记表")));
+                .andExpect(status().is3xxRedirection());
     }
 
     @Test
@@ -135,10 +139,9 @@ class AdminFormTemplateRenderingTest {
     }
 
     @Test
-    void userCreateForm_shouldRenderSuccessfully() throws Exception {
+    void userCreateForm_shouldRedirectToManagementModal() throws Exception {
         mockMvc.perform(get("/admin/users/new").session(adminSession))
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("系统用户档案")));
+                .andExpect(status().is3xxRedirection());
     }
 
     @Test
@@ -146,7 +149,7 @@ class AdminFormTemplateRenderingTest {
         User user = new User();
         user.setId(3L);
         user.setUsername("manager_user");
-        user.setRole(Role.MANAGEMENT);
+        user.setRole(Role.ADMIN);
         user.setStatus("ACTIVE");
         user.setCreatedAt(LocalDateTime.of(2026, 4, 1, 9, 0));
         user.setUpdatedAt(LocalDateTime.of(2026, 4, 9, 10, 30));
@@ -168,7 +171,7 @@ class AdminFormTemplateRenderingTest {
         unit.setAreaM2(new BigDecimal("89.50"));
         unit.setOwnerName("李四");
         unit.setOwnerPhone("13900000000");
-        unit.setOccupancyStatus("OCCUPIED");
+        unit.setOccupancyStatus("SELF_OCCUPIED");
         unit.setUpdatedAt(LocalDateTime.of(2026, 4, 9, 11, 20));
         when(propertyUnitService.findById(4L)).thenReturn(unit);
 
@@ -177,3 +180,5 @@ class AdminFormTemplateRenderingTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("房屋档案登记表")));
     }
 }
+
+

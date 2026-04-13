@@ -74,7 +74,8 @@ public interface ResidentMapper {
                 SELECT r.unit_id,
                        MAX(CASE WHEN r.resident_type = 'OWNER' AND r.status = 'ACTIVE' THEN r.id END) AS owner_resident_id,
                        MAX(IF(r.resident_type = 'TENANT' AND r.status = 'ACTIVE', 1, 0)) AS has_active_tenant,
-                       MAX(IF(r.resident_type = 'OWNER' AND r.status = 'ACTIVE', 1, 0)) AS has_active_owner
+                       MAX(IF(r.resident_type = 'OWNER' AND r.status = 'ACTIVE', 1, 0)) AS has_active_owner,
+                       MAX(IF(r.resident_type = 'OWNER', 1, 0)) AS has_owner_history
                 FROM residents r
                 WHERE r.unit_id = #{unitId}
                 GROUP BY r.unit_id
@@ -82,8 +83,9 @@ public interface ResidentMapper {
             SET u.owner_resident_id = resident_stats.owner_resident_id,
                 u.occupancy_status = CASE
                     WHEN COALESCE(resident_stats.has_active_tenant, 0) = 1 THEN 'RENTED'
-                    WHEN COALESCE(resident_stats.has_active_owner, 0) = 1 THEN 'OCCUPIED'
-                    ELSE 'VACANT'
+                    WHEN COALESCE(resident_stats.has_active_owner, 0) = 1 THEN 'SELF_OCCUPIED'
+                    WHEN COALESCE(resident_stats.has_owner_history, 0) = 1 THEN 'VACANT'
+                    ELSE 'UNSOLD'
                 END,
                 u.updated_at = CURRENT_TIMESTAMP
             WHERE u.id = #{unitId}
@@ -106,3 +108,4 @@ public interface ResidentMapper {
             """)
     long countOccupiedUnits();
 }
+

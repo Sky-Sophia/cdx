@@ -8,40 +8,77 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Update;
+import org.example.propertyms.notification.model.NotificationBatch;
 import org.example.propertyms.notification.model.NotificationMessage;
 
 @Mapper
 public interface NotificationMapper {
+    String MESSAGE_SELECT_COLUMNS = """
+            nm.id,
+            nm.batch_id,
+            nb.batch_no,
+            nb.msg_type,
+            nb.content,
+            nb.sender_id,
+            COALESCE(sp.full_name, sua.username, su.username) AS sender_name,
+            nm.receiver_id,
+            COALESCE(rp.full_name, rua.username, ru.username) AS receiver_name,
+            nm.send_time,
+            nm.is_read,
+            nm.read_time,
+            nm.is_deleted,
+            nm.deleted_time,
+            nb.target_type,
+            nb.target_value,
+            nm.created_at,
+            nm.updated_at
+            FROM notification_messages nm
+            INNER JOIN notification_batches nb ON nb.id = nm.batch_id
+            LEFT JOIN users su ON su.id = nb.sender_id
+            LEFT JOIN user_accounts sua ON sua.source_user_id = nb.sender_id
+            LEFT JOIN persons sp ON sp.id = sua.person_id
+            LEFT JOIN users ru ON ru.id = nm.receiver_id
+            LEFT JOIN user_accounts rua ON rua.source_user_id = nm.receiver_id
+            LEFT JOIN persons rp ON rp.id = rua.person_id
+            """;
 
     @Insert("""
-            INSERT INTO notification_messages (
-                batch_no, msg_type, content, sender_id, sender_name,
-                receiver_id, receiver_name, send_time, is_read, read_time,
-                is_deleted, deleted_time, target_type, target_value, created_at, updated_at
+            INSERT INTO notification_batches (
+                batch_no, msg_type, content, sender_id, target_type, target_value, created_at, updated_at
             ) VALUES (
-                #{batchNo}, #{msgType}, #{content}, #{senderId}, #{senderName},
-                #{receiverId}, #{receiverName}, #{sendTime}, #{isRead}, #{readTime},
-                #{isDeleted}, #{deletedTime}, #{targetType}, #{targetValue}, #{createdAt}, #{updatedAt}
+                #{batchNo}, #{msgType}, #{content}, #{senderId}, #{targetType}, #{targetValue}, #{createdAt}, #{updatedAt}
             )
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    int insert(NotificationMessage message);
+    int insertBatch(NotificationBatch batch);
+
+    @Insert("""
+            INSERT INTO notification_messages (
+                batch_id, receiver_id, send_time, is_read, read_time,
+                is_deleted, deleted_time, created_at, updated_at
+            ) VALUES (
+                #{batchId}, #{receiverId}, #{sendTime}, #{isRead}, #{readTime},
+                #{isDeleted}, #{deletedTime}, #{createdAt}, #{updatedAt}
+            )
+            """)
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int insertMessage(NotificationMessage message);
 
     @Select("""
-            SELECT *
-            FROM notification_messages
-            WHERE receiver_id = #{receiverId}
-              AND is_deleted = 0
-            ORDER BY is_read , send_time DESC, id DESC
+            SELECT
+            """ + MESSAGE_SELECT_COLUMNS + """
+            WHERE nm.receiver_id = #{receiverId}
+              AND nm.is_deleted = 0
+            ORDER BY nm.is_read, nm.send_time DESC, nm.id DESC
             LIMIT #{limit}
             """)
     List<NotificationMessage> findInbox(@Param("receiverId") Long receiverId, @Param("limit") int limit);
 
     @Select("""
-            SELECT *
-            FROM notification_messages
-            WHERE id = #{id}
-              AND receiver_id = #{receiverId}
+            SELECT
+            """ + MESSAGE_SELECT_COLUMNS + """
+            WHERE nm.id = #{id}
+              AND nm.receiver_id = #{receiverId}
             LIMIT 1
             """)
     NotificationMessage findByIdForReceiver(@Param("id") Long id, @Param("receiverId") Long receiverId);
@@ -111,3 +148,4 @@ public interface NotificationMapper {
             """)
     int countUnread(@Param("receiverId") Long receiverId);
 }
+

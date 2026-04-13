@@ -9,3 +9,4 @@ public class NotificationDispatchResult {
     private Long receiverId;
     private NotificationItem item;
 }
+

@@ -53,6 +53,7 @@ class AdminManagementControllerTest {
 		when(propertyDashboardService.dueBills(6)).thenReturn(List.of());
 		when(propertyUnitService.listPaged(any(), any(), any(), anyInt(), anyInt()))
 				.thenReturn(new PageResult<>(List.of(), 1, 10, 0));
+		when(propertyUnitService.listSimple()).thenReturn(List.of());
 		when(buildingService.listAll()).thenReturn(List.of());
 		when(residentService.listPaged(any(), any(), anyInt(), anyInt()))
 				.thenReturn(new PageResult<>(List.of(), 1, 10, 0));
@@ -81,6 +82,7 @@ class AdminManagementControllerTest {
 		org.mockito.Mockito.verify(workOrderService).listPaged(null, null, null, 1, 9);
 		org.mockito.Mockito.verify(buildingService).listAll();
 		org.mockito.Mockito.verify(propertyUnitService).listPaged(null, null, null, 1, 10);
+		org.mockito.Mockito.verify(propertyUnitService).listSimple();
 	}
 
 	@Test
@@ -98,6 +100,16 @@ class AdminManagementControllerTest {
 	}
 
 	@Test
+	void management_complaintsTab_shouldKeepServiceCenterTab() throws Exception {
+		stubAllServices();
+
+		mockMvc.perform(get("/admin/management").param("tab", "complaints"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("admin/management/index"))
+				.andExpect(model().attribute("currentTab", "complaints"));
+	}
+
+	@Test
 	void management_unitsTab_shouldExposeFilteredPaginationBaseUrl() throws Exception {
 		stubAllServices();
 
@@ -105,11 +117,13 @@ class AdminManagementControllerTest {
 				.param("tab", "units")
 				.param("unitKeyword", "A-101")
 				.param("unitBuildingId", "3")
-				.param("unitStatus", "OCCUPIED"))
+				.param("unitStatus", "SELF_OCCUPIED"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("admin/management/index"))
 				.andExpect(model().attribute("unitPaginationBaseUrl",
-						"/admin/management?tab=units&unitKeyword=A-101&unitBuildingId=3&unitStatus=OCCUPIED"));
+						"/admin/management?tab=units&unitKeyword=A-101&unitBuildingId=3&unitStatus=SELF_OCCUPIED"));
 	}
 }
+
+
 

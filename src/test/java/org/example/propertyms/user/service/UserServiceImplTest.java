@@ -37,7 +37,7 @@ class UserServiceImplTest {
         User savedUser = userCaptor.getValue();
         assertEquals("admin_user", savedUser.getUsername());
         assertEquals("Admin123!@", savedUser.getPassword());
-        assertEquals(Role.USER, savedUser.getRole());
+        assertEquals(Role.RESIDENT, savedUser.getRole());
         assertEquals("ACTIVE", savedUser.getStatus());
         assertNotNull(user);
     }
@@ -81,4 +81,6 @@ class UserServiceImplTest {
         verify(userMapper).updatePassword(eq(3L), eq("Reset123!@"));
     }
 }
+
+
 

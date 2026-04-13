@@ -93,3 +93,4 @@ public interface FeeBillMapper {
     @Select("SELECT COALESCE(SUM(paid_amount), 0) FROM fee_bills")
     BigDecimal sumReceived();
 }
+

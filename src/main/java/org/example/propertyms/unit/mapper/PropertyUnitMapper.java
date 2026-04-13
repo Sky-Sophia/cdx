@@ -83,3 +83,4 @@ public interface PropertyUnitMapper {
     @Select("SELECT COUNT(*) FROM units")
     long countAll();
 }
+

@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 import org.example.propertyms.common.dto.PageResult;
 import org.example.propertyms.common.util.PasswordUtils;
-import org.example.propertyms.notification.model.NotificationDepartment;
 import org.example.propertyms.user.mapper.UserMapper;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
@@ -40,9 +39,9 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(normalizedUsername);
         user.setPassword(PasswordUtils.hash(password));
-        user.setRole(Role.USER);
+        user.setRole(Role.RESIDENT);
         user.setStatus(UserStatus.ACTIVE.name());
-        user.setDepartmentCode(NotificationDepartment.defaultForRole(Role.USER).getCode());
+        user.setDepartmentCode(null);
         userMapper.insert(user);
         return user;
     }
@@ -138,4 +137,5 @@ public class UserServiceImpl implements UserService {
         }
     }
 }
+
 

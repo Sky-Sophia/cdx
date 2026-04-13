@@ -808,7 +808,7 @@
 .mgmt-pane .badge[data-status="OVERDUE"]  { background-color: #f56c6c; color: #fff; }
 
 /* — Occupied — */
-.mgmt-pane .badge[data-status="OCCUPIED"],
+.mgmt-pane .badge[data-status="SELF_OCCUPIED"],
 .mgmt-pane .badge[data-status="OWNER"]    { background-color: #67c23a; color: #fff; }
 
 /* — Resident types — */
@@ -1239,4 +1239,3 @@
         min-height: 42px;
     }
 }
-

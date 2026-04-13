@@ -49,7 +49,7 @@ class AdminUserControllerTest {
     @Test
     void list_shouldRejectNonOfficeUser() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "manager", Role.MANAGEMENT));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "manager", Role.ADMIN));
 
         mockMvc.perform(get("/admin/users").session(session))
                 .andExpect(status().is3xxRedirection())
@@ -60,7 +60,7 @@ class AdminUserControllerTest {
     @Test
     void updateStatus_shouldPreventSelfDisable() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(10L, "admin", Role.OFFICE));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(10L, "admin", Role.SUPER_ADMIN));
 
         User user = new User();
         user.setId(10L);
@@ -68,7 +68,7 @@ class AdminUserControllerTest {
 
         mockMvc.perform(post("/admin/users/10/manage")
                         .session(session)
-                        .param("role", "OFFICE")
+                        .param("role", "SUPER_ADMIN")
                         .param("departmentCode", "OFFICE")
                         .param("status", "DISABLED"))
                 .andExpect(status().is3xxRedirection())
@@ -81,12 +81,12 @@ class AdminUserControllerTest {
     @Test
     void editForm_shouldLoadUserManagementPage() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.OFFICE));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.SUPER_ADMIN));
 
         User user = new User();
         user.setId(2L);
         user.setUsername("manager");
-        user.setRole(Role.MANAGEMENT);
+        user.setRole(Role.ADMIN);
         user.setStatus("ACTIVE");
         when(userService.findById(2L)).thenReturn(user);
 
@@ -98,28 +98,42 @@ class AdminUserControllerTest {
     }
 
     @Test
+    void newForm_shouldRedirectToManagementAndOpenModal() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.SUPER_ADMIN));
+
+        mockMvc.perform(get("/admin/users/new").session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/management?tab=users"))
+                .andExpect(flash().attribute("openCreateUserModal", true))
+                .andExpect(flash().attributeExists("createUser"));
+    }
+
+    @Test
     void manage_shouldUpdateRoleAndStatusWhenValid() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.OFFICE));
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.SUPER_ADMIN));
 
         User user = new User();
         user.setId(2L);
         user.setUsername("engineer");
-        user.setRole(Role.ENGINEERING);
+        user.setRole(Role.ENGINEER);
         user.setStatus("ACTIVE");
         when(userService.findById(2L)).thenReturn(user);
 
         mockMvc.perform(post("/admin/users/2/manage")
                         .session(session)
-                        .param("role", "MANAGEMENT")
+                        .param("role", "ADMIN")
                         .param("departmentCode", "MANAGEMENT")
                         .param("status", "active"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/management?tab=users"))
                 .andExpect(flash().attributeExists("success"));
 
-        verify(userService).updateRole(2L, Role.MANAGEMENT);
+        verify(userService).updateRole(2L, Role.ADMIN);
         verify(userService).updateDepartmentCode(2L, "MANAGEMENT");
         verify(userService).updateStatus(2L, "ACTIVE");
     }
 }
+
+

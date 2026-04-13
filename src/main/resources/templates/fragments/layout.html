@@ -12,11 +12,11 @@
                 <a class="nav-link" href="/">首页</a>
             </div>
             <div class="nav-right">
-                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).USER}"
+                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).RESIDENT}"
                    href="/admin/management?tab=work-orders">我的工单</a>
-                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).ADMIN}"
+                <a class="nav-link" th:if="${role == T(org.example.propertyms.user.model.Role).SUPER_ADMIN or role == T(org.example.propertyms.user.model.Role).ADMIN or role == T(org.example.propertyms.user.model.Role).ACCOUNTANT}"
                    href="/admin/management?tab=dashboard">管理后台</a>
-                <a class="nav-link nav-pill" th:if="${role == T(org.example.propertyms.user.model.Role).STAFF}"
+                <a class="nav-link nav-pill" th:if="${role == T(org.example.propertyms.user.model.Role).ENGINEER}"
                    href="/admin/management?tab=work-orders">员工后台</a>
                 <a class="nav-link" th:if="${user == null}" href="/login">登录</a>
                 <a class="nav-link" th:if="${user == null}" href="/register">注册</a>
@@ -27,7 +27,7 @@
 </div>
 
 <header class="topbar" th:fragment="topbar(active)"
-        th:with="current=${session.CURRENT_USER}, resolvedTab=${active == 'management' ? currentTab : active}, primarySection=${resolvedTab == 'units' or resolvedTab == 'residents' ? 'assets' : (resolvedTab == 'work-orders' or resolvedTab == 'bills' ? 'services' : (resolvedTab == 'users' ? 'system' : 'dashboard'))}">
+        th:with="current=${session.CURRENT_USER}, resolvedTab=${active == 'management' ? currentTab : active}, primarySection=${resolvedTab == 'units' or resolvedTab == 'residents' ? 'assets' : (resolvedTab == 'work-orders' or resolvedTab == 'complaints' or resolvedTab == 'bills' ? 'services' : (resolvedTab == 'users' ? 'system' : 'dashboard'))}">
     <div class="topbar-main">
         <a class="brand" href="/admin/management?tab=dashboard">
            <span class="ico">
@@ -212,7 +212,7 @@
 </header>
 
 <aside class="sidebar" th:fragment="sidebar(active)"
-       th:with="resolvedTab=${active == 'management' ? currentTab : active}, primarySection=${resolvedTab == 'units' or resolvedTab == 'residents' ? 'assets' : (resolvedTab == 'work-orders' or resolvedTab == 'bills' ? 'services' : (resolvedTab == 'users' ? 'system' : 'dashboard'))}">
+       th:with="resolvedTab=${active == 'management' ? currentTab : active}, primarySection=${resolvedTab == 'units' or resolvedTab == 'residents' ? 'assets' : (resolvedTab == 'work-orders' or resolvedTab == 'complaints' or resolvedTab == 'bills' ? 'services' : (resolvedTab == 'users' ? 'system' : 'dashboard'))}">
     <nav class="side-nav" aria-label="后台二级导航">
         <section class="side-nav-group"
                  data-management-section-panel="dashboard"
@@ -248,6 +248,12 @@
                th:classappend="${resolvedTab == 'work-orders'} ? ' is-active'">
                 <span class="ico side-nav-icon side-nav-icon-repair" aria-hidden="true"></span>
                 <span class="side-nav-text">报修工单</span>
+            </a>
+            <a class="side-nav-link" href="/admin/management?tab=complaints"
+               data-management-tab="complaints"
+               th:classappend="${resolvedTab == 'complaints'} ? ' is-active'">
+                <span class="ico side-nav-icon side-nav-icon-complaint" aria-hidden="true"></span>
+                <span class="side-nav-text">投诉管理</span>
             </a>
             <a class="side-nav-link" href="/admin/management?tab=bills"
                data-management-tab="bills"

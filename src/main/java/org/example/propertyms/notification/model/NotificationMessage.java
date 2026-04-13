@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class NotificationMessage {
     private Long id;
+    private Long batchId;
     private String batchNo;
     private String msgType;
     private String content;
@@ -23,3 +24,4 @@ public class NotificationMessage {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
+

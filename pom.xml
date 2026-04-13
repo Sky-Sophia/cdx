@@ -13,7 +13,6 @@
     <artifactId>spring-boot-management-system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>property-management-system</name>
-    <description>物业管理系统</description>
 
     <properties>
         <java.version>21</java.version>

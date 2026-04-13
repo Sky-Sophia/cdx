@@ -113,11 +113,13 @@ public class AdminUnitController {
     private String statusLabel(String status) {
         if (status == null) return "";
         return switch (status) {
-            case "OCCUPIED" -> "自住";
+            case "SELF_OCCUPIED" -> "自住";
             case "RENTED" -> "出租";
             case "VACANT" -> "空置";
+            case "UNSOLD" -> "未售出";
             default -> status;
         };
     }
 }
+
 

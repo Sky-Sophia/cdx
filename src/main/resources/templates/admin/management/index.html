@@ -287,18 +287,20 @@
                         <input type="hidden" name="unitStatus" th:value="${unitStatus}" data-auto-submit-filter="true" />
                         <button type="button" class="custom-select-trigger" aria-expanded="false">
                             <span class="custom-select-trigger-text"
-                                  th:text="${unitStatus == 'OCCUPIED'} ? '自住' : (${unitStatus == 'RENTED'} ? '出租' : (${unitStatus == 'VACANT'} ? '空置' : '全部状态'))">全部状态</span>
+                                  th:text="${unitStatus == 'SELF_OCCUPIED'} ? '自住' : (${unitStatus == 'RENTED'} ? '出租' : (${unitStatus == 'VACANT'} ? '空置' : (${unitStatus == 'UNSOLD'} ? '未售出' : '全部状态')))">全部状态</span>
                             <span class="custom-select-arrow" aria-hidden="true"></span>
                         </button>
                         <ul class="custom-select-panel">
                             <li class="custom-select-option" data-value="" data-label="全部状态"
                                 th:classappend="${unitStatus == null or unitStatus == ''} ? ' is-selected'">全部状态</li>
-                            <li class="custom-select-option" data-value="OCCUPIED" data-label="自住"
-                                th:classappend="${unitStatus == 'OCCUPIED'} ? ' is-selected'">自住</li>
+                            <li class="custom-select-option" data-value="SELF_OCCUPIED" data-label="自住"
+                                th:classappend="${unitStatus == 'SELF_OCCUPIED'} ? ' is-selected'">自住</li>
                             <li class="custom-select-option" data-value="RENTED" data-label="出租"
                                 th:classappend="${unitStatus == 'RENTED'} ? ' is-selected'">出租</li>
                             <li class="custom-select-option" data-value="VACANT" data-label="空置"
                                 th:classappend="${unitStatus == 'VACANT'} ? ' is-selected'">空置</li>
+                            <li class="custom-select-option" data-value="UNSOLD" data-label="未售出"
+                                th:classappend="${unitStatus == 'UNSOLD'} ? ' is-selected'">未售出</li>
                         </ul>
                     </div>
                 </label>
@@ -315,9 +317,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
-                <a class="btn primary" href="/admin/residents/new" style="margin-left: auto;">
+                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="residents">
                     <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增住户</a>
+                    新增住户</button>
             </form>
 
             <div class="table-wrap">
@@ -348,7 +350,7 @@
                         <td>
                             <span class="badge"
                                   th:attr="data-status=${unit.occupancyStatus}"
-                                  th:text="${unit.occupancyStatus == 'OCCUPIED' ? '自住' : (unit.occupancyStatus == 'RENTED' ? '出租' : '空置')}"></span>
+                                  th:text="${unit.occupancyStatus == 'SELF_OCCUPIED' ? '自住' : (unit.occupancyStatus == 'RENTED' ? '出租' : (unit.occupancyStatus == 'VACANT' ? '空置' : '未售出'))}"></span>
                         </td>
                         <td>
                             <div class="actions">
@@ -402,9 +404,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
-                <a class="btn primary" href="/admin/residents/new" style="margin-left: auto;">
+                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="residents">
                     <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增住户</a>
+                    新增住户</button>
             </form>
 
             <div class="table-wrap">
@@ -511,9 +513,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
-                <a class="btn primary" href="/admin/work-orders/new" style="margin-left: auto">
+                <button class="btn primary" type="button" style="margin-left: auto" data-management-create-open="work-orders">
                     <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新建工单</a>
+                    新建工单</button>
             </form>
 
             <div class="table-wrap">
@@ -587,6 +589,31 @@
                  th:replace="~{fragments/layout :: pagination(${orderPageResult}, ${workOrderPaginationBaseUrl}, 'orderPage')}"></div>
         </section>
 
+        <section class="mgmt-pane mgmt-pane-complaints"
+                 data-pane-tab="complaints"
+                 th:classappend="${currentTab != 'complaints'} ? ' is-hidden'">
+            <div class="table-wrap">
+                <table class="table table-complaints">
+                    <thead>
+                    <tr>
+                        <th>投诉编号</th>
+                        <th>房号</th>
+                        <th>投诉人</th>
+                        <th>投诉内容</th>
+                        <th>状态</th>
+                        <th>提交时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td colspan="7" class="empty">暂无投诉数据。</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <section class="mgmt-pane mgmt-pane-bills"
                  data-pane-tab="bills"
                  th:classappend="${currentTab != 'bills'} ? ' is-hidden'">
@@ -633,9 +660,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
-                <a class="btn primary" href="/admin/bills/new" style="margin-left: auto;">
+                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="bills">
                     <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增账单</a>
+                    新增账单</button>
             </form>
 
             <div class="table-wrap">
@@ -742,9 +769,9 @@
                     </svg>
                     <span>导出 Excel</span>
                 </a>
-                <a class="btn primary" href="/admin/users/new" style="margin-left: auto;">
+                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="users">
                     <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增用户</a>
+                    新增用户</button>
             </form>
 
             <div class="table-wrap">
@@ -787,6 +814,8 @@
     </main>
 </div>
 
+<th:block th:replace="~{admin/management/create-modals :: createModals}"></th:block>
+
 <div th:replace="~{fragments/layout :: confirmModal}"></div>
 
 <script src="/js/common/pagination.js" defer></script>
@@ -794,5 +823,6 @@
 <script src="/js/admin/management-dashboard.js?v=20260410-dashboard-ui-refresh" defer></script>
 <script src="/js/admin/management.js?v=20260408-management-scroll-filter-fix" defer></script>
 <script src="/js/admin/user-table.js" defer></script>
+<script src="/js/admin/management-create-modal.js?v=20260413-refactor" defer></script>
 </body>
 </html>

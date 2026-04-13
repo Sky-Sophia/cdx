@@ -3,13 +3,19 @@ package org.example.propertyms.dashboard.controller;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.springframework.util.StringUtils;
+import org.example.propertyms.bill.model.FeeBill;
 import org.example.propertyms.building.service.BuildingService;
 import org.example.propertyms.bill.service.FeeBillService;
 import org.example.propertyms.dashboard.service.PropertyDashboardService;
+import org.example.propertyms.notification.model.NotificationDepartment;
+import org.example.propertyms.resident.model.Resident;
+import org.example.propertyms.resident.model.ResidentType;
 import org.example.propertyms.resident.service.ResidentService;
 import org.example.propertyms.unit.service.PropertyUnitService;
+import org.example.propertyms.user.model.User;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.service.UserService;
+import org.example.propertyms.workorder.model.WorkOrder;
 import org.example.propertyms.workorder.service.WorkOrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -100,6 +106,13 @@ public class AdminManagementController {
         model.addAttribute("residentKeyword", residentKeyword);
         model.addAttribute("residentStatus", residentStatus);
         model.addAttribute("residentPaginationBaseUrl", buildResidentPaginationBaseUrl(residentKeyword, residentStatus));
+        model.addAttribute("residentTypes", ResidentType.values());
+        if (!model.containsAttribute("createResident")) {
+            model.addAttribute("createResident", defaultCreateResident());
+        }
+        if (!model.containsAttribute("openCreateResidentModal")) {
+            model.addAttribute("openCreateResidentModal", false);
+        }
 
         // Work Orders
         model.addAttribute("orderPageResult", workOrderService.listPaged(workOrderKeyword, workOrderStatus, workOrderPriority, orderPage, WORK_ORDER_PAGE_SIZE));
@@ -107,6 +120,12 @@ public class AdminManagementController {
         model.addAttribute("workOrderStatus", workOrderStatus);
         model.addAttribute("workOrderPriority", workOrderPriority);
         model.addAttribute("workOrderPaginationBaseUrl", buildWorkOrderPaginationBaseUrl(workOrderKeyword, workOrderStatus, workOrderPriority));
+        if (!model.containsAttribute("createWorkOrder")) {
+            model.addAttribute("createWorkOrder", defaultCreateWorkOrder());
+        }
+        if (!model.containsAttribute("openCreateWorkOrderModal")) {
+            model.addAttribute("openCreateWorkOrderModal", false);
+        }
 
         // Bills
         model.addAttribute("billPageResult", feeBillService.listPaged(billKeyword, billStatus, billBillingMonth, billPage, DEFAULT_PAGE_SIZE));
@@ -114,6 +133,12 @@ public class AdminManagementController {
         model.addAttribute("billStatus", billStatus);
         model.addAttribute("billBillingMonth", billBillingMonth);
         model.addAttribute("billPaginationBaseUrl", buildBillPaginationBaseUrl(billKeyword, billStatus, billBillingMonth));
+        if (!model.containsAttribute("createBill")) {
+            model.addAttribute("createBill", defaultCreateBill());
+        }
+        if (!model.containsAttribute("openCreateBillModal")) {
+            model.addAttribute("openCreateBillModal", false);
+        }
 
         // Users
         model.addAttribute("userPageResult", userService.listByFiltersPaged(userQ, userRole, userStatus, userPage, DEFAULT_PAGE_SIZE));
@@ -122,8 +147,45 @@ public class AdminManagementController {
         model.addAttribute("userRole", userRole);
         model.addAttribute("userStatus", userStatus);
         model.addAttribute("userPaginationBaseUrl", buildUserPaginationBaseUrl(userQ, userRole, userStatus));
+        if (!model.containsAttribute("createUser")) {
+            model.addAttribute("createUser", defaultCreateUser());
+        }
+        if (!model.containsAttribute("openCreateUserModal")) {
+            model.addAttribute("openCreateUserModal", false);
+        }
+        model.addAttribute("unitOptions", propertyUnitService.listSimple());
 
         return "admin/management/index";
+    }
+
+    private Resident defaultCreateResident() {
+        Resident resident = new Resident();
+        resident.setResidentType(ResidentType.OWNER.name());
+        resident.setStatus("ACTIVE");
+        return resident;
+    }
+
+    private WorkOrder defaultCreateWorkOrder() {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setPriority("MEDIUM");
+        workOrder.setStatus("OPEN");
+        workOrder.setCategory("水电维修");
+        return workOrder;
+    }
+
+    private FeeBill defaultCreateBill() {
+        FeeBill bill = new FeeBill();
+        bill.setStatus("UNPAID");
+        bill.setPaidAmount(BigDecimal.ZERO);
+        return bill;
+    }
+
+    private User defaultCreateUser() {
+        User user = new User();
+        user.setRole(Role.ADMIN);
+        user.setDepartmentCode(NotificationDepartment.defaultForRole(Role.ADMIN).getCode());
+        user.setStatus("ACTIVE");
+        return user;
     }
 
     private String buildUnitPaginationBaseUrl(String unitKeyword, Long unitBuildingId, String unitStatus) {
@@ -186,7 +248,7 @@ public class AdminManagementController {
 
     private String normalizeTab(String tab) {
         return switch (tab) {
-            case "dashboard", "units", "residents", "work-orders", "bills", "users" -> tab;
+            case "dashboard", "units", "residents", "work-orders", "complaints", "bills", "users" -> tab;
             default -> "dashboard";
         };
     }
@@ -204,4 +266,5 @@ public class AdminManagementController {
         return Math.min(value, 100);
     }
 }
+
 

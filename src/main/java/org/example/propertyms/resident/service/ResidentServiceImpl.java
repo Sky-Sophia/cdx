@@ -102,3 +102,4 @@ public class ResidentServiceImpl implements ResidentService {
         return residentMapper.countOccupiedUnits();
     }
 }
+

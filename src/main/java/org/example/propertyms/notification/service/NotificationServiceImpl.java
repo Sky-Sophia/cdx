@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.notification.mapper.NotificationAudienceMapper;
 import org.example.propertyms.notification.mapper.NotificationMapper;
+import org.example.propertyms.notification.model.NotificationBatch;
 import org.example.propertyms.notification.model.NotificationDepartment;
 import org.example.propertyms.notification.model.NotificationDispatchResult;
 import org.example.propertyms.notification.model.NotificationItem;
@@ -77,17 +78,27 @@ public class NotificationServiceImpl implements NotificationService {
 
         LocalDateTime now = LocalDateTime.now();
         String batchNo = nextBatchNo(now);
+        NotificationBatch batch = new NotificationBatch();
+        batch.setBatchNo(batchNo);
+        batch.setMsgType(msgType);
+        batch.setContent(content);
+        batch.setSenderId(sender.getId());
+        batch.setTargetType(targetType.name());
+        batch.setTargetValue(rawReceiver);
+        batch.setCreatedAt(now);
+        batch.setUpdatedAt(now);
+        notificationMapper.insertBatch(batch);
+
         List<NotificationDispatchResult> results = new ArrayList<>();
 
         for (User recipient : recipients) {
             NotificationMessage message = new NotificationMessage();
+            message.setBatchId(batch.getId());
             message.setBatchNo(batchNo);
             message.setMsgType(msgType);
             message.setContent(content);
             message.setSenderId(sender.getId());
-            message.setSenderName(sender.getUsername());
             message.setReceiverId(recipient.getId());
-            message.setReceiverName(recipient.getUsername());
             message.setSendTime(now);
             message.setIsRead(0);
             message.setIsDeleted(0);
@@ -95,7 +106,9 @@ public class NotificationServiceImpl implements NotificationService {
             message.setTargetValue(rawReceiver);
             message.setCreatedAt(now);
             message.setUpdatedAt(now);
-            notificationMapper.insert(message);
+            notificationMapper.insertMessage(message);
+            message.setSenderName(sender.getUsername());
+            message.setReceiverName(recipient.getUsername());
             results.add(new NotificationDispatchResult(recipient.getId(), toItem(message)));
         }
 
@@ -237,3 +250,4 @@ public class NotificationServiceImpl implements NotificationService {
         return "NT" + BATCH_TS.format(now) + String.format("%02d", ThreadLocalRandom.current().nextInt(100));
     }
 }
+

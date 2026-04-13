@@ -33,3 +33,4 @@ public class NotificationSessionRegistry {
         return sessions == null ? Collections.emptySet() : Set.copyOf(sessions);
     }
 }
+

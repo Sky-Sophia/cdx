@@ -21,3 +21,4 @@ public interface ResidentService {
     long countOccupiedUnits();
 }
 
+

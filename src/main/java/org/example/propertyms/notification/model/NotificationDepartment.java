@@ -7,10 +7,10 @@ import org.example.propertyms.user.model.Role;
 
 @Getter
 public enum NotificationDepartment {
-    OFFICE("综合办公室", "OFFICE", 10, Role.OFFICE),
-    MANAGEMENT("管理部", "MANAGEMENT", 20, Role.MANAGEMENT),
-    ENGINEERING("工程部", "ENGINEERING", 30, Role.ENGINEERING),
-    NONE("无部门", "NONE", 40, Role.USER);
+    OFFICE("综合办公室", "OFFICE", 10, Role.SUPER_ADMIN),
+    MANAGEMENT("管理部", "MANAGEMENT", 20, Role.ADMIN),
+    FINANCE("财务部", "FINANCE", 30, Role.ACCOUNTANT),
+    ENGINEERING("工程部", "ENGINEERING", 40, Role.ENGINEER);
 
     private final String label;
     private final String code;
@@ -26,13 +26,14 @@ public enum NotificationDepartment {
 
     public static NotificationDepartment defaultForRole(Role role) {
         if (role == null) {
-            return NONE;
+            return null;
         }
         return switch (role) {
-            case OFFICE -> OFFICE;
-            case MANAGEMENT -> MANAGEMENT;
-            case ENGINEERING -> ENGINEERING;
-            case USER -> NONE;
+            case SUPER_ADMIN -> OFFICE;
+            case ADMIN -> MANAGEMENT;
+            case ACCOUNTANT -> FINANCE;
+            case ENGINEER -> ENGINEERING;
+            case RESIDENT -> null;
         };
     }
 
@@ -51,10 +52,12 @@ public enum NotificationDepartment {
         }
 
         return switch (normalized) {
-            case "administration", "admin" -> OFFICE;
-            case "finance", "security" -> MANAGEMENT;
-            case "staff" -> ENGINEERING;
+            case "administration", "office", "super_admin", "superadmin" -> OFFICE;
+            case "admin", "management", "manager" -> MANAGEMENT;
+            case "finance", "accountant" -> FINANCE;
+            case "engineering", "engineer", "staff" -> ENGINEERING;
             default -> throw new IllegalArgumentException("未识别的部门类型：" + value);
         };
     }
 }
+

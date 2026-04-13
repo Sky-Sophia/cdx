@@ -2,7 +2,7 @@
     "use strict";
 
 
-    const VALID_TABS = new Set(["dashboard", "units", "residents", "work-orders", "bills", "users"]);
+    const VALID_TABS = new Set(["dashboard", "units", "residents", "work-orders", "complaints", "bills", "users"]);
     const SCROLL_STATE_KEY = "pms_management_scroll_state";
     const SCROLL_STATE_TTL = 15000;
     const TAB_TO_SECTION = {
@@ -10,6 +10,7 @@
         units: "assets",
         residents: "assets",
         "work-orders": "services",
+        complaints: "services",
         bills: "services",
         users: "system"
     };
