@@ -6,6 +6,7 @@ import java.util.Set;
 import org.example.propertyms.common.dto.PageResult;
 import org.example.propertyms.common.util.CodeGenerator;
 import org.example.propertyms.common.util.StringHelper;
+import org.example.propertyms.employee.mapper.EmployeeMapper;
 import org.example.propertyms.workorder.mapper.WorkOrderMapper;
 import org.example.propertyms.workorder.model.Priority;
 import org.example.propertyms.workorder.model.WorkOrder;
@@ -22,9 +23,11 @@ public class WorkOrderServiceImpl implements WorkOrderService {
             WorkOrderStatus.CLOSED.name());
 
     private final WorkOrderMapper workOrderMapper;
+    private final EmployeeMapper employeeMapper;
 
-    public WorkOrderServiceImpl(WorkOrderMapper workOrderMapper) {
+    public WorkOrderServiceImpl(WorkOrderMapper workOrderMapper, EmployeeMapper employeeMapper) {
         this.workOrderMapper = workOrderMapper;
+        this.employeeMapper = employeeMapper;
     }
 
     @Override
@@ -69,7 +72,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 
     @Override
     @Transactional
-    public void updateStatus(Long id, String status, String assignee) {
+    public void updateStatus(Long id, String status, Long operatorAccountId) {
         WorkOrder existing = workOrderMapper.findById(id);
         if (existing == null) {
             throw new IllegalArgumentException("工单不存在。");
@@ -89,8 +92,8 @@ public class WorkOrderServiceImpl implements WorkOrderService {
             finishedAt = LocalDateTime.now();
         }
 
-        String finalAssignee = StringHelper.isBlank(assignee) ? existing.getAssignee() : assignee;
-        workOrderMapper.updateStatus(id, targetStatus, finalAssignee, scheduledAt, finishedAt);
+        Long finalAssigneeEmployeeId = resolveAssigneeEmployeeId(existing, targetStatus, operatorAccountId);
+        workOrderMapper.updateStatus(id, targetStatus, finalAssigneeEmployeeId, scheduledAt, finishedAt);
     }
 
     @Override
@@ -108,6 +111,30 @@ public class WorkOrderServiceImpl implements WorkOrderService {
             return "";
         }
         return status.trim().toUpperCase();
+    }
+
+    private Long resolveAssigneeEmployeeId(WorkOrder existing, String targetStatus, Long operatorAccountId) {
+        Long existingAssigneeEmployeeId = existing.getAssigneeEmployeeId();
+        boolean needsEmployeeBinding = WorkOrderStatus.IN_PROGRESS.name().equals(targetStatus)
+                || WorkOrderStatus.DONE.name().equals(targetStatus)
+                || WorkOrderStatus.CLOSED.name().equals(targetStatus);
+        if (!needsEmployeeBinding) {
+            return existingAssigneeEmployeeId;
+        }
+        if (operatorAccountId == null) {
+            if (existingAssigneeEmployeeId != null) {
+                return existingAssigneeEmployeeId;
+            }
+            throw new IllegalArgumentException("当前会话已失效，无法关联处理人员。");
+        }
+        Long operatorEmployeeId = employeeMapper.findActiveEmployeeIdByAccountId(operatorAccountId);
+        if (operatorEmployeeId != null) {
+            return operatorEmployeeId;
+        }
+        if (existingAssigneeEmployeeId != null) {
+            return existingAssigneeEmployeeId;
+        }
+        throw new IllegalArgumentException("当前账号未绑定员工档案，无法更新工单处理状态。");
     }
 }
 

@@ -8,6 +8,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Data
 public class Resident {
     private Long id;
+    private Long personId;
+    private Long accountId;
     private Long unitId;
     private String unitNo;
     private String name;

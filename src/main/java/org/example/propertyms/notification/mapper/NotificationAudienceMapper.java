@@ -10,11 +10,30 @@ import org.example.propertyms.user.model.User;
 
 @Mapper
 public interface NotificationAudienceMapper {
+    String ACTIVE_USER_SELECT = """
+            SELECT ua.id,
+                   ua.username,
+                   ua.password_hash AS password,
+                   ua.account_role AS role,
+                   ua.status,
+                   resident_link.unit_id AS unit_id,
+                   employee_link.department_code AS department_code,
+                   ua.created_at,
+                   ua.updated_at
+            FROM user_accounts ua
+            LEFT JOIN (
+                SELECT r.account_id, MAX(r.unit_id) AS unit_id
+                FROM residents r
+                WHERE r.account_id IS NOT NULL
+                GROUP BY r.account_id
+            ) resident_link ON resident_link.account_id = ua.id
+            LEFT JOIN employees employee_link ON employee_link.account_id = ua.id
+            """;
 
-    @Select("SELECT * FROM users WHERE id = #{id} AND status = 'ACTIVE' LIMIT 1")
+    @Select(ACTIVE_USER_SELECT + " WHERE ua.id = #{id} AND ua.status = 'ACTIVE' LIMIT 1")
     User findActiveUserById(@Param("id") Long id);
 
-    @Select("SELECT * FROM users WHERE username = #{username} AND status = 'ACTIVE' LIMIT 1")
+    @Select(ACTIVE_USER_SELECT + " WHERE ua.username = #{username} AND ua.status = 'ACTIVE' LIMIT 1")
     User findActiveUserByUsername(@Param("username") String username);
 
     @SelectProvider(type = NotificationAudienceSqlProvider.class, method = "findAllActiveUsersSql")

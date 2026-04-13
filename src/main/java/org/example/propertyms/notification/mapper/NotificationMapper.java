@@ -20,9 +20,9 @@ public interface NotificationMapper {
             nb.msg_type,
             nb.content,
             nb.sender_id,
-            COALESCE(sp.full_name, sua.username, su.username) AS sender_name,
+            COALESCE(sp.full_name, su.username) AS sender_name,
             nm.receiver_id,
-            COALESCE(rp.full_name, rua.username, ru.username) AS receiver_name,
+            COALESCE(rp.full_name, ru.username) AS receiver_name,
             nm.send_time,
             nm.is_read,
             nm.read_time,
@@ -34,12 +34,10 @@ public interface NotificationMapper {
             nm.updated_at
             FROM notification_messages nm
             INNER JOIN notification_batches nb ON nb.id = nm.batch_id
-            LEFT JOIN users su ON su.id = nb.sender_id
-            LEFT JOIN user_accounts sua ON sua.source_user_id = nb.sender_id
-            LEFT JOIN persons sp ON sp.id = sua.person_id
-            LEFT JOIN users ru ON ru.id = nm.receiver_id
-            LEFT JOIN user_accounts rua ON rua.source_user_id = nm.receiver_id
-            LEFT JOIN persons rp ON rp.id = rua.person_id
+            LEFT JOIN user_accounts su ON su.id = nb.sender_id
+            LEFT JOIN persons sp ON sp.id = su.person_id
+            LEFT JOIN user_accounts ru ON ru.id = nm.receiver_id
+            LEFT JOIN persons rp ON rp.id = ru.person_id
             """;
 
     @Insert("""

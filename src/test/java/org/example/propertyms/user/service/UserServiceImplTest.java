@@ -3,10 +3,15 @@ package org.example.propertyms.user.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+import org.example.propertyms.common.util.PasswordUtils;
 import org.example.propertyms.user.mapper.UserMapper;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
@@ -16,6 +21,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -23,22 +31,37 @@ class UserServiceImplTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private JdbcTemplate jdbcTemplate;
+
     @InjectMocks
     private UserServiceImpl userService;
 
     @Test
-    void register_shouldStorePlainTextPassword() {
+    void register_shouldCreateResidentAccountAndHashPassword() {
         when(userMapper.findByUsername("admin_user")).thenReturn(null);
+        doAnswer(invocation -> {
+            KeyHolder keyHolder = invocation.getArgument(1);
+            ((GeneratedKeyHolder) keyHolder).getKeyList().add(Map.of("id", 100L));
+            return 1;
+        }).doAnswer(invocation -> {
+            KeyHolder keyHolder = invocation.getArgument(1);
+            ((GeneratedKeyHolder) keyHolder).getKeyList().add(Map.of("id", 200L));
+            return 1;
+        }).when(jdbcTemplate).update(any(), any(KeyHolder.class));
+
+        User stored = new User();
+        stored.setId(200L);
+        stored.setUsername("admin_user");
+        stored.setRole(Role.RESIDENT);
+        stored.setStatus("ACTIVE");
+        when(userMapper.findById(200L)).thenReturn(stored);
 
         User user = userService.register("Admin_User", "Admin123!@");
 
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userMapper).insert(userCaptor.capture());
-        User savedUser = userCaptor.getValue();
-        assertEquals("admin_user", savedUser.getUsername());
-        assertEquals("Admin123!@", savedUser.getPassword());
-        assertEquals(Role.RESIDENT, savedUser.getRole());
-        assertEquals("ACTIVE", savedUser.getStatus());
+        assertEquals(200L, user.getId());
+        assertEquals("admin_user", user.getUsername());
+        verify(userMapper).findById(200L);
         assertNotNull(user);
     }
 
@@ -47,7 +70,7 @@ class UserServiceImplTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("admin");
-        user.setPassword("Admin123!@");
+        user.setPassword(PasswordUtils.hash("Admin123!@"));
         user.setStatus("ACTIVE");
         when(userMapper.findByUsername("admin")).thenReturn(user);
 
@@ -61,7 +84,7 @@ class UserServiceImplTest {
         User user = new User();
         user.setId(2L);
         user.setUsername("manager");
-        user.setPassword("Manager123!@");
+        user.setPassword(PasswordUtils.hash("Manager123!@"));
         user.setStatus("DISABLED");
         when(userMapper.findByUsername("manager")).thenReturn(user);
 
@@ -78,7 +101,10 @@ class UserServiceImplTest {
 
         userService.resetPassword(3L, "Reset123!@");
 
-        verify(userMapper).updatePassword(eq(3L), eq("Reset123!@"));
+        ArgumentCaptor<String> passwordCaptor = ArgumentCaptor.forClass(String.class);
+        verify(jdbcTemplate).update(any(String.class), passwordCaptor.capture(), eq(3L));
+        assertNotNull(passwordCaptor.getValue());
+        assertTrue(PasswordUtils.matches("Reset123!@", passwordCaptor.getValue()));
     }
 }
 

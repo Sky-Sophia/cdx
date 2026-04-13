@@ -30,14 +30,12 @@ public class NotificationSchemaInitializer {
         migrateLegacyNotificationSchema();
         createDepartmentTableIfMissing();
         seedDepartments();
-        addUsersColumnIfMissing("unit_id", "BIGINT NULL");
-        addUsersColumnIfMissing("department_code", "VARCHAR(32) NULL");
-        normalizeUserDepartments();
     }
 
     private void createNotificationBatchTableIfMissing() {
-        String userIdType = getColumnType("users", "id", "BIGINT");
-        String batchIdType = getColumnType("notification_batches", "id", userIdType);
+        String accountTable = resolveAccountTable();
+        String accountIdType = getColumnType(accountTable, "id", "BIGINT");
+        String batchIdType = getColumnType("notification_batches", "id", accountIdType);
         jdbcTemplate.execute("""
                 CREATE TABLE IF NOT EXISTS notification_batches (
                     id %s NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -51,23 +49,24 @@ public class NotificationSchemaInitializer {
                     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE KEY uk_notification_batches_batch_no (batch_no)
                 )
-                """.formatted(batchIdType, userIdType));
+                """.formatted(batchIdType, accountIdType));
         createIndexIfMissing("idx_notification_batches_sender_id",
                 "CREATE INDEX idx_notification_batches_sender_id ON notification_batches (sender_id)");
         createForeignKeyIfMissing("notification_batches", "fk_notification_batches_sender",
                 """
                 ALTER TABLE notification_batches
                 ADD CONSTRAINT fk_notification_batches_sender
-                FOREIGN KEY (sender_id) REFERENCES users(id)
+                FOREIGN KEY (sender_id) REFERENCES %s(id)
                 ON DELETE RESTRICT
                 ON UPDATE CASCADE
-                """);
+                """.formatted(accountTable));
     }
 
     private void createNotificationTableIfMissing() {
         String messageIdType = getColumnType("notification_messages", "id", "BIGINT");
         String batchIdType = getColumnType("notification_batches", "id", "BIGINT");
-        String userIdType = getColumnType("users", "id", "BIGINT");
+        String accountTable = resolveAccountTable();
+        String accountIdType = getColumnType(accountTable, "id", "BIGINT");
         jdbcTemplate.execute("""
                 CREATE TABLE IF NOT EXISTS notification_messages (
                     id %s NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -83,7 +82,7 @@ public class NotificationSchemaInitializer {
                     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
-                """.formatted(messageIdType, batchIdType, userIdType));
+                """.formatted(messageIdType, batchIdType, accountIdType));
         createIndexIfMissing("idx_notification_receiver_deleted",
                 "CREATE INDEX idx_notification_receiver_deleted ON notification_messages (receiver_id, is_deleted, send_time)");
         createIndexIfMissing("idx_notification_receiver_unread",
@@ -102,10 +101,10 @@ public class NotificationSchemaInitializer {
                 """
                 ALTER TABLE notification_messages
                 ADD CONSTRAINT fk_notification_receiver
-                FOREIGN KEY (receiver_id) REFERENCES users(id)
+                FOREIGN KEY (receiver_id) REFERENCES %s(id)
                 ON DELETE RESTRICT
                 ON UPDATE CASCADE
-                """);
+                """.formatted(accountTable));
     }
 
     private void createDepartmentTableIfMissing() {
@@ -136,27 +135,6 @@ public class NotificationSchemaInitializer {
                     department.getLabel(),
                     department.getSortOrder());
         }
-    }
-
-    private void normalizeUserDepartments() {
-        jdbcTemplate.update("""
-                UPDATE users
-                SET department_code = CASE
-                    WHEN role IN ('SUPER_ADMIN', 'OFFICE') THEN 'OFFICE'
-                    WHEN role IN ('ADMIN', 'MANAGEMENT') THEN 'MANAGEMENT'
-                    WHEN role IN ('ACCOUNTANT', 'FINANCE') THEN 'FINANCE'
-                    WHEN role IN ('ENGINEER', 'ENGINEERING', 'STAFF') THEN 'ENGINEERING'
-                    ELSE NULL
-                END
-                WHERE role IN ('SUPER_ADMIN', 'OFFICE', 'ADMIN', 'MANAGEMENT', 'ACCOUNTANT', 'FINANCE',
-                               'ENGINEER', 'ENGINEERING', 'STAFF', 'RESIDENT', 'USER')
-                  AND (
-                      department_code IS NULL
-                      OR department_code = ''
-                      OR department_code IN ('ADMINISTRATION', 'SECURITY', 'NONE')
-                      OR department_code NOT IN ('OFFICE', 'MANAGEMENT', 'FINANCE', 'ENGINEERING')
-                  )
-                """);
     }
 
     private void migrateLegacyNotificationSchema() {
@@ -223,10 +201,10 @@ public class NotificationSchemaInitializer {
                 """
                 ALTER TABLE notification_messages
                 ADD CONSTRAINT fk_notification_receiver
-                FOREIGN KEY (receiver_id) REFERENCES users(id)
+                FOREIGN KEY (receiver_id) REFERENCES %s(id)
                 ON DELETE RESTRICT
                 ON UPDATE CASCADE
-                """);
+                """.formatted(resolveAccountTable()));
 
         if (columnExists("notification_messages", "sender_id")) {
             dropConstraintIfExists("notification_messages", "fk_notification_sender");
@@ -242,19 +220,13 @@ public class NotificationSchemaInitializer {
     }
 
     private void alignNotificationForeignKeyColumnTypes() {
-        alignReferenceColumnType("notification_batches", "sender_id", "users", "id",
+        String accountTable = resolveAccountTable();
+        alignReferenceColumnType("notification_batches", "sender_id", accountTable, "id",
                 "fk_notification_batches_sender");
         alignReferenceColumnType("notification_messages", "batch_id", "notification_batches", "id",
                 "fk_notification_messages_batch");
-        alignReferenceColumnType("notification_messages", "receiver_id", "users", "id",
+        alignReferenceColumnType("notification_messages", "receiver_id", accountTable, "id",
                 "fk_notification_receiver");
-    }
-
-    private void addUsersColumnIfMissing(String columnName, String definition) {
-        if (columnExists("users", columnName)) {
-            return;
-        }
-        jdbcTemplate.execute("ALTER TABLE users ADD COLUMN " + columnName + " " + definition);
     }
 
     private void dropNotificationColumnIfExists(String columnName) {
@@ -394,6 +366,13 @@ public class NotificationSchemaInitializer {
             }
         }
         return false;
+    }
+
+    private String resolveAccountTable() {
+        if (!tableExists("user_accounts")) {
+            throw new IllegalStateException("缺少 user_accounts 表，通知模块无法初始化。");
+        }
+        return "user_accounts";
     }
 }
 

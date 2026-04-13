@@ -13,6 +13,7 @@ public class PropertyUnitSqlProvider {
         sql.append("FROM units u ");
         sql.append("LEFT JOIN buildings b ON b.id = u.building_id ");
         sql.append("LEFT JOIN residents r ON r.id = u.owner_resident_id ");
+        sql.append("LEFT JOIN persons p ON p.id = r.person_id ");
         sql.append("WHERE 1=1");
         appendFilters(sql, params);
         sql.append(" ORDER BY u.updated_at DESC, u.id DESC");
@@ -25,6 +26,7 @@ public class PropertyUnitSqlProvider {
         sql.append("FROM units u ");
         sql.append("LEFT JOIN buildings b ON b.id = u.building_id ");
         sql.append("LEFT JOIN residents r ON r.id = u.owner_resident_id ");
+        sql.append("LEFT JOIN persons p ON p.id = r.person_id ");
         sql.append("WHERE 1=1");
         appendFilters(sql, params);
         return sql.toString();
@@ -37,8 +39,8 @@ public class PropertyUnitSqlProvider {
     private void appendFilters(StringBuilder sql, Map<String, Object> params) {
         if (SqlProviderHelper.isNotBlank(params.get("keyword"))) {
             sql.append(" AND (u.unit_no LIKE CONCAT('%', #{keyword}, '%')");
-            sql.append(" OR r.name LIKE CONCAT('%', #{keyword}, '%')");
-            sql.append(" OR r.phone LIKE CONCAT('%', #{keyword}, '%'))");
+            sql.append(" OR p.full_name LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" OR p.phone LIKE CONCAT('%', #{keyword}, '%'))");
         }
         if (params.get("buildingId") != null) {
             sql.append(" AND u.building_id = #{buildingId}");

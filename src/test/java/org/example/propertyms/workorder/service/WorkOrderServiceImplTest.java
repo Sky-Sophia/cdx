@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import org.example.propertyms.employee.mapper.EmployeeMapper;
 import org.example.propertyms.workorder.mapper.WorkOrderMapper;
 import org.example.propertyms.workorder.model.WorkOrder;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ class WorkOrderServiceImplTest {
 
     @Mock
     private WorkOrderMapper workOrderMapper;
+
+    @Mock
+    private EmployeeMapper employeeMapper;
 
     @InjectMocks
     private WorkOrderServiceImpl workOrderService;
@@ -48,19 +52,22 @@ class WorkOrderServiceImplTest {
     void updateStatus_shouldAutoSetScheduleTimeWhenInProgress() {
         WorkOrder existing = new WorkOrder();
         existing.setId(5L);
-        existing.setAssignee("Jack");
+        existing.setAssigneeEmployeeId(12L);
         when(workOrderMapper.findById(5L)).thenReturn(existing);
+        when(employeeMapper.findActiveEmployeeIdByAccountId(99L)).thenReturn(12L);
 
-        workOrderService.updateStatus(5L, "IN_PROGRESS", " ");
+        workOrderService.updateStatus(5L, "IN_PROGRESS", 99L);
 
         ArgumentCaptor<LocalDateTime> scheduledCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
         ArgumentCaptor<LocalDateTime> finishedCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        ArgumentCaptor<Long> assigneeCaptor = ArgumentCaptor.forClass(Long.class);
         verify(workOrderMapper).updateStatus(
                 eq(5L),
                 eq("IN_PROGRESS"),
-                eq("Jack"),
+                assigneeCaptor.capture(),
                 scheduledCaptor.capture(),
                 finishedCaptor.capture());
+        assertEquals(12L, assigneeCaptor.getValue());
         assertNotNull(scheduledCaptor.getValue());
         assertNull(finishedCaptor.getValue());
     }
@@ -80,19 +87,22 @@ class WorkOrderServiceImplTest {
     void updateStatus_shouldSetFinishTimeForDone() {
         WorkOrder existing = new WorkOrder();
         existing.setId(8L);
-        existing.setAssignee("Tom");
+        existing.setAssigneeEmployeeId(21L);
         when(workOrderMapper.findById(8L)).thenReturn(existing);
+        when(employeeMapper.findActiveEmployeeIdByAccountId(101L)).thenReturn(21L);
 
-        workOrderService.updateStatus(8L, "DONE", "Jerry");
+        workOrderService.updateStatus(8L, "DONE", 101L);
 
         ArgumentCaptor<LocalDateTime> scheduledCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
         ArgumentCaptor<LocalDateTime> finishedCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        ArgumentCaptor<Long> assigneeCaptor = ArgumentCaptor.forClass(Long.class);
         verify(workOrderMapper).updateStatus(
                 eq(8L),
                 eq("DONE"),
-                eq("Jerry"),
+                assigneeCaptor.capture(),
                 scheduledCaptor.capture(),
                 finishedCaptor.capture());
+        assertEquals(21L, assigneeCaptor.getValue());
         assertNotNull(finishedCaptor.getValue());
     }
 }

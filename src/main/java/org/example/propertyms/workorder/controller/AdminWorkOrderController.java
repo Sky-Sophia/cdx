@@ -1,9 +1,12 @@
 package org.example.propertyms.workorder.controller;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.RedirectUrls;
+import org.example.propertyms.common.constant.SessionKeys;
 import org.example.propertyms.common.util.ExcelExportHelper;
 import org.example.propertyms.workorder.model.WorkOrder;
 import org.example.propertyms.workorder.service.WorkOrderService;
@@ -66,10 +69,11 @@ public class AdminWorkOrderController {
     @PostMapping("/{id}/status")
     public String updateStatus(@PathVariable Long id,
                                @RequestParam String status,
-                               @RequestParam(required = false) String assignee,
+                               HttpSession session,
                                RedirectAttributes redirectAttributes) {
         try {
-            workOrderService.updateStatus(id, status, assignee);
+            UserSession currentUser = session == null ? null : (UserSession) session.getAttribute(SessionKeys.CURRENT_USER);
+            workOrderService.updateStatus(id, status, currentUser != null ? currentUser.getId() : null);
             redirectAttributes.addFlashAttribute("success", "工单状态已更新。");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());

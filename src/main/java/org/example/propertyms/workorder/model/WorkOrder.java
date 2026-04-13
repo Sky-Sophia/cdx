@@ -10,6 +10,7 @@ public class WorkOrder {
     private String orderNo;
     private Long unitId;
     private Long residentId;
+    private Long assigneeEmployeeId;
     private String unitNo;
     private String residentName;
     private String phone;

@@ -113,8 +113,8 @@
                                 </div>
                             </div>
                             <div class="archive-create-cell">
-                                <label class="archive-create-label" for="work-order-assignee">指派人员</label>
-                                <input class="archive-create-control" id="work-order-assignee" name="assignee" th:value="${workOrder.assignee}" placeholder="如：刘师傅" />
+                                <label class="archive-create-label">处理人员</label>
+                                <input class="archive-create-control archive-create-control--readonly" type="text" value="工单开始处理后自动关联当前员工" readonly />
                             </div>
                         </div>
 

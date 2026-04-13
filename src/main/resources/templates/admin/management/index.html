@@ -560,7 +560,6 @@
                                       method="post"
                                       data-confirm-message="确认开始处理该工单吗？">
                                     <input type="hidden" name="status" value="IN_PROGRESS" />
-                                    <input type="hidden" name="assignee" th:value="${item.assignee}" />
                                     <button class="btn mini" type="submit">开始处理</button>
                                 </form>
                                 <form th:if="${item.status == 'IN_PROGRESS'}"
@@ -568,7 +567,6 @@
                                       method="post"
                                       data-confirm-message="确认将该工单标记为已完成吗？">
                                     <input type="hidden" name="status" value="DONE" />
-                                    <input type="hidden" name="assignee" th:value="${item.assignee}" />
                                     <button class="btn primary mini" type="submit">标记完成</button>
                                 </form>
                                 <form th:if="${item.status == 'DONE'}"
@@ -576,7 +574,6 @@
                                       method="post"
                                       data-confirm-message="确认归档并关闭该工单吗？">
                                     <input type="hidden" name="status" value="CLOSED" />
-                                    <input type="hidden" name="assignee" th:value="${item.assignee}" />
                                     <button class="btn ghost mini" type="submit">归档关闭</button>
                                 </form>
                             </div>

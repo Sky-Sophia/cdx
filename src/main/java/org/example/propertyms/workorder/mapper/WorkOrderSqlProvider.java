@@ -34,8 +34,8 @@ public class WorkOrderSqlProvider {
         if (SqlProviderHelper.isNotBlank(params.get("keyword"))) {
             sql.append(" AND (w.order_no LIKE CONCAT('%', #{keyword}, '%')");
             sql.append(" OR u.unit_no LIKE CONCAT('%', #{keyword}, '%')");
-            sql.append(" OR COALESCE(p.full_name, r.name) LIKE CONCAT('%', #{keyword}, '%')");
-            sql.append(" OR COALESCE(p.phone, r.phone) LIKE CONCAT('%', #{keyword}, '%'))");
+            sql.append(" OR p.full_name LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" OR p.phone LIKE CONCAT('%', #{keyword}, '%'))");
         }
         if (SqlProviderHelper.isNotBlank(params.get("status"))) {
             sql.append(" AND w.status = #{status}");

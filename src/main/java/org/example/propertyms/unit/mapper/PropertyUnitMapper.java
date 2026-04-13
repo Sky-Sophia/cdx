@@ -22,8 +22,8 @@ public interface PropertyUnitMapper {
             u.area_m2,
             u.occupancy_status,
             u.owner_resident_id,
-            r.name AS owner_name,
-            r.phone AS owner_phone,
+            p.full_name AS owner_name,
+            p.phone AS owner_phone,
             u.created_at,
             u.updated_at
             """;
@@ -51,6 +51,7 @@ public interface PropertyUnitMapper {
             FROM units u
             LEFT JOIN buildings b ON b.id = u.building_id
             LEFT JOIN residents r ON r.id = u.owner_resident_id
+            LEFT JOIN persons p ON p.id = r.person_id
             WHERE u.id = #{id}
             """)
     PropertyUnit findById(@Param("id") Long id);

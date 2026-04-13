@@ -13,7 +13,7 @@ public interface WorkOrderService {
 
     void create(WorkOrder workOrder);
 
-    void updateStatus(Long id, String status, String assignee);
+    void updateStatus(Long id, String status, Long operatorAccountId);
 
     long countOpen();
 

@@ -7,9 +7,7 @@ public class ResidentSqlProvider {
 
     public String findAllSql(Map<String, Object> params) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT r.*, u.unit_no ");
-        sql.append("FROM residents r ");
-        sql.append("LEFT JOIN units u ON u.id = r.unit_id ");
+        sql.append(ResidentMapper.BASE_SELECT);
         sql.append("WHERE 1=1");
         appendFilters(sql, params);
         sql.append(" ORDER BY r.updated_at DESC, r.id DESC");
@@ -21,6 +19,7 @@ public class ResidentSqlProvider {
         sql.append("SELECT COUNT(*) ");
         sql.append("FROM residents r ");
         sql.append("LEFT JOIN units u ON u.id = r.unit_id ");
+        sql.append("LEFT JOIN persons p ON p.id = r.person_id ");
         sql.append("WHERE 1=1");
         appendFilters(sql, params);
         return sql.toString();
@@ -32,8 +31,8 @@ public class ResidentSqlProvider {
 
     private void appendFilters(StringBuilder sql, Map<String, Object> params) {
         if (SqlProviderHelper.isNotBlank(params.get("keyword"))) {
-            sql.append(" AND (r.name LIKE CONCAT('%', #{keyword}, '%')");
-            sql.append(" OR r.phone LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" AND (p.full_name LIKE CONCAT('%', #{keyword}, '%')");
+            sql.append(" OR p.phone LIKE CONCAT('%', #{keyword}, '%')");
             sql.append(" OR u.unit_no LIKE CONCAT('%', #{keyword}, '%'))");
         }
         if (SqlProviderHelper.isNotBlank(params.get("status"))) {

@@ -7,15 +7,20 @@ import org.example.propertyms.resident.mapper.ResidentMapper;
 import org.example.propertyms.resident.model.Resident;
 import org.example.propertyms.resident.model.ResidentStatus;
 import org.example.propertyms.resident.model.ResidentType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ResidentServiceImpl implements ResidentService {
     private final ResidentMapper residentMapper;
+    private final JdbcTemplate jdbcTemplate;
 
-    public ResidentServiceImpl(ResidentMapper residentMapper) {
+    public ResidentServiceImpl(ResidentMapper residentMapper, JdbcTemplate jdbcTemplate) {
         this.residentMapper = residentMapper;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -58,8 +63,16 @@ public class ResidentServiceImpl implements ResidentService {
         }
 
         if (resident.getId() == null) {
+            resident.setPersonId(createPerson(resident));
             residentMapper.insert(resident);
         } else {
+            Resident existing = residentMapper.findById(resident.getId());
+            if (existing == null) {
+                throw new IllegalArgumentException("住户不存在。");
+            }
+            resident.setPersonId(existing.getPersonId());
+            resident.setAccountId(existing.getAccountId());
+            updatePerson(existing.getPersonId(), resident);
             residentMapper.update(resident);
         }
 
@@ -100,6 +113,47 @@ public class ResidentServiceImpl implements ResidentService {
     @Override
     public long countOccupiedUnits() {
         return residentMapper.countOccupiedUnits();
+    }
+
+    private Long createPerson(Resident resident) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            var statement = connection.prepareStatement("""
+                    INSERT INTO persons (full_name, phone, identity_no, gender, created_at, updated_at)
+                    VALUES (?, ?, ?, 'UNKNOWN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    """, new String[]{"id"});
+            statement.setString(1, resident.getName().trim());
+            statement.setString(2, normalizeNullable(resident.getPhone()));
+            statement.setString(3, normalizeNullable(resident.getIdentityNo()));
+            return statement;
+        }, keyHolder);
+        Number key = keyHolder.getKey();
+        if (key == null) {
+            throw new IllegalStateException("创建住户人员档案失败。");
+        }
+        return key.longValue();
+    }
+
+    private void updatePerson(Long personId, Resident resident) {
+        if (personId == null) {
+            throw new IllegalStateException("住户缺少人员档案关联。");
+        }
+        jdbcTemplate.update("""
+                UPDATE persons
+                SET full_name = ?,
+                    phone = ?,
+                    identity_no = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                resident.getName().trim(),
+                normalizeNullable(resident.getPhone()),
+                normalizeNullable(resident.getIdentityNo()),
+                personId);
+    }
+
+    private String normalizeNullable(String value) {
+        return StringHelper.isBlank(value) ? null : value.trim();
     }
 }
 

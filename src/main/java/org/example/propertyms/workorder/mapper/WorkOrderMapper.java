@@ -18,14 +18,15 @@ public interface WorkOrderMapper {
                    w.order_no,
                    w.unit_id,
                    w.resident_id,
+                   w.assignee_employee_id,
                    u.unit_no,
-                   COALESCE(p.full_name, r.name) AS resident_name,
-                   COALESCE(p.phone, r.phone) AS phone,
+                   p.full_name AS resident_name,
+                   p.phone AS phone,
                    w.category,
                    w.priority,
                    w.description,
                    w.status,
-                   w.assignee,
+                   ap.full_name AS assignee,
                    w.scheduled_at,
                    w.finished_at,
                    w.created_at,
@@ -34,6 +35,8 @@ public interface WorkOrderMapper {
             LEFT JOIN units u ON u.id = w.unit_id
             LEFT JOIN residents r ON r.id = w.resident_id
             LEFT JOIN persons p ON p.id = r.person_id
+            LEFT JOIN employees ae ON ae.id = w.assignee_employee_id
+            LEFT JOIN persons ap ON ap.id = ae.person_id
             """;
 
     @SelectProvider(type = WorkOrderSqlProvider.class, method = "countSql")
@@ -60,8 +63,8 @@ public interface WorkOrderMapper {
     List<WorkOrder> findRecent(@Param("limit") int limit);
 
     @Insert("""
-            INSERT INTO work_orders (order_no, unit_id, resident_id, category, priority, description, status, assignee, scheduled_at)
-            VALUES (#{orderNo}, #{unitId}, #{residentId}, #{category}, #{priority}, #{description}, #{status}, #{assignee}, #{scheduledAt})
+            INSERT INTO work_orders (order_no, unit_id, resident_id, category, priority, description, status, assignee_employee_id, scheduled_at)
+            VALUES (#{orderNo}, #{unitId}, #{residentId}, #{category}, #{priority}, #{description}, #{status}, #{assigneeEmployeeId}, #{scheduledAt})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(WorkOrder workOrder);
@@ -79,7 +82,7 @@ public interface WorkOrderMapper {
     @Update("""
             UPDATE work_orders
             SET status = #{status},
-                assignee = #{assignee},
+                assignee_employee_id = #{assigneeEmployeeId},
                 scheduled_at = #{scheduledAt},
                 finished_at = #{finishedAt},
                 updated_at = CURRENT_TIMESTAMP
@@ -87,7 +90,7 @@ public interface WorkOrderMapper {
             """)
     int updateStatus(@Param("id") Long id,
                      @Param("status") String status,
-                     @Param("assignee") String assignee,
+                     @Param("assigneeEmployeeId") Long assigneeEmployeeId,
                      @Param("scheduledAt") LocalDateTime scheduledAt,
                      @Param("finishedAt") LocalDateTime finishedAt);
 

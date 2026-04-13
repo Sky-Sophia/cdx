@@ -13,6 +13,25 @@ import org.example.propertyms.resident.model.Resident;
 
 @Mapper
 public interface ResidentMapper {
+    String BASE_SELECT = """
+            SELECT r.id,
+                   r.person_id,
+                   r.account_id,
+                   r.unit_id,
+                   u.unit_no,
+                   p.full_name AS name,
+                   p.phone,
+                   p.identity_no,
+                   r.resident_type,
+                   r.status,
+                   r.move_in_date,
+                   r.move_out_date,
+                   r.created_at,
+                   r.updated_at
+            FROM residents r
+            LEFT JOIN units u ON u.id = r.unit_id
+            LEFT JOIN persons p ON p.id = r.person_id
+            """;
 
     @SelectProvider(type = ResidentSqlProvider.class, method = "countSql")
     long count(@Param("keyword") String keyword,
@@ -28,22 +47,21 @@ public interface ResidentMapper {
     List<Resident> findAll(@Param("keyword") String keyword,
                            @Param("status") String status);
 
-    @Select("SELECT r.*, u.unit_no FROM residents r LEFT JOIN units u ON u.id = r.unit_id WHERE r.id = #{id}")
+    @Select(BASE_SELECT + " WHERE r.id = #{id}")
     Resident findById(@Param("id") Long id);
 
     @Insert("""
-            INSERT INTO residents (unit_id, name, phone, identity_no, resident_type, status, move_in_date, move_out_date)
-            VALUES (#{unitId}, #{name}, #{phone}, #{identityNo}, #{residentType}, #{status}, #{moveInDate}, #{moveOutDate})
+            INSERT INTO residents (person_id, account_id, unit_id, resident_type, status, move_in_date, move_out_date)
+            VALUES (#{personId}, #{accountId}, #{unitId}, #{residentType}, #{status}, #{moveInDate}, #{moveOutDate})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Resident resident);
 
     @Update("""
             UPDATE residents
-            SET unit_id = #{unitId},
-                name = #{name},
-                phone = #{phone},
-                identity_no = #{identityNo},
+            SET person_id = #{personId},
+                account_id = #{accountId},
+                unit_id = #{unitId},
                 resident_type = #{residentType},
                 status = #{status},
                 move_in_date = #{moveInDate},
