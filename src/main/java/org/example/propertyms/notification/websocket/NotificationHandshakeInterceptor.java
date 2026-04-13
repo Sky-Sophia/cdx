@@ -2,6 +2,8 @@ package org.example.propertyms.notification.websocket;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
+
+import lombok.NonNull;
 import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.SessionKeys;
 import org.springframework.http.HttpStatus;
@@ -17,10 +19,10 @@ public class NotificationHandshakeInterceptor implements HandshakeInterceptor {
     public static final String CURRENT_USER_ATTR = "notificationCurrentUser";
 
     @Override
-    public boolean beforeHandshake(ServerHttpRequest request,
-                                   ServerHttpResponse response,
-                                   WebSocketHandler wsHandler,
-                                   Map<String, Object> attributes) {
+    public boolean beforeHandshake(@NonNull ServerHttpRequest request,
+                                   @NonNull ServerHttpResponse response,
+                                   @NonNull WebSocketHandler wsHandler,
+                                   @NonNull Map<String, Object> attributes) {
         if (!(request instanceof ServletServerHttpRequest servletRequest)) {
             response.setStatusCode(HttpStatus.FORBIDDEN);
             return false;
@@ -36,9 +38,9 @@ public class NotificationHandshakeInterceptor implements HandshakeInterceptor {
     }
 
     @Override
-    public void afterHandshake(ServerHttpRequest request,
-                               ServerHttpResponse response,
-                               WebSocketHandler wsHandler,
+    public void afterHandshake(@NonNull ServerHttpRequest request,
+                               @NonNull ServerHttpResponse response,
+                               @NonNull WebSocketHandler wsHandler,
                                Exception exception) {
         // no-op
     }

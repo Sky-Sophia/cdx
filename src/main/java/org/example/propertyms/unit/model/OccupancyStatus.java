@@ -1,8 +1,11 @@
 package org.example.propertyms.unit.model;
 
+import lombok.Getter;
+
 /**
  * 房屋入住状态枚举常量。
  */
+@Getter
 public enum OccupancyStatus {
     SELF_OCCUPIED("自住"),
     RENTED("出租"),
@@ -15,9 +18,6 @@ public enum OccupancyStatus {
         this.label = label;
     }
 
-    public String getLabel() {
-        return label;
-    }
 }
 
 
