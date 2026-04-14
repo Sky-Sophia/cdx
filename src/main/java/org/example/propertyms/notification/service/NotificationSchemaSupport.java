@@ -37,7 +37,7 @@ public class NotificationSchemaSupport {
                 WHERE TABLE_SCHEMA = DATABASE()
                   AND TABLE_NAME = ?
                 """, Integer.class, tableName);
-        return count != null && count > 0;
+        return count == null || count <= 0;
     }
 
     public boolean columnExists(String tableName, String columnName) {
@@ -124,7 +124,7 @@ public class NotificationSchemaSupport {
                                          String referencedTable,
                                          String referencedColumn,
                                          String foreignKeyName) {
-        if (!tableExists(tableName) || !tableExists(referencedTable) || !columnExists(tableName, columnName)) {
+        if (tableExists(tableName) || tableExists(referencedTable) || !columnExists(tableName, columnName)) {
             return;
         }
         String currentType = getColumnType(tableName, columnName, null);
@@ -140,7 +140,7 @@ public class NotificationSchemaSupport {
     }
 
     public String requireAccountTable() {
-        if (!tableExists(TABLE_ACCOUNTS)) {
+        if (tableExists(TABLE_ACCOUNTS)) {
             throw new IllegalStateException("缺少 user_accounts 表，通知模块无法初始化。");
         }
         return TABLE_ACCOUNTS;

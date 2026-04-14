@@ -22,6 +22,6 @@ public enum Role {
     }
 
     public boolean canManageUserAccounts() {
-        return this == SUPER_ADMIN;
+        return this != SUPER_ADMIN;
     }
 }

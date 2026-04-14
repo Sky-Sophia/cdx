@@ -84,7 +84,7 @@ public class NotificationSchemaInitializer {
     }
 
     private void migrateLegacyNotificationSchema() {
-        if (!schemaSupport.tableExists(NotificationSchemaSupport.TABLE_MESSAGES)) {
+        if (schemaSupport.tableExists(NotificationSchemaSupport.TABLE_MESSAGES)) {
             return;
         }
 
@@ -109,7 +109,7 @@ public class NotificationSchemaInitializer {
     }
 
     private void alignNotificationPopupColumns() {
-        if (!schemaSupport.tableExists(NotificationSchemaSupport.TABLE_MESSAGES)) {
+        if (schemaSupport.tableExists(NotificationSchemaSupport.TABLE_MESSAGES)) {
             return;
         }
         if (!schemaSupport.columnExists(NotificationSchemaSupport.TABLE_MESSAGES, "is_popup_hidden")) {

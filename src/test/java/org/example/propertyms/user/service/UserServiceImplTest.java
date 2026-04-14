@@ -12,6 +12,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
+
+import lombok.Getter;
 import org.example.propertyms.common.util.PasswordUtils;
 import org.example.propertyms.user.mapper.UserMapper;
 import org.example.propertyms.user.model.Role;
@@ -23,7 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +36,7 @@ class UserServiceImplTest {
     @Mock
     private JdbcTemplate jdbcTemplate;
 
+    @Getter
     @Mock
     private UserDepartmentResolver userDepartmentResolver;
 
@@ -46,11 +48,11 @@ class UserServiceImplTest {
         when(userMapper.findByUsername("admin_user")).thenReturn(null);
         doAnswer(invocation -> {
             KeyHolder keyHolder = invocation.getArgument(1);
-            ((GeneratedKeyHolder) keyHolder).getKeyList().add(Map.of("id", 100L));
+            keyHolder.getKeyList().add(Map.of("id", 100L));
             return 1;
         }).doAnswer(invocation -> {
             KeyHolder keyHolder = invocation.getArgument(1);
-            ((GeneratedKeyHolder) keyHolder).getKeyList().add(Map.of("id", 200L));
+            keyHolder.getKeyList().add(Map.of("id", 200L));
             return 1;
         }).when(jdbcTemplate).update(any(), any(KeyHolder.class));
 
@@ -124,4 +126,5 @@ class UserServiceImplTest {
 
         verifyNoInteractions(jdbcTemplate);
     }
+
 }

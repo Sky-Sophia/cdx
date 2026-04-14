@@ -28,13 +28,13 @@
                                 <label class="archive-create-label" id="managed-resident-unit-label">所属房屋</label>
                                 <div class="unit-picker archive-create-control" data-unit-picker data-required>
                                     <input type="hidden" name="unitId" th:value="${createResident.unitId}" required data-unit-picker-value />
-                                    <input class="archive-create-control unit-picker-input"
-                                           id="managed-resident-unit-input"
-                                           type="text"
-                                           placeholder="点击选择房屋"
-                                           readonly
-                                           data-unit-picker-input
-                                           aria-labelledby="managed-resident-unit-label" />
+                                    <label for="managed-resident-unit-input"></label><input class="archive-create-control unit-picker-input"
+                                                                                            id="managed-resident-unit-input"
+                                                                                            type="text"
+                                                                                            placeholder="点击选择房屋"
+                                                                                            readonly
+                                                                                            data-unit-picker-input
+                                                                                            aria-labelledby="managed-resident-unit-label" />
                                     <button class="unit-picker-open" type="button" data-unit-picker-trigger aria-label="选择房屋">选择</button>
                                     <div class="unit-picker-panel" data-unit-picker-panel hidden>
                                         <div class="unit-picker-column">

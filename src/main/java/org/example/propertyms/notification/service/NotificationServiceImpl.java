@@ -79,7 +79,6 @@ public class NotificationServiceImpl implements NotificationService {
         return updateNotification(receiverId,
                 notificationId,
                 this::isRead,
-                "通知已被删除。",
                 () -> notificationMapper.markRead(notificationId, receiverId));
     }
 
@@ -100,7 +99,6 @@ public class NotificationServiceImpl implements NotificationService {
         return updateNotification(receiverId,
                 notificationId,
                 this::isPopupHidden,
-                "通知已被删除。",
                 () -> notificationMapper.hidePopup(notificationId, receiverId));
     }
 
@@ -187,9 +185,8 @@ public class NotificationServiceImpl implements NotificationService {
     private NotificationItem updateNotification(Long receiverId,
                                                 Long notificationId,
                                                 Predicate<NotificationMessage> skipCondition,
-                                                String deletedMessage,
                                                 Runnable updater) {
-        NotificationMessage current = requireActiveNotification(receiverId, notificationId, deletedMessage);
+        NotificationMessage current = requireActiveNotification(receiverId, notificationId, "通知已被删除。");
         if (!skipCondition.test(current)) {
             updater.run();
             current = requireOwnedNotification(receiverId, notificationId);

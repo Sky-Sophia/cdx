@@ -241,7 +241,7 @@ public class AdminUserController {
         UserSession currentUser = currentUser(session);
         return currentUser == null
                 || currentUser.getRole() == null
-                || !currentUser.getRole().canManageUserAccounts();
+                || currentUser.getRole().canManageUserAccounts();
     }
 
     private UserSession currentUser(HttpSession session) {
