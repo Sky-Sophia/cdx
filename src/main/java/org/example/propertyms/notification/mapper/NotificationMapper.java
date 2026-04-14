@@ -28,6 +28,8 @@ public interface NotificationMapper {
             nm.read_time,
             nm.is_deleted,
             nm.deleted_time,
+            nm.is_popup_hidden,
+            nm.popup_hidden_time,
             nb.target_type,
             nb.target_value,
             nm.created_at,
@@ -122,6 +124,18 @@ public interface NotificationMapper {
               AND is_read = 0
             """)
     void markAllRead(@Param("receiverId") Long receiverId);
+
+    @Update("""
+            UPDATE notification_messages
+            SET is_popup_hidden = 1,
+                popup_hidden_time = COALESCE(popup_hidden_time, CURRENT_TIMESTAMP),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = #{id}
+              AND receiver_id = #{receiverId}
+              AND is_deleted = 0
+              AND is_popup_hidden = 0
+            """)
+    void hidePopup(@Param("id") Long id, @Param("receiverId") Long receiverId);
 
     @Delete("""
             DELETE FROM notification_messages

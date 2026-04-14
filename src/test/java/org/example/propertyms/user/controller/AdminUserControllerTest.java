@@ -1,5 +1,6 @@
 package org.example.propertyms.user.controller;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,7 @@ import org.example.propertyms.common.constant.SessionKeys;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
 import org.example.propertyms.user.service.DepartmentService;
+import org.example.propertyms.user.service.UserDepartmentResolver;
 import org.example.propertyms.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,9 @@ class AdminUserControllerTest {
     @Mock
     private DepartmentService departmentService;
 
+    @Mock
+    private UserDepartmentResolver userDepartmentResolver;
+
     @InjectMocks
     private AdminUserController adminUserController;
 
@@ -47,7 +52,7 @@ class AdminUserControllerTest {
     }
 
     @Test
-    void list_shouldRejectNonOfficeUser() throws Exception {
+    void list_shouldRejectNonSuperAdmin() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "manager", Role.ADMIN));
 
@@ -75,7 +80,7 @@ class AdminUserControllerTest {
                 .andExpect(redirectedUrl("/admin/users/edit/10"))
                 .andExpect(flash().attributeExists("error"));
 
-        verify(userService, never()).updateStatus(10L, "DISABLED");
+        verify(userService, never()).updateManagementProfile(10L, Role.SUPER_ADMIN, "OFFICE", "DISABLED");
     }
 
     @Test
@@ -89,6 +94,7 @@ class AdminUserControllerTest {
         user.setRole(Role.ADMIN);
         user.setStatus("ACTIVE");
         when(userService.findById(2L)).thenReturn(user);
+        when(userDepartmentResolver.defaultDepartmentCode(Role.ADMIN)).thenReturn("MANAGEMENT");
 
         mockMvc.perform(get("/admin/users/edit/2").session(session))
                 .andExpect(status().isOk())
@@ -101,6 +107,7 @@ class AdminUserControllerTest {
     void newForm_shouldRedirectToManagementAndOpenModal() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.SUPER_ADMIN));
+        when(userDepartmentResolver.defaultDepartmentCode(Role.ADMIN)).thenReturn("MANAGEMENT");
 
         mockMvc.perform(get("/admin/users/new").session(session))
                 .andExpect(status().is3xxRedirection())
@@ -130,10 +137,29 @@ class AdminUserControllerTest {
                 .andExpect(redirectedUrl("/admin/management?tab=users"))
                 .andExpect(flash().attributeExists("success"));
 
-        verify(userService).updateRole(2L, Role.ADMIN);
-        verify(userService).updateDepartmentCode(2L, "MANAGEMENT");
-        verify(userService).updateStatus(2L, "ACTIVE");
+        verify(userService).updateManagementProfile(2L, Role.ADMIN, "MANAGEMENT", "active");
+    }
+
+    @Test
+    void manage_shouldReturnToEditPageWhenDepartmentInvalid() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(SessionKeys.CURRENT_USER, new UserSession(1L, "admin", Role.SUPER_ADMIN));
+
+        User user = new User();
+        user.setId(2L);
+        user.setRole(Role.ADMIN);
+        when(userService.findById(2L)).thenReturn(user);
+        doThrow(new IllegalArgumentException("所选部门不存在或已停用。"))
+                .when(userService)
+                .updateManagementProfile(2L, Role.ADMIN, "INVALID", "ACTIVE");
+
+        mockMvc.perform(post("/admin/users/2/manage")
+                        .session(session)
+                        .param("role", "ADMIN")
+                        .param("departmentCode", "INVALID")
+                        .param("status", "ACTIVE"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/users/edit/2"))
+                .andExpect(flash().attributeExists("error"));
     }
 }
-
-

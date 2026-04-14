@@ -15,5 +15,7 @@ public class NotificationItem {
     private LocalDateTime sendTime;
     private boolean read;
     private LocalDateTime readTime;
+    private boolean popupHidden;
+    private LocalDateTime popupHiddenTime;
 }
 

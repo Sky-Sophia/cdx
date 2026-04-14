@@ -19,6 +19,8 @@ public class NotificationMessage {
     private LocalDateTime readTime;
     private Integer isDeleted;
     private LocalDateTime deletedTime;
+    private Integer isPopupHidden;
+    private LocalDateTime popupHiddenTime;
     private String targetType;
     private String targetValue;
     private LocalDateTime createdAt;

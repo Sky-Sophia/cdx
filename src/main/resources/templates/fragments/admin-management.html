@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<a th:fragment="filterReset(resetHref)"
+   class="btn ghost filter-action-btn filter-action-reset"
+   th:href="${resetHref}">
+    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+    </svg>
+    <span>重置</span>
+</a>
+
+<a th:fragment="filterExport(exportHref)"
+   class="btn ghost filter-action-btn filter-action-export"
+   th:href="${exportHref}">
+    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
+    </svg>
+    <span>导出 Excel</span>
+</a>
+
+<button th:fragment="createPrimaryButton(target, label)"
+        class="btn primary"
+        type="button"
+        style="margin-left: auto;"
+        th:attr="data-management-create-open=${target}">
+    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+    <span th:text="${label}">新增</span>
+</button>
+</body>
+</html>

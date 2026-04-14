@@ -6,7 +6,7 @@
     <title>物业系统 - 个人中心</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/profile.css?v=20260412-profile-history-layout-fix7" />
+    <link rel="stylesheet" href="/css/apps/profile.css?v=20260413-profile-notice-detail-modal" />
 </head>
 
 <body>
@@ -196,10 +196,50 @@
     </div>
 </div>
 
+<div class="notification-detail-modal-overlay"
+     id="globalNotificationDetailModal"
+     data-notification-detail-modal
+     hidden
+     aria-hidden="true">
+    <div class="notification-detail-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="globalNotificationDetailTitle"
+         data-notification-detail-dialog>
+        <div class="notification-detail-modal-header">
+            <h3 class="notification-detail-modal-title"
+                id="globalNotificationDetailTitle"
+                data-notification-detail-title>通知详情</h3>
+            <button class="notification-detail-close"
+                    type="button"
+                    aria-label="关闭弹窗"
+                    data-notification-detail-close>×</button>
+        </div>
+        <div class="notification-detail-modal-body">
+            <div class="notification-detail-meta">
+                <span class="notification-detail-badge"
+                      data-notification-detail-type
+                      data-tone="notice">通知</span>
+                <span class="notification-detail-field">
+                    <span class="notification-detail-label">发送人</span>
+                    <span class="notification-detail-value" data-notification-detail-sender>系统消息</span>
+                </span>
+                <span class="notification-detail-field">
+                    <span class="notification-detail-label">时间</span>
+                    <span class="notification-detail-value" data-notification-detail-time>刚刚</span>
+                </span>
+            </div>
+            <div class="notification-detail-content" data-notification-detail-content>暂无消息内容</div>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/layout :: confirmModal}"></div>
 <script src="/js/common/overlay-scrollbar.js?v=20260411-overlay-scrollbar-global" defer></script>
 <script src="/js/common/validation-bubble.js?v=20260411-profile-validation-bubble-fix" defer></script>
-<script src="/js/account/profile.js?v=20260412-profile-history-modal-fix10" defer></script>
+<script src="/js/common/notification-common.js?v=20260413-notice-common" defer></script>
+<script src="/js/common/notification-detail-modal.js?v=20260413-notice-detail-modal" defer></script>
+<script src="/js/account/profile.js?v=20260413-profile-history-detail-modal" defer></script>
 <script src="/js/common/notification-center.js?v=20260412-profile-history-delete-fix10" defer></script>
 </body>
 </html>

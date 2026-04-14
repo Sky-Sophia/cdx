@@ -6,7 +6,7 @@
     <title>统一管理 - 物业后台管理系统</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin-management.css?v=20260411-notice-type-tag" />
+    <link rel="stylesheet" href="/css/apps/admin-management.css?v=20260413-notice-detail-modal" />
 </head>
 <body>
 <div class="app-shell">
@@ -304,22 +304,9 @@
                         </ul>
                     </div>
                 </label>
-                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=units">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
-                    </svg>
-                    <span>重置</span>
-                </a>
-                <a class="btn ghost filter-action-btn filter-action-export"
-                   th:href="@{/admin/units/export(keyword=${unitKeyword},buildingId=${unitBuildingId},status=${unitStatus})}">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
-                    </svg>
-                    <span>导出 Excel</span>
-                </a>
-                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="residents">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增住户</button>
+                <a th:replace="~{fragments/admin-management :: filterReset(@{/admin/management(tab='units')})}"></a>
+                <a th:replace="~{fragments/admin-management :: filterExport(@{/admin/units/export(keyword=${unitKeyword},buildingId=${unitBuildingId},status=${unitStatus})})}"></a>
+                <button th:replace="~{fragments/admin-management :: createPrimaryButton('residents', '新增住户')}"></button>
             </form>
 
             <div class="table-wrap">
@@ -391,22 +378,9 @@
                         </ul>
                     </div>
                 </label>
-                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=residents">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
-                    </svg>
-                    <span>重置</span>
-                </a>
-                <a class="btn ghost filter-action-btn filter-action-export"
-                   th:href="@{/admin/residents/export(keyword=${residentKeyword},status=${residentStatus})}">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
-                    </svg>
-                    <span>导出 Excel</span>
-                </a>
-                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="residents">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增住户</button>
+                <a th:replace="~{fragments/admin-management :: filterReset(@{/admin/management(tab='residents')})}"></a>
+                <a th:replace="~{fragments/admin-management :: filterExport(@{/admin/residents/export(keyword=${residentKeyword},status=${residentStatus})})}"></a>
+                <button th:replace="~{fragments/admin-management :: createPrimaryButton('residents', '新增住户')}"></button>
             </form>
 
             <div class="table-wrap">
@@ -500,22 +474,9 @@
                         </ul>
                     </div>
                 </label>
-                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=work-orders">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
-                    </svg>
-                    <span>重置</span>
-                </a>
-                <a class="btn ghost filter-action-btn filter-action-export"
-                   th:href="@{/admin/work-orders/export(keyword=${workOrderKeyword},status=${workOrderStatus},priority=${workOrderPriority})}">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
-                    </svg>
-                    <span>导出 Excel</span>
-                </a>
-                <button class="btn primary" type="button" style="margin-left: auto" data-management-create-open="work-orders">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新建工单</button>
+                <a th:replace="~{fragments/admin-management :: filterReset(@{/admin/management(tab='work-orders')})}"></a>
+                <a th:replace="~{fragments/admin-management :: filterExport(@{/admin/work-orders/export(keyword=${workOrderKeyword},status=${workOrderStatus},priority=${workOrderPriority})})}"></a>
+                <button th:replace="~{fragments/admin-management :: createPrimaryButton('work-orders', '新建工单')}"></button>
             </form>
 
             <div class="table-wrap">
@@ -644,22 +605,9 @@
                 <label>
                     <input type="month" name="billBillingMonth" th:value="${billBillingMonth}" data-auto-submit-filter="true" data-ui-picker="month" />
                 </label>
-                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=bills">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
-                    </svg>
-                    <span>重置</span>
-                </a>
-                <a class="btn ghost filter-action-btn filter-action-export"
-                   th:href="@{/admin/bills/export(keyword=${billKeyword},status=${billStatus},billingMonth=${billBillingMonth})}">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
-                    </svg>
-                    <span>导出 Excel</span>
-                </a>
-                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="bills">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增账单</button>
+                <a th:replace="~{fragments/admin-management :: filterReset(@{/admin/management(tab='bills')})}"></a>
+                <a th:replace="~{fragments/admin-management :: filterExport(@{/admin/bills/export(keyword=${billKeyword},status=${billStatus},billingMonth=${billBillingMonth})})}"></a>
+                <button th:replace="~{fragments/admin-management :: createPrimaryButton('bills', '新增账单')}"></button>
             </form>
 
             <div class="table-wrap">
@@ -753,22 +701,9 @@
                         </ul>
                     </div>
                 </label>
-                <a class="btn ghost filter-action-btn filter-action-reset" href="/admin/management?tab=users">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
-                    </svg>
-                    <span>重置</span>
-                </a>
-                <a class="btn ghost filter-action-btn filter-action-export" id="exportUsersBtn"
-                   th:href="@{/admin/users/export(q=${userQ},role=${userRole},status=${userStatus})}">
-                    <svg class="filter-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
-                    </svg>
-                    <span>导出 Excel</span>
-                </a>
-                <button class="btn primary" type="button" style="margin-left: auto;" data-management-create-open="users">
-                    <img src="/icons/plus.svg" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-                    新增用户</button>
+                <a th:replace="~{fragments/admin-management :: filterReset(@{/admin/management(tab='users')})}"></a>
+                <a th:replace="~{fragments/admin-management :: filterExport(@{/admin/users/export(q=${userQ},role=${userRole},status=${userStatus})})}"></a>
+                <button th:replace="~{fragments/admin-management :: createPrimaryButton('users', '新增用户')}"></button>
             </form>
 
             <div class="table-wrap">

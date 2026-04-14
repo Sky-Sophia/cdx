@@ -21,8 +21,7 @@ public enum Role {
         return this != RESIDENT;
     }
 
-    public boolean canManageUsers() {
-        return this != SUPER_ADMIN;
+    public boolean canManageUserAccounts() {
+        return this == SUPER_ADMIN;
     }
 }
-

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.util.ExcelExportHelper;
+import org.example.propertyms.common.web.ManagementPageRouter;
 import org.example.propertyms.resident.model.Resident;
 import org.example.propertyms.resident.model.ResidentType;
 import org.example.propertyms.resident.service.ResidentService;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/admin/residents")
@@ -32,15 +32,10 @@ public class AdminResidentController {
     @GetMapping
     public String list(@RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String status) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
-                .queryParam("tab", "residents");
-        if (keyword != null && !keyword.isBlank()) {
-            builder.queryParam("residentKeyword", keyword);
-        }
-        if (status != null && !status.isBlank()) {
-            builder.queryParam("residentStatus", status);
-        }
-        return "redirect:" + builder.toUriString();
+        return ManagementPageRouter.redirectToTab("residents", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "residentKeyword", keyword);
+            ManagementPageRouter.addTrimmedParam(builder, "residentStatus", status);
+        });
     }
 
     @GetMapping("/new")

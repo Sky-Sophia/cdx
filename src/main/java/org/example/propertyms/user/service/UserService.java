@@ -14,6 +14,8 @@ public interface UserService {
 
     List<User> listByFilters(String q, Role role, String status);
 
+    void updateManagementProfile(Long userId, Role role, String departmentCode, String status);
+
     void updateRole(Long userId, Role role);
 
     void updateDepartmentCode(Long userId, String departmentCode);

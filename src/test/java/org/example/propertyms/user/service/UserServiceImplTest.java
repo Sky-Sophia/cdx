@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
@@ -33,6 +34,9 @@ class UserServiceImplTest {
 
     @Mock
     private JdbcTemplate jdbcTemplate;
+
+    @Mock
+    private UserDepartmentResolver userDepartmentResolver;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -94,7 +98,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void resetPassword_shouldPersistPlainTextPassword() {
+    void resetPassword_shouldPersistHashedPassword() {
         User user = new User();
         user.setId(3L);
         when(userMapper.findById(3L)).thenReturn(user);
@@ -106,7 +110,18 @@ class UserServiceImplTest {
         assertNotNull(passwordCaptor.getValue());
         assertTrue(PasswordUtils.matches("Reset123!@", passwordCaptor.getValue()));
     }
+
+    @Test
+    void updateManagementProfile_shouldIgnoreBlankStatus() {
+        User user = new User();
+        user.setId(5L);
+        user.setUsername("engineer");
+        user.setRole(Role.ENGINEER);
+        user.setStatus("ACTIVE");
+        when(userMapper.findById(5L)).thenReturn(user);
+
+        userService.updateManagementProfile(5L, Role.ADMIN, "MANAGEMENT", " ");
+
+        verifyNoInteractions(jdbcTemplate);
+    }
 }
-
-
-

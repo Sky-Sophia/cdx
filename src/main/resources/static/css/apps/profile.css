@@ -1,3 +1,4 @@
 @import url("../common/base.css?v=20260411-msg-bubble-font-fix");
 @import url("../common/confirm-modal.css");
+@import url("../common/notification-detail-modal.css?v=20260413-notice-detail-modal");
 @import url("../pages/user/profile.css?v=20260411-profile-width-fix");

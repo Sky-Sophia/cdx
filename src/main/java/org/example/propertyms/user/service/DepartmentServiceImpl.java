@@ -1,7 +1,7 @@
 package org.example.propertyms.user.service;
 
 import java.util.List;
-import java.util.Locale;
+import org.example.propertyms.common.util.StringHelper;
 import org.example.propertyms.user.mapper.DepartmentOptionMapper;
 import org.example.propertyms.user.model.DepartmentOption;
 import org.springframework.stereotype.Service;
@@ -21,10 +21,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public boolean isEnabledCode(String code) {
-        if (code == null || code.isBlank()) {
+        String normalizedCode = StringHelper.upperCaseOrNull(code);
+        if (normalizedCode == null) {
             return false;
         }
-        return departmentOptionMapper.countEnabledByCode(code.trim().toUpperCase(Locale.ROOT)) > 0;
+        return departmentOptionMapper.countEnabledByCode(normalizedCode) > 0;
     }
 }
 

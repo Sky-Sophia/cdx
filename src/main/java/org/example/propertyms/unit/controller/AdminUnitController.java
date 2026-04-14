@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.example.propertyms.building.service.BuildingService;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.util.ExcelExportHelper;
+import org.example.propertyms.common.web.ManagementPageRouter;
 import org.example.propertyms.unit.model.PropertyUnit;
 import org.example.propertyms.unit.service.PropertyUnitService;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/admin/units")
@@ -32,18 +32,11 @@ public class AdminUnitController {
     public String list(@RequestParam(required = false) String keyword,
                        @RequestParam(required = false) Long buildingId,
                        @RequestParam(required = false) String status) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
-                .queryParam("tab", "units");
-        if (keyword != null && !keyword.isBlank()) {
-            builder.queryParam("unitKeyword", keyword);
-        }
-        if (buildingId != null) {
-            builder.queryParam("unitBuildingId", buildingId);
-        }
-        if (status != null && !status.isBlank()) {
-            builder.queryParam("unitStatus", status);
-        }
-        return "redirect:" + builder.toUriString();
+        return ManagementPageRouter.redirectToTab("units", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "unitKeyword", keyword);
+            ManagementPageRouter.addParam(builder, "unitBuildingId", buildingId);
+            ManagementPageRouter.addTrimmedParam(builder, "unitStatus", status);
+        });
     }
 
     @GetMapping("/new")

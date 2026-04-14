@@ -33,11 +33,11 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
 
         Role role = user.getRole();
-        if (path.startsWith("/actuator") && (role == null || role.canManageUsers())) {
+        if (path.startsWith("/actuator") && (role == null || !role.canManageUserAccounts())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
-        if (path.startsWith("/admin/users") && (role == null || role.canManageUsers())) {
+        if (path.startsWith("/admin/users") && (role == null || !role.canManageUserAccounts())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }

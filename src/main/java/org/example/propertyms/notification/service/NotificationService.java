@@ -17,6 +17,8 @@ public interface NotificationService {
 
     List<Long> markAllRead(Long receiverId);
 
+    NotificationItem hidePopup(Long receiverId, Long notificationId);
+
     Long delete(Long receiverId, Long notificationId);
 
     List<Long> deleteAll(Long receiverId);

@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const notificationCommon = window.NotificationCommon;
     const dropdown = document.querySelector("[data-notification-dropdown]");
     const hasHistoryModal = Boolean(document.querySelector("[data-history-modal]"));
-    if (!dropdown && !hasHistoryModal) {
+    if ((!dropdown && !hasHistoryModal) || !notificationCommon) {
         return;
     }
 
@@ -10,6 +11,45 @@ document.addEventListener("DOMContentLoaded", function () {
     let reconnectTimer = 0;
     let pendingSend = null;
     let lastAction = "";
+
+    const socketActionHandlers = {
+        SYNC(detail) {
+            emit("notification:data-sync", {
+                items: detail.items || [],
+                unreadCount: detail.unreadCount || 0
+            });
+        },
+        READ(detail) {
+            emit("notification:data-updated", {
+                item: detail.item,
+                unreadCount: detail.unreadCount || 0
+            });
+        },
+        HIDE_POPUP(detail) {
+            emit("notification:data-updated", {
+                item: detail.item,
+                unreadCount: detail.unreadCount || 0
+            });
+        },
+        READ_ALL(detail) {
+            emit("notification:data-read-all", {
+                ids: detail.ids || [],
+                unreadCount: detail.unreadCount || 0
+            });
+        },
+        DELETE(detail) {
+            emit("notification:data-deleted", {
+                id: detail.id,
+                unreadCount: detail.unreadCount || 0
+            });
+        },
+        DELETE_ALL(detail) {
+            emit("notification:data-deleted-all", {
+                ids: detail.ids || [],
+                unreadCount: detail.unreadCount || 0
+            });
+        }
+    };
 
     function emit(name, detail) {
         window.dispatchEvent(new CustomEvent(name, {
@@ -29,6 +69,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function showActionError(action, message) {
+        emit("notification:action-error", {
+            action,
+            message
+        });
+    }
+
     function connect() {
         clearReconnectTimer();
         emit("notification:data-loading", { text: "通知加载中..." });
@@ -36,8 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
         socket = new WebSocket(buildWsUrl(wsPath));
 
         socket.addEventListener("open", function () {
-            lastAction = "SYNC";
-            socket.send(JSON.stringify({ action: "SYNC" }));
+            sendSocketAction("SYNC");
         });
 
         socket.addEventListener("message", function (event) {
@@ -78,80 +124,53 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        switch (data.type) {
-            case "sync":
-                if (lastAction === "SYNC") {
-                    lastAction = "";
-                }
-                emit("notification:data-sync", {
-                    items: data.items || [],
-                    unreadCount: data.unreadCount || 0
-                });
-                break;
-            case "notice_created":
-                emit("notification:data-created", {
-                    item: data.item,
-                    unreadCount: data.unreadCount || 0
-                });
-                break;
-            case "notice_updated":
-                if (lastAction === "READ") {
-                    lastAction = "";
-                }
-                emit("notification:data-updated", {
-                    item: data.item,
-                    unreadCount: data.unreadCount || 0
-                });
-                break;
-            case "notice_read_all":
-                if (lastAction === "READ_ALL") {
-                    lastAction = "";
-                }
-                emit("notification:data-read-all", {
-                    ids: data.ids || [],
-                    unreadCount: data.unreadCount || 0
-                });
-                break;
-            case "notice_deleted":
-                if (lastAction === "DELETE") {
-                    lastAction = "";
-                }
-                emit("notification:data-deleted", {
-                    id: data.id,
-                    unreadCount: data.unreadCount || 0
-                });
-                break;
-            case "notice_deleted_all":
-                if (lastAction === "DELETE_ALL") {
-                    lastAction = "";
-                }
-                emit("notification:data-deleted-all", {
-                    ids: data.ids || [],
-                    unreadCount: data.unreadCount || 0
-                });
-                break;
-            case "send_ack":
-                if (pendingSend) {
-                    pendingSend.onSuccess(data);
-                    pendingSend = null;
-                }
-                lastAction = "";
-                break;
-            case "error":
-                if (pendingSend) {
-                    pendingSend.onError(data.message || "通知发送失败");
-                    pendingSend = null;
-                } else {
-                    emit("notification:action-error", {
-                        action: lastAction || "",
-                        message: data.message || "通知操作失败"
+        if (data.type === "send_ack") {
+            if (pendingSend) {
+                pendingSend.onSuccess(data);
+                pendingSend = null;
+            }
+            lastAction = "";
+            return;
+        }
+
+        if (data.type === "error") {
+            const message = data.message || "通知操作失败";
+            if (pendingSend) {
+                pendingSend.onError(message);
+                pendingSend = null;
+            } else {
+                showActionError(lastAction || "", message);
+                window.console.warn(message);
+            }
+            lastAction = "";
+            return;
+        }
+
+        const eventMap = {
+            sync: { action: "SYNC", handler: socketActionHandlers.SYNC },
+            notice_created: {
+                action: "",
+                handler(detail) {
+                    emit("notification:data-created", {
+                        item: detail.item,
+                        unreadCount: detail.unreadCount || 0
                     });
-                    window.console.warn(data.message || "通知操作失败");
                 }
-                lastAction = "";
-                break;
-            default:
-                break;
+            },
+            notice_updated: { action: lastAction, handler: socketActionHandlers[lastAction] || socketActionHandlers.READ },
+            notice_read_all: { action: "READ_ALL", handler: socketActionHandlers.READ_ALL },
+            notice_deleted: { action: "DELETE", handler: socketActionHandlers.DELETE },
+            notice_deleted_all: { action: "DELETE_ALL", handler: socketActionHandlers.DELETE_ALL }
+        };
+
+        const mapping = eventMap[data.type];
+        if (!mapping || typeof mapping.handler !== "function") {
+            return;
+        }
+
+        mapping.handler(data);
+        if (!mapping.action || lastAction === mapping.action) {
+            lastAction = "";
         }
     }
 
@@ -159,10 +178,23 @@ document.addEventListener("DOMContentLoaded", function () {
         return socket && socket.readyState === WebSocket.OPEN;
     }
 
-    function requestDelete(url, action, successHandler) {
+    function sendSocketAction(action, payload) {
+        if (!canUseSocket()) {
+            showActionError(action, "通知通道未连接，请稍后重试。");
+            return false;
+        }
+        lastAction = action;
+        socket.send(JSON.stringify({
+            action,
+            payload: payload || null
+        }));
+        return true;
+    }
+
+    function requestJson(url, method, action, successHandler, fallbackMessage) {
         lastAction = action;
         return window.fetch(url, {
-            method: "DELETE",
+            method,
             headers: {
                 "X-Requested-With": "XMLHttpRequest"
             },
@@ -181,29 +213,91 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(function (error) {
                 lastAction = "";
-                emit("notification:action-error", {
-                    action: action,
-                    message: "删除失败，请稍后重试"
-                });
-                window.console.error("通知删除失败", error);
+                showActionError(action, fallbackMessage);
+                window.console.error(`通知请求失败: ${action}`, error);
                 return false;
             });
     }
 
-    function sendAction(action, payload) {
-        if (!canUseSocket()) {
-            emit("notification:action-error", {
-                action: action,
-                message: "通知通道未连接，请稍后重试"
-            });
-            return false;
-        }
-        lastAction = action;
-        socket.send(JSON.stringify({
-            action: action,
-            payload: payload || null
-        }));
-        return true;
+    function requestDelete(url, action, successHandler) {
+        return requestJson(url, "DELETE", action, successHandler, "删除失败，请稍后重试");
+    }
+
+    function requestPatch(url, action, successHandler) {
+        return requestJson(url, "PATCH", action, successHandler, "通知操作失败，请稍后重试");
+    }
+
+    function bindSocketAction(eventName, action, payloadBuilder, fallbackHandler) {
+        window.addEventListener(eventName, function (event) {
+            const detail = event.detail || {};
+            const payload = typeof payloadBuilder === "function" ? payloadBuilder(detail) : null;
+            if (payloadBuilder && !payload) {
+                return;
+            }
+            if (sendSocketAction(action, payload)) {
+                return;
+            }
+            if (typeof fallbackHandler === "function") {
+                fallbackHandler(detail);
+            }
+        });
+    }
+
+    function createApi() {
+        return {
+            isReady: canUseSocket,
+            read(id) {
+                return sendSocketAction("READ", { id });
+            },
+            readViaSocket(id) {
+                return this.read(id);
+            },
+            readAll() {
+                return sendSocketAction("READ_ALL");
+            },
+            readAllViaSocket() {
+                return this.readAll();
+            },
+            hidePopup(id) {
+                if (sendSocketAction("HIDE_POPUP", { id })) {
+                    return Promise.resolve(true);
+                }
+                return requestPatch(`/api/notifications/${id}/popup-hide`, "HIDE_POPUP", function (result) {
+                    socketActionHandlers.HIDE_POPUP({
+                        item: result.item || null,
+                        unreadCount: Number(result.unreadCount || 0)
+                    });
+                });
+            },
+            hidePopupViaSocket(id) {
+                return sendSocketAction("HIDE_POPUP", { id });
+            },
+            delete(id) {
+                return requestDelete(`/api/notifications/${id}`, "DELETE", function (result) {
+                    socketActionHandlers.DELETE({
+                        id: result.id || id,
+                        unreadCount: Number(result.unreadCount || 0)
+                    });
+                });
+            },
+            deleteViaSocket(id) {
+                return sendSocketAction("DELETE", { id });
+            },
+            deleteAll() {
+                return requestDelete("/api/notifications", "DELETE_ALL", function (result) {
+                    socketActionHandlers.DELETE_ALL({
+                        ids: result.ids || [],
+                        unreadCount: Number(result.unreadCount || 0)
+                    });
+                });
+            },
+            deleteAllViaSocket() {
+                return sendSocketAction("DELETE_ALL");
+            },
+            sync() {
+                return sendSocketAction("SYNC");
+            }
+        };
     }
 
     window.addEventListener("compose-notice:submit", function (event) {
@@ -216,85 +310,41 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         pendingSend = detail;
-        const sent = sendAction("SEND", detail.payload || {});
+        const sent = sendSocketAction("SEND", detail.payload || {});
         if (!sent) {
             pendingSend = null;
             detail.onError && detail.onError("通知通道未连接，请稍后重试。");
         }
     });
 
-    window.addEventListener("notification:read", function (event) {
-        const detail = event.detail || {};
-        if (detail.id) {
-            sendAction("READ", { id: detail.id });
-        }
+    bindSocketAction("notification:read", "READ", function (detail) {
+        return detail.id ? { id: detail.id } : null;
     });
 
-    window.addEventListener("notification:read-all", function () {
-        sendAction("READ_ALL");
-    });
+    bindSocketAction("notification:read-all", "READ_ALL");
 
-    window.addEventListener("notification:delete", function (event) {
-        const detail = event.detail || {};
-        if (detail.id) {
-            requestDelete(`/api/notifications/${detail.id}`, "DELETE", function (result) {
-                emit("notification:data-deleted", {
-                    id: result.id || detail.id,
-                    unreadCount: Number(result.unreadCount || 0)
-                });
-            });
-        }
-    });
-
-    window.addEventListener("notification:delete-all", function () {
-        requestDelete("/api/notifications", "DELETE_ALL", function (result) {
-            emit("notification:data-deleted-all", {
-                ids: result.ids || [],
+    bindSocketAction("notification:hide-popup", "HIDE_POPUP", function (detail) {
+        return detail.id ? { id: detail.id } : null;
+    }, function (detail) {
+        requestPatch(`/api/notifications/${detail.id}/popup-hide`, "HIDE_POPUP", function (result) {
+            socketActionHandlers.HIDE_POPUP({
+                item: result.item || null,
                 unreadCount: Number(result.unreadCount || 0)
             });
         });
     });
 
-    window.notificationCenterApi = {
-        isReady: canUseSocket,
-        readViaSocket: function (id) {
-            return sendAction("READ", { id: id });
-        },
-        read: function (id) {
-            return sendAction("READ", { id: id });
-        },
-        readAllViaSocket: function () {
-            return sendAction("READ_ALL");
-        },
-        readAll: function () {
-            return sendAction("READ_ALL");
-        },
-        deleteViaSocket: function (id) {
-            return sendAction("DELETE", { id: id });
-        },
-        delete: function (id) {
-            return requestDelete(`/api/notifications/${id}`, "DELETE", function (result) {
-                emit("notification:data-deleted", {
-                    id: result.id || id,
-                    unreadCount: Number(result.unreadCount || 0)
-                });
-            });
-        },
-        deleteAllViaSocket: function () {
-            return sendAction("DELETE_ALL");
-        },
-        deleteAll: function () {
-            return requestDelete("/api/notifications", "DELETE_ALL", function (result) {
-                emit("notification:data-deleted-all", {
-                    ids: result.ids || [],
-                    unreadCount: Number(result.unreadCount || 0)
-                });
-            });
-        },
-        sync: function () {
-            return sendAction("SYNC");
+    window.addEventListener("notification:delete", function (event) {
+        const detail = event.detail || {};
+        if (detail.id) {
+            window.notificationCenterApi.delete(detail.id);
         }
-    };
+    });
 
+    window.addEventListener("notification:delete-all", function () {
+        window.notificationCenterApi.deleteAll();
+    });
+
+    window.notificationCenterApi = createApi();
     connect();
 });

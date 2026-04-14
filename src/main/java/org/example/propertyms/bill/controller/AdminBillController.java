@@ -7,6 +7,7 @@ import org.example.propertyms.bill.model.FeeBill;
 import org.example.propertyms.bill.service.FeeBillService;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.util.ExcelExportHelper;
+import org.example.propertyms.common.web.ManagementPageRouter;
 import org.example.propertyms.unit.service.PropertyUnitService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/admin/bills")
@@ -33,18 +33,11 @@ public class AdminBillController {
     public String list(@RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String status,
                        @RequestParam(required = false) String billingMonth) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
-                .queryParam("tab", "bills");
-        if (keyword != null && !keyword.isBlank()) {
-            builder.queryParam("billKeyword", keyword);
-        }
-        if (status != null && !status.isBlank()) {
-            builder.queryParam("billStatus", status);
-        }
-        if (billingMonth != null && !billingMonth.isBlank()) {
-            builder.queryParam("billBillingMonth", billingMonth);
-        }
-        return "redirect:" + builder.toUriString();
+        return ManagementPageRouter.redirectToTab("bills", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "billKeyword", keyword);
+            ManagementPageRouter.addTrimmedParam(builder, "billStatus", status);
+            ManagementPageRouter.addTrimmedParam(builder, "billBillingMonth", billingMonth);
+        });
     }
 
     @GetMapping("/new")

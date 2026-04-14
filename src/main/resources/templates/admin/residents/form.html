@@ -6,7 +6,7 @@
     <title th:text="${editing ? '编辑住户' : '新增住户'}">住户表单</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="stylesheet" href="/css/apps/admin.css?v=20260411-notice-type-tag" />
+    <link rel="stylesheet" href="/css/apps/admin.css?v=20260413-notice-detail-modal" />
     <link rel="stylesheet" href="/css/apps/admin-archive-create.css?v=20260411-resident-entry-layout" th:href="@{/css/apps/admin-archive-create.css(v='20260411-resident-entry-layout')}" />
 </head>
 <body>
@@ -26,13 +26,11 @@
 
                 <div class="archive-create-card">
                     <div class="archive-top-bar"></div>
-                    <div class="archive-create-header">
-                        <div class="archive-create-sn"
-                             th:text="${editing and resident.id != null ? '住户编号：' + resident.id : '住户编号：待生成'}">住户编号：__________</div>
-                        <div class="archive-create-stamp"><span>住户<br />档案</span></div>
-                        <h1>住户档案登记表</h1>
-                        <p class="subtitle">RESIDENT RECORD REGISTRATION</p>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveHeader(
+                            ${editing and resident.id != null ? '住户编号：' + resident.id : '住户编号：待生成'},
+                            ${'住户<br />档案'},
+                            ${'住户档案登记表'},
+                            ${'RESIDENT RECORD REGISTRATION'})}"></div>
 
                     <div class="archive-create-body">
                         <div class="archive-create-row-double">
@@ -125,16 +123,12 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="archive-create-footer">
-                        <span class="archive-create-time"
-                              th:text="${editing and resident.updatedAt != null ? '最近更新 ' + #temporals.format(resident.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">登记日期 ——</span>
-                        <div class="archive-create-actions">
-                            <a class="archive-create-action archive-create-action--cancel" href="/admin/residents">取　消</a>
-                            <button class="archive-create-action archive-create-action--save" type="submit"
-                                    th:text="${editing ? '保存修改' : '保存归档'}">保存归档</button>
-                        </div>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveFooter(
+                            ${editing and resident.updatedAt != null ? '最近更新 ' + #temporals.format(resident.updatedAt, 'yyyy年M月d日') : '登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')},
+                            @{/admin/residents},
+                            ${'取　消'},
+                            ${editing ? '保存修改' : '保存归档'},
+                            ${false})}"></div>
                 </div>
             </form>
 
@@ -202,23 +196,15 @@
                 </section>
             </aside>
             </div>
-
-            <section class="embedded-danger-panel" th:if="${editing and resident.id != null}">
-                <div class="embedded-danger-copy">
-                    <span class="note-kicker">危险操作</span>
-                    <h3>删除当前住户档案</h3>
-                    <p>删除后不可恢复。若该住户仍关联账单、工单或房屋在住信息，请先处理关联数据后再删除。</p>
-                </div>
-                <form th:action="@{/admin/residents/delete/{id}(id=${resident.id})}"
-                      method="post"
-                      class="embedded-danger-actions"
-                      data-confirm-message="确认删除该住户吗？删除后将无法恢复"
-                      data-confirm-confirm-text="确认删除"
-                      data-confirm-tone="danger">
-                    <button class="btn danger" type="submit">删除住户档案</button>
-                </form>
-            </section>
-        </section>
+            <section th:replace="~{fragments/admin-archive :: dangerPanel(
+                    ${'危险操作'},
+                    ${'删除当前住户档案'},
+                    ${'删除后不可恢复。若该住户仍关联账单、工单或房屋在住信息，请先处理关联数据后再删除。'},
+                    @{/admin/residents/delete/{id}(id=${resident.id})},
+                    ${'确认删除该住户吗？删除后将无法恢复'},
+                    ${'确认删除'},
+                    ${'删除住户档案'})}"
+                     th:if="${editing and resident.id != null}"></section>
     </main>
 </div>
 <div th:replace="~{fragments/layout :: confirmModal}"></div>

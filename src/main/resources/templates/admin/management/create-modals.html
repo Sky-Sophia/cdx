@@ -13,12 +13,12 @@
             <form method="post" action="/admin/residents/save" class="archive-create-form management-create-modal-form">
                 <div class="archive-create-card">
                     <div class="archive-top-bar"></div>
-                    <div class="archive-create-header">
-                        <div class="archive-create-sn">住户编号：</div>
-                        <div class="archive-create-stamp"><span>住户<br />档案</span></div>
-                        <h1 id="residentCreateModalTitle">住户档案登记表</h1>
-                        <p class="subtitle">RESIDENT RECORD REGISTRATION</p>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveHeaderWithId(
+                            ${'住户编号：'},
+                            ${'住户<br />档案'},
+                            ${'住户档案登记表'},
+                            ${'residentCreateModalTitle'},
+                            ${'RESIDENT RECORD REGISTRATION'})}"></div>
 
                     <div class="archive-create-body"
                          th:with="selectedResidentType=${createResident.residentType != null ? createResident.residentType : 'OWNER'},
@@ -152,13 +152,10 @@
                         </div>
                     </div>
 
-                    <div class="archive-create-footer">
-                        <span class="archive-create-time">登记日期 <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">—</span></span>
-                        <div class="archive-create-actions">
-                            <button class="archive-create-action archive-create-action--cancel" type="button" data-management-create-close>取消</button>
-                            <button class="archive-create-action archive-create-action--save" type="submit">保存归档</button>
-                        </div>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveModalFooter(
+                            ${'登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')},
+                            ${'取消'},
+                            ${'保存归档'})}"></div>
                 </div>
             </form>
         </div>
@@ -176,12 +173,12 @@
             <form method="post" action="/admin/work-orders/save" class="archive-create-form management-create-modal-form">
                 <div class="archive-create-card">
                     <div class="archive-top-bar"></div>
-                    <div class="archive-create-header">
-                        <div class="archive-create-sn">工单编号：待生成</div>
-                        <div class="archive-create-stamp"><span>报修<br />工单</span></div>
-                        <h1 id="workOrderCreateModalTitle">报修工单登记表</h1>
-                        <p class="subtitle">WORK ORDER REGISTRATION</p>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveHeaderWithId(
+                            ${'工单编号：待生成'},
+                            ${'报修<br />工单'},
+                            ${'报修工单登记表'},
+                            ${'workOrderCreateModalTitle'},
+                            ${'WORK ORDER REGISTRATION'})}"></div>
 
                     <div class="archive-create-body"
                          th:with="selectedCategory=${createWorkOrder.category != null and createWorkOrder.category != '' ? createWorkOrder.category : '水电维修'},
@@ -299,13 +296,10 @@
                         </div>
                     </div>
 
-                    <div class="archive-create-footer">
-                        <span class="archive-create-time">登记日期 <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">—</span></span>
-                        <div class="archive-create-actions">
-                            <button class="archive-create-action archive-create-action--cancel" type="button" data-management-create-close>取消</button>
-                            <button class="archive-create-action archive-create-action--save" type="submit">创建工单</button>
-                        </div>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveModalFooter(
+                            ${'登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')},
+                            ${'取消'},
+                            ${'创建工单'})}"></div>
                 </div>
             </form>
         </div>
@@ -323,12 +317,12 @@
             <form method="post" action="/admin/bills/save" class="archive-create-form management-create-modal-form">
                 <div class="archive-create-card">
                     <div class="archive-top-bar"></div>
-                    <div class="archive-create-header">
-                        <div class="archive-create-sn">账单编号：待生成</div>
-                        <div class="archive-create-stamp"><span>费用<br />账单</span></div>
-                        <h1 id="billCreateModalTitle">费用账单登记表</h1>
-                        <p class="subtitle">FEE BILL REGISTRATION</p>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveHeaderWithId(
+                            ${'账单编号：待生成'},
+                            ${'费用<br />账单'},
+                            ${'费用账单登记表'},
+                            ${'billCreateModalTitle'},
+                            ${'FEE BILL REGISTRATION'})}"></div>
 
                     <div class="archive-create-body"
                          th:with="selectedBillStatus=${createBill.status != null ? createBill.status : 'UNPAID'}">
@@ -450,13 +444,10 @@
                         </div>
                     </div>
 
-                    <div class="archive-create-footer">
-                        <span class="archive-create-time">登记日期 <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">—</span></span>
-                        <div class="archive-create-actions">
-                            <button class="archive-create-action archive-create-action--cancel" type="button" data-management-create-close>取消</button>
-                            <button class="archive-create-action archive-create-action--save" type="submit">保存归档</button>
-                        </div>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveModalFooter(
+                            ${'登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')},
+                            ${'取消'},
+                            ${'保存归档'})}"></div>
                 </div>
             </form>
         </div>
@@ -476,12 +467,12 @@
                   class="archive-create-form management-create-modal-form">
                 <div class="archive-create-card">
                     <div class="archive-top-bar"></div>
-                    <div class="archive-create-header">
-                        <div class="archive-create-sn">账号编号：待生成</div>
-                        <div class="archive-create-stamp"><span>系统<br />用户</span></div>
-                        <h1 id="userCreateModalTitle">系统用户档案</h1>
-                        <p class="subtitle">USER PROFILE</p>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveHeaderWithId(
+                            ${'账号编号：待生成'},
+                            ${'系统<br />用户'},
+                            ${'系统用户档案'},
+                            ${'userCreateModalTitle'},
+                            ${'USER PROFILE'})}"></div>
 
                     <div class="archive-create-body"
                          th:with="selectedRole=${createUser.role != null ? createUser.role.name() : 'ADMIN'},
@@ -578,15 +569,10 @@
                         </div>
                     </div>
 
-                    <div class="archive-create-footer">
-                        <span class="archive-create-time">登记日期 <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy年M月d日')}">——</span></span>
-                        <div class="archive-create-actions">
-                            <button class="archive-create-action archive-create-action--cancel"
-                                    type="button"
-                                    data-management-create-close>取消</button>
-                            <button class="archive-create-action archive-create-action--save" type="submit">保存</button>
-                        </div>
-                    </div>
+                    <div th:replace="~{fragments/admin-archive :: archiveModalFooter(
+                            ${'登记日期 ' + #temporals.format(#temporals.createNow(), 'yyyy年M月d日')},
+                            ${'取消'},
+                            ${'保存'})}"></div>
                 </div>
             </form>
         </div>

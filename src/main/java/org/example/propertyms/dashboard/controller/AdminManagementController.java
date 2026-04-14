@@ -2,18 +2,19 @@ package org.example.propertyms.dashboard.controller;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import org.springframework.util.StringUtils;
+import java.util.function.Supplier;
 import org.example.propertyms.bill.model.FeeBill;
-import org.example.propertyms.building.service.BuildingService;
 import org.example.propertyms.bill.service.FeeBillService;
+import org.example.propertyms.building.service.BuildingService;
+import org.example.propertyms.common.web.ManagementPageRouter;
 import org.example.propertyms.dashboard.service.PropertyDashboardService;
 import org.example.propertyms.notification.model.NotificationDepartment;
 import org.example.propertyms.resident.model.Resident;
 import org.example.propertyms.resident.model.ResidentType;
 import org.example.propertyms.resident.service.ResidentService;
 import org.example.propertyms.unit.service.PropertyUnitService;
-import org.example.propertyms.user.model.User;
 import org.example.propertyms.user.model.Role;
+import org.example.propertyms.user.model.User;
 import org.example.propertyms.user.service.UserService;
 import org.example.propertyms.workorder.model.WorkOrder;
 import org.example.propertyms.workorder.service.WorkOrderService;
@@ -22,11 +23,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * 统一管理页面控制器。
- * <p>全量加载所有 tab 数据，前端通过 JS 做客户端切换。</p>
+ * 管理后台统一入口，集中装配各个页签所需数据。
  */
 @Controller
 @RequestMapping("/admin")
@@ -83,79 +82,93 @@ public class AdminManagementController {
         String currentTab = normalizeTab(tab);
         model.addAttribute("currentTab", currentTab);
 
-        // 统计数据始终加载（侧边栏也需要）
-        var stats = propertyDashboardService.stats();
-        model.addAttribute("stats", stats);
-        model.addAttribute("collectionRate", computeCollectionRate(stats.getTotalReceived(), stats.getTotalReceivable()));
-
-        // 全量加载所有 tab 数据，前端做客户端切换
-        // Dashboard
-        model.addAttribute("recentOrders", propertyDashboardService.recentOrders(6));
-        model.addAttribute("dueBills", propertyDashboardService.dueBills(6));
-
-        // Units
-        model.addAttribute("unitPageResult", propertyUnitService.listPaged(unitKeyword, unitBuildingId, unitStatus, unitPage, DEFAULT_PAGE_SIZE));
-        model.addAttribute("buildings", buildingService.listAll());
-        model.addAttribute("unitKeyword", unitKeyword);
-        model.addAttribute("unitBuildingId", unitBuildingId);
-        model.addAttribute("unitStatus", unitStatus);
-        model.addAttribute("unitPaginationBaseUrl", buildUnitPaginationBaseUrl(unitKeyword, unitBuildingId, unitStatus));
-
-        // Residents
-        model.addAttribute("residentPageResult", residentService.listPaged(residentKeyword, residentStatus, residentPage, DEFAULT_PAGE_SIZE));
-        model.addAttribute("residentKeyword", residentKeyword);
-        model.addAttribute("residentStatus", residentStatus);
-        model.addAttribute("residentPaginationBaseUrl", buildResidentPaginationBaseUrl(residentKeyword, residentStatus));
-        model.addAttribute("residentTypes", ResidentType.values());
-        if (!model.containsAttribute("createResident")) {
-            model.addAttribute("createResident", defaultCreateResident());
-        }
-        if (!model.containsAttribute("openCreateResidentModal")) {
-            model.addAttribute("openCreateResidentModal", false);
-        }
-
-        // Work Orders
-        model.addAttribute("orderPageResult", workOrderService.listPaged(workOrderKeyword, workOrderStatus, workOrderPriority, orderPage, WORK_ORDER_PAGE_SIZE));
-        model.addAttribute("workOrderKeyword", workOrderKeyword);
-        model.addAttribute("workOrderStatus", workOrderStatus);
-        model.addAttribute("workOrderPriority", workOrderPriority);
-        model.addAttribute("workOrderPaginationBaseUrl", buildWorkOrderPaginationBaseUrl(workOrderKeyword, workOrderStatus, workOrderPriority));
-        if (!model.containsAttribute("createWorkOrder")) {
-            model.addAttribute("createWorkOrder", defaultCreateWorkOrder());
-        }
-        if (!model.containsAttribute("openCreateWorkOrderModal")) {
-            model.addAttribute("openCreateWorkOrderModal", false);
-        }
-
-        // Bills
-        model.addAttribute("billPageResult", feeBillService.listPaged(billKeyword, billStatus, billBillingMonth, billPage, DEFAULT_PAGE_SIZE));
-        model.addAttribute("billKeyword", billKeyword);
-        model.addAttribute("billStatus", billStatus);
-        model.addAttribute("billBillingMonth", billBillingMonth);
-        model.addAttribute("billPaginationBaseUrl", buildBillPaginationBaseUrl(billKeyword, billStatus, billBillingMonth));
-        if (!model.containsAttribute("createBill")) {
-            model.addAttribute("createBill", defaultCreateBill());
-        }
-        if (!model.containsAttribute("openCreateBillModal")) {
-            model.addAttribute("openCreateBillModal", false);
-        }
-
-        // Users
-        model.addAttribute("userPageResult", userService.listByFiltersPaged(userQ, userRole, userStatus, userPage, DEFAULT_PAGE_SIZE));
-        model.addAttribute("roles", Role.values());
-        model.addAttribute("userQ", userQ);
-        model.addAttribute("userRole", userRole);
-        model.addAttribute("userStatus", userStatus);
-        model.addAttribute("userPaginationBaseUrl", buildUserPaginationBaseUrl(userQ, userRole, userStatus));
-        if (!model.containsAttribute("createUser")) {
-            model.addAttribute("createUser", defaultCreateUser());
-        }
-        if (!model.containsAttribute("openCreateUserModal")) {
-            model.addAttribute("openCreateUserModal", false);
-        }
+        loadDashboardData(model);
+        loadUnitData(model, unitKeyword, unitBuildingId, unitStatus, unitPage);
+        loadResidentData(model, residentKeyword, residentStatus, residentPage);
+        loadWorkOrderData(model, workOrderKeyword, workOrderStatus, workOrderPriority, orderPage);
+        loadBillData(model, billKeyword, billStatus, billBillingMonth, billPage);
+        loadUserData(model, userQ, userRole, userStatus, userPage);
         model.addAttribute("unitOptions", propertyUnitService.listSimple());
 
         return "admin/management/index";
+    }
+
+    private void loadDashboardData(Model model) {
+        var stats = propertyDashboardService.stats();
+        model.addAttribute("stats", stats);
+        model.addAttribute("collectionRate", computeCollectionRate(stats.getTotalReceived(), stats.getTotalReceivable()));
+        model.addAttribute("recentOrders", propertyDashboardService.recentOrders(6));
+        model.addAttribute("dueBills", propertyDashboardService.dueBills(6));
+    }
+
+    private void loadUnitData(Model model,
+                              String keyword,
+                              Long buildingId,
+                              String status,
+                              int page) {
+        model.addAttribute("unitPageResult",
+                propertyUnitService.listPaged(keyword, buildingId, status, page, DEFAULT_PAGE_SIZE));
+        model.addAttribute("buildings", buildingService.listAll());
+        model.addAttribute("unitKeyword", keyword);
+        model.addAttribute("unitBuildingId", buildingId);
+        model.addAttribute("unitStatus", status);
+        model.addAttribute("unitPaginationBaseUrl", buildUnitPaginationBaseUrl(keyword, buildingId, status));
+    }
+
+    private void loadResidentData(Model model,
+                                  String keyword,
+                                  String status,
+                                  int page) {
+        model.addAttribute("residentPageResult",
+                residentService.listPaged(keyword, status, page, DEFAULT_PAGE_SIZE));
+        model.addAttribute("residentKeyword", keyword);
+        model.addAttribute("residentStatus", status);
+        model.addAttribute("residentPaginationBaseUrl", buildResidentPaginationBaseUrl(keyword, status));
+        model.addAttribute("residentTypes", ResidentType.values());
+        initializeCreateModal(model, "createResident", this::defaultCreateResident, "openCreateResidentModal");
+    }
+
+    private void loadWorkOrderData(Model model,
+                                   String keyword,
+                                   String status,
+                                   String priority,
+                                   int page) {
+        model.addAttribute("orderPageResult",
+                workOrderService.listPaged(keyword, status, priority, page, WORK_ORDER_PAGE_SIZE));
+        model.addAttribute("workOrderKeyword", keyword);
+        model.addAttribute("workOrderStatus", status);
+        model.addAttribute("workOrderPriority", priority);
+        model.addAttribute("workOrderPaginationBaseUrl", buildWorkOrderPaginationBaseUrl(keyword, status, priority));
+        initializeCreateModal(model, "createWorkOrder", this::defaultCreateWorkOrder, "openCreateWorkOrderModal");
+    }
+
+    private void loadBillData(Model model,
+                              String keyword,
+                              String status,
+                              String billingMonth,
+                              int page) {
+        model.addAttribute("billPageResult",
+                feeBillService.listPaged(keyword, status, billingMonth, page, DEFAULT_PAGE_SIZE));
+        model.addAttribute("billKeyword", keyword);
+        model.addAttribute("billStatus", status);
+        model.addAttribute("billBillingMonth", billingMonth);
+        model.addAttribute("billPaginationBaseUrl", buildBillPaginationBaseUrl(keyword, status, billingMonth));
+        initializeCreateModal(model, "createBill", this::defaultCreateBill, "openCreateBillModal");
+    }
+
+    private void loadUserData(Model model,
+                              String keyword,
+                              Role role,
+                              String status,
+                              int page) {
+        model.addAttribute("userPageResult",
+                userService.listByFiltersPaged(keyword, role, status, page, DEFAULT_PAGE_SIZE));
+        model.addAttribute("roles", Role.values());
+        model.addAttribute("userQ", keyword);
+        model.addAttribute("userRole", role);
+        model.addAttribute("userStatus", status);
+        model.addAttribute("userPaginationBaseUrl", buildUserPaginationBaseUrl(keyword, role, status));
+        initializeCreateModal(model, "createUser", this::defaultCreateUser, "openCreateUserModal");
     }
 
     private Resident defaultCreateResident() {
@@ -188,62 +201,45 @@ public class AdminManagementController {
         return user;
     }
 
-    private String buildUnitPaginationBaseUrl(String unitKeyword, Long unitBuildingId, String unitStatus) {
-        UriComponentsBuilder builder = baseManagementUrl("units");
-        addStringQueryParam(builder, "unitKeyword", unitKeyword);
-        addObjectQueryParam(builder, unitBuildingId);
-        addStringQueryParam(builder, "unitStatus", unitStatus);
-        return builder.build().encode().toUriString();
+    private String buildUnitPaginationBaseUrl(String keyword, Long buildingId, String status) {
+        return ManagementPageRouter.buildTabUrl("units", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "unitKeyword", keyword);
+            ManagementPageRouter.addParam(builder, "unitBuildingId", buildingId);
+            ManagementPageRouter.addTrimmedParam(builder, "unitStatus", status);
+        });
     }
 
-    private String buildResidentPaginationBaseUrl(String residentKeyword, String residentStatus) {
-        UriComponentsBuilder builder = baseManagementUrl("residents");
-        addStringQueryParam(builder, "residentKeyword", residentKeyword);
-        addStringQueryParam(builder, "residentStatus", residentStatus);
-        return builder.build().encode().toUriString();
+    private String buildResidentPaginationBaseUrl(String keyword, String status) {
+        return ManagementPageRouter.buildTabUrl("residents", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "residentKeyword", keyword);
+            ManagementPageRouter.addTrimmedParam(builder, "residentStatus", status);
+        });
     }
 
-    private String buildWorkOrderPaginationBaseUrl(String workOrderKeyword, String workOrderStatus, String workOrderPriority) {
-        UriComponentsBuilder builder = baseManagementUrl("work-orders");
-        addStringQueryParam(builder, "workOrderKeyword", workOrderKeyword);
-        addStringQueryParam(builder, "workOrderStatus", workOrderStatus);
-        addStringQueryParam(builder, "workOrderPriority", workOrderPriority);
-        return builder.build().encode().toUriString();
+    private String buildWorkOrderPaginationBaseUrl(String keyword, String status, String priority) {
+        return ManagementPageRouter.buildTabUrl("work-orders", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "workOrderKeyword", keyword);
+            ManagementPageRouter.addTrimmedParam(builder, "workOrderStatus", status);
+            ManagementPageRouter.addTrimmedParam(builder, "workOrderPriority", priority);
+        });
     }
 
-    private String buildBillPaginationBaseUrl(String billKeyword, String billStatus, String billBillingMonth) {
-        UriComponentsBuilder builder = baseManagementUrl("bills");
-        addStringQueryParam(builder, "billKeyword", billKeyword);
-        addStringQueryParam(builder, "billStatus", billStatus);
-        addStringQueryParam(builder, "billBillingMonth", billBillingMonth);
-        return builder.build().encode().toUriString();
+    private String buildBillPaginationBaseUrl(String keyword, String status, String billingMonth) {
+        return ManagementPageRouter.buildTabUrl("bills", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "billKeyword", keyword);
+            ManagementPageRouter.addTrimmedParam(builder, "billStatus", status);
+            ManagementPageRouter.addTrimmedParam(builder, "billBillingMonth", billingMonth);
+        });
     }
 
-    private String buildUserPaginationBaseUrl(String userQ, Role userRole, String userStatus) {
-        UriComponentsBuilder builder = baseManagementUrl("users");
-        addStringQueryParam(builder, "userQ", userQ);
-        if (userRole != null) {
-            builder.queryParam("userRole", userRole.name());
-        }
-        addStringQueryParam(builder, "userStatus", userStatus);
-        return builder.build().encode().toUriString();
-    }
-
-    private UriComponentsBuilder baseManagementUrl(String tab) {
-        return UriComponentsBuilder.fromPath("/admin/management")
-                .queryParam("tab", tab);
-    }
-
-    private void addStringQueryParam(UriComponentsBuilder builder, String name, String value) {
-        if (StringUtils.hasText(value)) {
-            builder.queryParam(name, value.trim());
-        }
-    }
-
-    private void addObjectQueryParam(UriComponentsBuilder builder, Object value) {
-        if (value != null) {
-            builder.queryParam("unitBuildingId", value);
-        }
+    private String buildUserPaginationBaseUrl(String keyword, Role role, String status) {
+        return ManagementPageRouter.buildTabUrl("users", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "userQ", keyword);
+            if (role != null) {
+                builder.queryParam("userRole", role.name());
+            }
+            ManagementPageRouter.addTrimmedParam(builder, "userStatus", status);
+        });
     }
 
     private String normalizeTab(String tab) {
@@ -251,6 +247,20 @@ public class AdminManagementController {
             case "dashboard", "units", "residents", "work-orders", "complaints", "bills", "users" -> tab;
             default -> "dashboard";
         };
+    }
+
+    private void initializeCreateModal(Model model,
+                                       String formAttributeName,
+                                       Supplier<?> formValueSupplier,
+                                       String openFlagAttributeName) {
+        addModelAttributeIfAbsent(model, formAttributeName, formValueSupplier.get());
+        addModelAttributeIfAbsent(model, openFlagAttributeName, false);
+    }
+
+    private void addModelAttributeIfAbsent(Model model, String attributeName, Object value) {
+        if (!model.containsAttribute(attributeName)) {
+            model.addAttribute(attributeName, value);
+        }
     }
 
     private int computeCollectionRate(BigDecimal received, BigDecimal receivable) {
@@ -266,5 +276,3 @@ public class AdminManagementController {
         return Math.min(value, 100);
     }
 }
-
-

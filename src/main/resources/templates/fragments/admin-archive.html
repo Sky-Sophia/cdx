@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<div th:fragment="archiveHeader(serialText, stampHtml, title, subtitle)" class="archive-create-header">
+    <div class="archive-create-sn" th:text="${serialText}">档案编号：待生成</div>
+    <div class="archive-create-stamp"><span th:utext="${stampHtml}">档案<br />登记</span></div>
+    <h1 th:text="${title}">档案登记表</h1>
+    <p class="subtitle" th:text="${subtitle}">ARCHIVE REGISTRATION</p>
+</div>
+
+<div th:fragment="archiveHeaderWithId(serialText, stampHtml, title, titleId, subtitle)" class="archive-create-header">
+    <div class="archive-create-sn" th:text="${serialText}">档案编号：待生成</div>
+    <div class="archive-create-stamp"><span th:utext="${stampHtml}">档案<br />登记</span></div>
+    <h1 th:id="${titleId}" th:text="${title}">档案登记表</h1>
+    <p class="subtitle" th:text="${subtitle}">ARCHIVE REGISTRATION</p>
+</div>
+
+<div th:fragment="archiveFooter(timestampText, cancelHref, cancelText, submitText, submitDisabled)"
+     class="archive-create-footer">
+    <span class="archive-create-time" th:text="${timestampText}">登记日期</span>
+    <div class="archive-create-actions">
+        <a class="archive-create-action archive-create-action--cancel"
+           th:href="${cancelHref}"
+           th:text="${cancelText}">取消</a>
+        <button class="archive-create-action archive-create-action--save"
+                type="submit"
+                th:disabled="${submitDisabled}"
+                th:text="${submitText}">保存</button>
+    </div>
+</div>
+
+<div th:fragment="archiveModalFooter(timestampText, cancelText, submitText)"
+     class="archive-create-footer">
+    <span class="archive-create-time" th:text="${timestampText}">登记日期</span>
+    <div class="archive-create-actions">
+        <button class="archive-create-action archive-create-action--cancel"
+                type="button"
+                data-management-create-close
+                th:text="${cancelText}">取消</button>
+        <button class="archive-create-action archive-create-action--save"
+                type="submit"
+                th:text="${submitText}">保存</button>
+    </div>
+</div>
+
+<section th:fragment="supportPanel(kicker, title, description)"
+         class="embedded-support-panel">
+    <div class="embedded-support-copy">
+        <span class="note-kicker" th:text="${kicker}">说明</span>
+        <h3 th:text="${title}">辅助说明</h3>
+        <p th:text="${description}">请先核对信息后再继续操作。</p>
+    </div>
+</section>
+
+<section th:fragment="dangerPanel(kicker, title, description, action, confirmMessage, confirmText, buttonText)"
+         class="embedded-danger-panel">
+    <div class="embedded-danger-copy">
+        <span class="note-kicker" th:text="${kicker}">危险操作</span>
+        <h3 th:text="${title}">删除当前档案</h3>
+        <p th:text="${description}">删除后不可恢复。</p>
+    </div>
+    <form th:action="${action}"
+          method="post"
+          class="embedded-danger-actions"
+          th:attr="data-confirm-message=${confirmMessage},
+                   data-confirm-confirm-text=${confirmText},
+                   data-confirm-tone='danger'">
+        <button class="btn danger" type="submit" th:text="${buttonText}">确认删除</button>
+    </form>
+</section>
+</body>
+</html>

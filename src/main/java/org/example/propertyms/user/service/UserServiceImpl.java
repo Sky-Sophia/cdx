@@ -1,10 +1,10 @@
 package org.example.propertyms.user.service;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
 import org.example.propertyms.common.dto.PageResult;
 import org.example.propertyms.common.util.PasswordUtils;
+import org.example.propertyms.common.util.StringHelper;
 import org.example.propertyms.user.mapper.UserMapper;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
@@ -23,10 +23,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final JdbcTemplate jdbcTemplate;
+    private final UserDepartmentResolver userDepartmentResolver;
 
-    public UserServiceImpl(UserMapper userMapper, JdbcTemplate jdbcTemplate) {
+    public UserServiceImpl(UserMapper userMapper,
+                           JdbcTemplate jdbcTemplate,
+                           UserDepartmentResolver userDepartmentResolver) {
         this.userMapper = userMapper;
         this.jdbcTemplate = jdbcTemplate;
+        this.userDepartmentResolver = userDepartmentResolver;
     }
 
     @Override
@@ -55,17 +59,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User authenticate(String username, String password) {
         String normalizedUsername = normalizeUsername(username);
-        if (normalizedUsername == null || normalizedUsername.isBlank() || password == null || password.isBlank()) {
+        if (normalizedUsername == null || StringHelper.isBlank(password)) {
             return null;
         }
         User user = userMapper.findByUsername(normalizedUsername);
         if (user == null || !UserStatus.ACTIVE.name().equalsIgnoreCase(user.getStatus())) {
             return null;
         }
-        if (!PasswordUtils.matches(password, user.getPassword())) {
-            return null;
-        }
-        return user;
+        return PasswordUtils.matches(password, user.getPassword()) ? user : null;
     }
 
     @Override
@@ -83,19 +84,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateRole(Long userId, Role role) {
+    public void updateManagementProfile(Long userId, Role role, String departmentCode, String status) {
         User existing = userMapper.findById(userId);
-        if (existing == null || role == null) {
+        String normalizedStatus = normalizeStatus(status);
+        if (existing == null || role == null || normalizedStatus == null) {
             return;
         }
 
-        jdbcTemplate.update("""
-                UPDATE user_accounts
-                SET account_role = ?,
-                    account_type = ?,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-                """, role.name(), accountTypeForRole(role), userId);
+        updateAccountRoleAndStatus(userId, role, normalizedStatus);
 
         if (role == Role.RESIDENT) {
             jdbcTemplate.update("DELETE FROM employees WHERE account_id = ?", userId);
@@ -104,7 +100,37 @@ public class UserServiceImpl implements UserService {
         }
 
         jdbcTemplate.update("UPDATE residents SET account_id = NULL WHERE account_id = ?", userId);
-        ensureEmployeeRecord(userId, existing.getUsername(), role, resolveDepartmentCode(role), existing.getStatus());
+        ensureEmployeeRecord(
+                userId,
+                existing.getUsername(),
+                role,
+                userDepartmentResolver.resolve(role, departmentCode),
+                normalizedStatus);
+    }
+
+    @Override
+    @Transactional
+    public void updateRole(Long userId, Role role) {
+        User existing = userMapper.findById(userId);
+        if (existing == null || role == null) {
+            return;
+        }
+
+        updateAccountRole(userId, role);
+
+        if (role == Role.RESIDENT) {
+            jdbcTemplate.update("DELETE FROM employees WHERE account_id = ?", userId);
+            bindResidentAccount(userId);
+            return;
+        }
+
+        jdbcTemplate.update("UPDATE residents SET account_id = NULL WHERE account_id = ?", userId);
+        ensureEmployeeRecord(
+                userId,
+                existing.getUsername(),
+                role,
+                userDepartmentResolver.defaultDepartmentCode(role),
+                existing.getStatus());
     }
 
     @Override
@@ -114,10 +140,11 @@ public class UserServiceImpl implements UserService {
         if (existing == null || existing.getRole() == null || existing.getRole() == Role.RESIDENT) {
             return;
         }
-        ensureEmployeeRecord(userId,
+        ensureEmployeeRecord(
+                userId,
                 existing.getUsername(),
                 existing.getRole(),
-                resolveDepartmentCode(existing.getRole(), departmentCode),
+                userDepartmentResolver.resolve(existing.getRole(), departmentCode),
                 existing.getStatus());
     }
 
@@ -125,10 +152,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateStatus(Long userId, String status) {
         User existing = userMapper.findById(userId);
-        if (existing == null || status == null || status.isBlank()) {
+        String normalizedStatus = normalizeStatus(status);
+        if (existing == null || normalizedStatus == null) {
             return;
         }
-        String normalizedStatus = status.trim().toUpperCase(Locale.ROOT);
         jdbcTemplate.update("""
                 UPDATE user_accounts
                 SET status = ?,
@@ -167,17 +194,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        if (username == null || username.isBlank()) {
+        String normalizedUsername = normalizeUsername(username);
+        if (normalizedUsername == null) {
             return null;
         }
-        return userMapper.findByUsername(normalizeUsername(username));
+        return userMapper.findByUsername(normalizedUsername);
     }
 
     private String normalizeUsername(String username) {
-        if (username == null) {
-            return null;
-        }
-        return username.trim().toLowerCase(Locale.ROOT);
+        return StringHelper.lowerCaseOrNull(username);
+    }
+
+    private String normalizeStatus(String status) {
+        return StringHelper.upperCaseOrNull(status);
     }
 
     private void validatePasswordStrength(String password) {
@@ -285,11 +314,14 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("账号关联人员信息不存在。");
         }
 
-        String employeeNo = username == null || username.isBlank() ? "EMP-" + accountId : username.trim();
-        String normalizedDepartmentCode = resolveDepartmentCode(role, departmentCode);
-        String normalizedStatus = (status == null || status.isBlank())
-                ? UserStatus.ACTIVE.name()
-                : status.trim().toUpperCase(Locale.ROOT);
+        String employeeNo = StringHelper.trimToNull(username);
+        if (employeeNo == null) {
+            employeeNo = "EMP-" + accountId;
+        }
+        String normalizedStatus = normalizeStatus(status);
+        if (normalizedStatus == null) {
+            normalizedStatus = UserStatus.ACTIVE.name();
+        }
 
         jdbcTemplate.update("""
                 INSERT INTO employees (
@@ -301,32 +333,31 @@ public class UserServiceImpl implements UserService {
                     employee_role = VALUES(employee_role),
                     status = VALUES(status),
                     updated_at = CURRENT_TIMESTAMP
-                """, personId, accountId, employeeNo, normalizedDepartmentCode, role.name(), normalizedStatus);
+                """, personId, accountId, employeeNo, departmentCode, role.name(), normalizedStatus);
+    }
+
+    private void updateAccountRole(Long userId, Role role) {
+        jdbcTemplate.update("""
+                UPDATE user_accounts
+                SET account_role = ?,
+                    account_type = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """, role.name(), accountTypeForRole(role), userId);
+    }
+
+    private void updateAccountRoleAndStatus(Long userId, Role role, String status) {
+        jdbcTemplate.update("""
+                UPDATE user_accounts
+                SET account_role = ?,
+                    account_type = ?,
+                    status = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """, role.name(), accountTypeForRole(role), status, userId);
     }
 
     private String accountTypeForRole(Role role) {
         return role == Role.RESIDENT ? "RESIDENT" : "EMPLOYEE";
     }
-
-    private String resolveDepartmentCode(Role role) {
-        return resolveDepartmentCode(role, null);
-    }
-
-    private String resolveDepartmentCode(Role role, String departmentCode) {
-        if (role == null || role == Role.RESIDENT) {
-            return null;
-        }
-        if (departmentCode != null && !departmentCode.isBlank()) {
-            return departmentCode.trim().toUpperCase(Locale.ROOT);
-        }
-        return switch (role) {
-            case SUPER_ADMIN -> "OFFICE";
-            case ADMIN -> "MANAGEMENT";
-            case ACCOUNTANT -> "FINANCE";
-            case ENGINEER -> "ENGINEERING";
-            case RESIDENT -> null;
-        };
-    }
 }
-
-

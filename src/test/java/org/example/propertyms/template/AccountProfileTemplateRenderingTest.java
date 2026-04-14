@@ -1,5 +1,6 @@
 package org.example.propertyms.template;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -21,7 +22,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,21 +33,22 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(AccountProfileTemplateRenderingTest.MockServicesConfig.class)
 class AccountProfileTemplateRenderingTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private UserService userService;
 
-    @MockBean
+    @Autowired
     private NotificationService notificationService;
 
-    @MockBean
+    @Autowired
     private BuildingService buildingService;
 
-    @MockBean
+    @Autowired
     private DepartmentService departmentService;
 
     private MockHttpSession profileSession;
@@ -105,6 +110,31 @@ class AccountProfileTemplateRenderingTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("所属部门")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("普通住户")));
     }
+
+    @TestConfiguration
+    static class MockServicesConfig {
+        @Bean
+        @Primary
+        UserService userService() {
+            return mock(UserService.class);
+        }
+
+        @Bean
+        @Primary
+        NotificationService notificationService() {
+            return mock(NotificationService.class);
+        }
+
+        @Bean
+        @Primary
+        BuildingService buildingService() {
+            return mock(BuildingService.class);
+        }
+
+        @Bean
+        @Primary
+        DepartmentService departmentService() {
+            return mock(DepartmentService.class);
+        }
+    }
 }
-
-

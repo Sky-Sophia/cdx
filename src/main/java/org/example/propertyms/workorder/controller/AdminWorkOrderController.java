@@ -8,6 +8,7 @@ import org.example.propertyms.auth.dto.UserSession;
 import org.example.propertyms.common.constant.RedirectUrls;
 import org.example.propertyms.common.constant.SessionKeys;
 import org.example.propertyms.common.util.ExcelExportHelper;
+import org.example.propertyms.common.web.ManagementPageRouter;
 import org.example.propertyms.workorder.model.WorkOrder;
 import org.example.propertyms.workorder.service.WorkOrderService;
 import org.springframework.stereotype.Controller;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/admin/work-orders")
@@ -32,18 +32,11 @@ public class AdminWorkOrderController {
     public String list(@RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String status,
                        @RequestParam(required = false) String priority) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/admin/management")
-                .queryParam("tab", "work-orders");
-        if (keyword != null && !keyword.isBlank()) {
-            builder.queryParam("workOrderKeyword", keyword);
-        }
-        if (status != null && !status.isBlank()) {
-            builder.queryParam("workOrderStatus", status);
-        }
-        if (priority != null && !priority.isBlank()) {
-            builder.queryParam("workOrderPriority", priority);
-        }
-        return "redirect:" + builder.toUriString();
+        return ManagementPageRouter.redirectToTab("work-orders", builder -> {
+            ManagementPageRouter.addTrimmedParam(builder, "workOrderKeyword", keyword);
+            ManagementPageRouter.addTrimmedParam(builder, "workOrderStatus", status);
+            ManagementPageRouter.addTrimmedParam(builder, "workOrderPriority", priority);
+        });
     }
 
     @GetMapping("/new")

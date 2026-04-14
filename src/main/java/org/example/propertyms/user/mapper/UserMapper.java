@@ -5,7 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.Update;
 import org.example.propertyms.user.model.Role;
 import org.example.propertyms.user.model.User;
 
@@ -53,42 +52,6 @@ public interface UserMapper {
                                        @Param("status") String status,
                                        @Param("offset") int offset,
                                        @Param("pageSize") int pageSize);
-
-    @Update("""
-            UPDATE user_accounts
-            SET account_role = #{role},
-                account_type = CASE
-                    WHEN #{role} = 'RESIDENT' THEN 'RESIDENT'
-                    ELSE 'EMPLOYEE'
-                END,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = #{id}
-            """)
-    void updateRole(@Param("id") Long id, @Param("role") Role role);
-
-    @Update("""
-            UPDATE employees
-            SET department_code = #{departmentCode},
-                updated_at = CURRENT_TIMESTAMP
-            WHERE account_id = #{id}
-            """)
-    void updateDepartmentCode(@Param("id") Long id, @Param("departmentCode") String departmentCode);
-
-    @Update("""
-            UPDATE user_accounts
-            SET status = #{status},
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = #{id}
-            """)
-    int updateStatus(@Param("id") Long id, @Param("status") String status);
-
-    @Update("""
-            UPDATE user_accounts
-            SET password_hash = #{password},
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = #{id}
-            """)
-    void updatePassword(@Param("id") Long id, @Param("password") String password);
 }
 
 
