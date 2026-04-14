@@ -117,4 +117,4 @@ scripts/                              # 数据库脚本、测试脚本
 4. 欢迎 issue 反馈与建议
 
 ## License
-MIT
+嘉立德大学
